@@ -10,6 +10,7 @@ namespace Eos
         Application();
         virtual ~Application();
 
+        void start();
         void run();
     };
 }

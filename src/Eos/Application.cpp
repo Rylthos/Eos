@@ -12,8 +12,12 @@ namespace Eos
 
     }
 
+    void Application::start()
+    {
+        run();
+    }
+
     void Application::run()
     {
-        while (true) {}
     }
 }
