@@ -14,6 +14,13 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(${PROJECT_NAME} PRIVATE .)
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-unknown-pragmas \
+        -Wno-unused-variable -Wno-nullability-extension \
+        -Wno-gnu-zero-variadic-macro-arguments -Wno-nullability-completeness \
+        -Wno-missing-field-initializers"
+    )
+
+
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         Vulkan::Vulkan
@@ -25,3 +32,4 @@ target_link_libraries(${PROJECT_NAME}
 
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE EOS_PLATFORM_WINDOWS EOS_BUILD_DLL)
+target_compile_definitions(${PROJECT_NAME} PUBLIC GLFW_INCLUDE_VULKAN)

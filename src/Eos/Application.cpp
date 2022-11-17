@@ -1,20 +1,23 @@
 #include "Application.hpp"
+#include "Engine.hpp"
 
 namespace Eos
 {
-    Application::Application()
+    Application::Application(const ApplicationDetails& details)
     {
-
+        m_Details = details;
     }
 
     Application::~Application()
     {
-
+        Engine::cleanup();
     }
 
     void Application::start()
     {
         m_Window = init();
+
+        Engine::init(m_Window, m_Details.name.c_str());
 
         mainLoop();
     }
