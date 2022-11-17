@@ -17,7 +17,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE .)
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
         Vulkan::Vulkan
+        glm::glm
         glfw
+        vk-bootstrap::vk-bootstrap
+        VulkanMemoryAllocator
     )
+
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE EOS_PLATFORM_WINDOWS EOS_BUILD_DLL)

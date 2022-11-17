@@ -14,10 +14,23 @@ namespace Eos
 
     void Application::start()
     {
-        run();
+        m_Window = init();
+
+        mainLoop();
     }
 
-    void Application::run()
+    void Application::mainLoop()
     {
+        while(!glfwWindowShouldClose(m_Window))
+        {
+            glfwPollEvents();
+
+            update(0.0f);
+            draw();
+        }
     }
+
+    GLFWwindow* Application::init() { return nullptr; }
+    void Application::draw() {}
+    void Application::update(float dt) {}
 }
