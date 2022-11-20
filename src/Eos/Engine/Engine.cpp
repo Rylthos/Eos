@@ -1,11 +1,24 @@
 #include "Engine.hpp"
 
+#include "../Util/Initializers.hpp"
+
 #include <VkBootstrap.h>
 
 #define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
 #include <iostream>
+
+#define EOS_VK_CHECK(x) \
+    do \
+    { \
+        VkResult err = x; \
+        if (err) \
+        { \
+            std::cout << "Detected Vulkan Error: " << err << "\n"; \
+            abort(); \
+        } \
+    } while (0) \
 
 namespace Eos
 {
@@ -36,13 +49,22 @@ namespace Eos
 
     void Engine::init(GLFWwindow* window, const char* name)
     {
-        initVulkan(window, name);
+        m_Frames.resize(m_FrameOverlap);
 
-        m_Initialized = true;
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         m_WindowExtent = VkExtent2D{
             static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
+
+        initVulkan(window, name);
+
+        initSwapchain();
+        initRenderpass();
+        initFramebuffers();
+        initCommands();
+        initSyncStructures();
+
+        m_Initialized = true;
     }
 
     void Engine::initVulkan(GLFWwindow* window, const char* name)
@@ -105,4 +127,133 @@ namespace Eos
         getDeletionQueue().pushFunction([=]()
                 { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
     }
+
+    void Engine::initRenderpass()
+    {
+        VkAttachmentDescription colourAttachment{};
+        colourAttachment.format = m_Swapchain.imageFormat;
+        colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+        colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        VkAttachmentReference colourAttachmentRef{};
+        colourAttachmentRef.attachment = 0;
+        colourAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDependency colourDependency{};
+        colourDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        colourDependency.dstSubpass = 0;
+        colourDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        colourDependency.srcAccessMask = 0;
+        colourDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        colourDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        std::vector<VkAttachmentDescription> attachments = { colourAttachment };
+        std::vector<VkAttachmentReference> references = { colourAttachmentRef };
+        std::vector<VkSubpassDependency> dependencies = { colourDependency };
+
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = static_cast<uint32_t>(references.size());
+        subpass.pColorAttachments = references.data();
+        subpass.pDepthStencilAttachment = nullptr;
+
+        VkRenderPassCreateInfo renderpassInfo{};
+        renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderpassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        renderpassInfo.pAttachments = attachments.data();
+        renderpassInfo.subpassCount = 1;
+        renderpassInfo.pSubpasses = &subpass;
+        renderpassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+        renderpassInfo.pDependencies = dependencies.data();
+
+        EOS_VK_CHECK(vkCreateRenderPass(m_Device, &renderpassInfo, nullptr, &m_Renderpass));
+
+        getDeletionQueue().pushFunction([&]()
+                { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); });
+    }
+
+    void Engine::initFramebuffers()
+    {
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.pNext = nullptr;
+        framebufferInfo.renderPass = m_Renderpass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.width = m_WindowExtent.width;
+        framebufferInfo.height = m_WindowExtent.height;
+        framebufferInfo.layers = 1;
+
+        const size_t swapchainImageCount = m_Swapchain.images.size();
+        m_Framebuffers = std::vector<VkFramebuffer>(swapchainImageCount);
+
+        for (size_t i = 0; i < swapchainImageCount; i++)
+        {
+            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i] };
+
+            framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+            framebufferInfo.pAttachments = attachments.data();
+
+            EOS_VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr,
+                        &m_Framebuffers[i]));
+
+            getDeletionQueue().pushFunction([=]() {
+                    vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
+                    vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
+                });
+        }
+    }
+
+    void Engine::initCommands()
+    {
+        VkCommandPoolCreateInfo commandPoolInfo = Init::commandPoolCreateInfo(
+                m_GraphicsQueue.family, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+
+        for (uint8_t i = 0; i < m_FrameOverlap; i++)
+        {
+            FrameData& frame = m_Frames[i];
+            EOS_VK_CHECK(vkCreateCommandPool(m_Device, &commandPoolInfo,
+                        nullptr, &frame.commandPool));
+
+            VkCommandBufferAllocateInfo cmdAllocInfo = Init::commandBufferAllocateInfo(
+                    frame.commandPool, 1);
+
+            EOS_VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdAllocInfo,
+                        &frame.commandBuffer));
+
+            getDeletionQueue().pushFunction([=]()
+                    { vkDestroyCommandPool(m_Device, m_Frames[i].commandPool,
+                            nullptr); });
+        }
+    }
+
+    void Engine::initSyncStructures()
+    {
+        VkFenceCreateInfo fenceCreateInfo = Init::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
+        VkSemaphoreCreateInfo semaphoreCreateInfo = Init::semaphoreCreateInfo();
+
+        for (uint32_t i = 0; i < m_FrameOverlap; i++)
+        {
+            FrameData& frame = m_Frames[i];
+            EOS_VK_CHECK(vkCreateFence(m_Device, &fenceCreateInfo, nullptr,
+                        &frame.renderFence));
+
+            EOS_VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
+                        &frame.presentSemaphore));
+            EOS_VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
+                        &frame.renderSemaphore));
+
+            getDeletionQueue().pushFunction([=]() {
+                    vkDestroyFence(m_Device, m_Frames[i].renderFence, nullptr);
+                    vkDestroySemaphore(m_Device, m_Frames[i].presentSemaphore, nullptr);
+                    vkDestroySemaphore(m_Device, m_Frames[i].renderSemaphore, nullptr);
+                });
+        }
+    }
 }
+
+#undef EOS_VK_CHECK

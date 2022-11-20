@@ -13,6 +13,15 @@
 
 namespace Eos
 {
+    struct FrameData
+    {
+        VkCommandPool commandPool;
+        VkCommandBuffer commandBuffer;
+
+        VkFence renderFence;
+        VkSemaphore renderSemaphore, presentSemaphore;
+    };
+
     class EOS_API Engine
     {
     public:
@@ -25,6 +34,7 @@ namespace Eos
     private:
         bool m_Initialized = false;
         VkExtent2D m_WindowExtent;
+        uint32_t m_FrameOverlap = 2;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -37,11 +47,21 @@ namespace Eos
         Queue m_GraphicsQueue;
         Swapchain m_Swapchain;
 
+        VkRenderPass m_Renderpass;
+        std::vector<VkFramebuffer> m_Framebuffers;
+
+        std::vector<FrameData> m_Frames;
+
     private:
         Engine() {}
         ~Engine() {}
 
         void initVulkan(GLFWwindow* window, const char* name);
         void initSwapchain();
+        void initRenderpass();
+        void initFramebuffers();
+        void initCommands();
+        void initSyncStructures();
+        void initPipelines();
     };
 }
