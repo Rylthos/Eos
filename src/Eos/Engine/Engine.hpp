@@ -3,6 +3,7 @@
 #include "../Core/Core.hpp"
 
 #include "../Util/DeletionQueue.hpp"
+#include "../Util/Types.hpp"
 
 #include <cstdint>
 
@@ -23,6 +24,7 @@ namespace Eos
 
     private:
         bool m_Initialized = false;
+        VkExtent2D m_WindowExtent;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -32,13 +34,14 @@ namespace Eos
 
         VmaAllocator m_Allocator;
 
-        VkQueue m_GraphicsQueue;
-        uint32_t m_GraphicsQueueFamily;
+        Queue m_GraphicsQueue;
+        Swapchain m_Swapchain;
 
     private:
         Engine() {}
         ~Engine() {}
 
         void initVulkan(GLFWwindow* window, const char* name);
+        void initSwapchain();
     };
 }

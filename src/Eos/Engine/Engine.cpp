@@ -39,6 +39,10 @@ namespace Eos
         initVulkan(window, name);
 
         m_Initialized = true;
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        m_WindowExtent = VkExtent2D{
+            static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
     }
 
     void Engine::initVulkan(GLFWwindow* window, const char* name)
@@ -69,8 +73,8 @@ namespace Eos
         m_Device = vkbDevice.device;
         m_PhysicalDevice = vkbPhysicalDevice.physical_device;
 
-        m_GraphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
-        m_GraphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+        m_GraphicsQueue.queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
+        m_GraphicsQueue.family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
 
         VmaAllocatorCreateInfo allocatorInfo{};
         allocatorInfo.physicalDevice = m_PhysicalDevice;
@@ -81,5 +85,24 @@ namespace Eos
         getDeletionQueue().pushFunction([=]() {
                 vmaDestroyAllocator(m_Allocator);
             });
+    }
+
+    void Engine::initSwapchain()
+    {
+        vkb::SwapchainBuilder swapchainBuilder {m_PhysicalDevice, m_Device, m_Surface};
+        vkb::Swapchain vkbSwapchain = swapchainBuilder
+            .use_default_format_selection()
+            .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+            .set_desired_extent(m_WindowExtent.width, m_WindowExtent.height)
+            .build()
+            .value();
+
+        m_Swapchain.swapchain = vkbSwapchain.swapchain;
+        m_Swapchain.images = vkbSwapchain.get_images().value();
+        m_Swapchain.imageViews = vkbSwapchain.get_image_views().value();
+        m_Swapchain.imageFormat = vkbSwapchain.image_format;
+
+        getDeletionQueue().pushFunction([=]()
+                { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
     }
 }

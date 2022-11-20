@@ -7,5 +7,5 @@
         #define EOS_API __declspec(dllimport)
     #endif
 #else
-    #error Eos only supports windows!
+    #error Eos currently only supports windows!
 #endif
