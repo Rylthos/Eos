@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "Engine.hpp"
+#include "../Engine/Engine.hpp"
 
 namespace Eos
 {
@@ -10,14 +10,14 @@ namespace Eos
 
     Application::~Application()
     {
-        Engine::cleanup();
+        Engine::get().cleanup();
     }
 
     void Application::start()
     {
         m_Window = init();
 
-        Engine::init(m_Window, m_Details.name.c_str());
+        Engine::get().init(m_Window, m_Details.name.c_str());
 
         mainLoop();
     }

@@ -4,5 +4,5 @@
 #include <Vulkan/Vulkan.h>
 
 // Entry Point
-#include "Eos/EntryPoint.hpp"
-#include "Eos/Application.hpp"
+#include "Eos/Core/EntryPoint.hpp"
+#include "Eos/Core/Application.hpp"

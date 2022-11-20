@@ -9,11 +9,23 @@
 
 namespace Eos
 {
+    Engine& Engine::get()
+    {
+        static Engine engine{};
+        return engine;
+    }
+
+    DeletionQueue& Engine::getDeletionQueue()
+    {
+        static DeletionQueue queue{};
+        return queue;
+    }
+
     void Engine::cleanup()
     {
         if (m_Initialized)
         {
-            vmaDestroyAllocator(m_Allocator);
+            getDeletionQueue().flush();
 
             vkDestroyDevice(m_Device, nullptr);
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
@@ -65,17 +77,9 @@ namespace Eos
         allocatorInfo.device = m_Device;
         allocatorInfo.instance = m_Instance;
         vmaCreateAllocator(&allocatorInfo, &m_Allocator);
+
+        getDeletionQueue().pushFunction([=]() {
+                vmaDestroyAllocator(m_Allocator);
+            });
     }
-
-    bool Engine::m_Initialized = false;
-    VkInstance Engine::m_Instance;
-    VkDebugUtilsMessengerEXT Engine::m_DebugMessenger;
-    VkPhysicalDevice Engine::m_PhysicalDevice;
-    VkDevice Engine::m_Device;
-    VkSurfaceKHR Engine::m_Surface;
-
-    VmaAllocator Engine::m_Allocator;
-
-    VkQueue Engine::m_GraphicsQueue;
-    uint32_t Engine::m_GraphicsQueueFamily;
 }
