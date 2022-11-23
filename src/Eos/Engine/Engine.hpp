@@ -4,6 +4,8 @@
 
 #include "../Util/DeletionQueue.hpp"
 #include "../Util/Types.hpp"
+#include "PipelineBuilder.hpp"
+#include "Shader.hpp"
 
 #include <cstdint>
 
@@ -27,9 +29,14 @@ namespace Eos
     public:
         static Engine& get();
         DeletionQueue& getDeletionQueue();
+        PipelineBuilder& getPipelineBuilder();
+        VkDevice& getDevice();
 
         void cleanup();
         void init(GLFWwindow* window, const char* name);
+
+        VkPipelineLayout setupPipelineLayout();
+        VkPipeline setupPipeline(VkPipelineLayout layout);
 
     private:
         bool m_Initialized = false;

@@ -34,6 +34,17 @@ namespace Eos
         return queue;
     }
 
+    PipelineBuilder& Engine::getPipelineBuilder()
+    {
+        static PipelineBuilder builder{};
+        return builder;
+    }
+
+    VkDevice& Engine::getDevice()
+    {
+        return m_Device;
+    }
+
     void Engine::cleanup()
     {
         if (m_Initialized)
@@ -65,6 +76,32 @@ namespace Eos
         initSyncStructures();
 
         m_Initialized = true;
+    }
+
+    VkPipelineLayout Engine::setupPipelineLayout()
+    {
+        VkPipelineLayout layout;
+        VkPipelineLayoutCreateInfo info = Pipeline::pipelineLayoutCreateInfo();
+
+        EOS_VK_CHECK(vkCreatePipelineLayout(m_Device, &info, nullptr, &layout));
+
+        getDeletionQueue().pushFunction([=]() {
+                vkDestroyPipelineLayout(m_Device, layout, nullptr); 
+            });
+
+        return layout;
+    }
+
+    VkPipeline Engine::setupPipeline(VkPipelineLayout layout)
+    {
+        getPipelineBuilder().pipelineLayout = layout;
+        VkPipeline pipeline = getPipelineBuilder().buildPipeline(m_Device, m_Renderpass);
+
+        getDeletionQueue().pushFunction([=]() {
+                vkDestroyPipeline(m_Device, pipeline, nullptr); 
+            });
+
+        return pipeline;
     }
 
     void Engine::initVulkan(GLFWwindow* window, const char* name)

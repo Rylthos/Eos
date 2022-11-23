@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Core/Core.hpp"
+
 #include <functional>
 #include <deque>
 
@@ -7,7 +9,7 @@ namespace Eos
 {
     using DeleteFunction = std::function<void()>;
 
-    class DeletionQueue
+    class EOS_API DeletionQueue
     {
     public:
         DeletionQueue();

@@ -19,6 +19,10 @@ namespace Eos
 
         Engine::get().init(m_Window, m_Details.name.c_str());
 
+        Engine::get().getPipelineBuilder().defaultPipelineValues();
+
+        postInit();
+
         mainLoop();
     }
 
@@ -34,6 +38,7 @@ namespace Eos
     }
 
     GLFWwindow* Application::init() { return nullptr; }
+    void Application::postInit() {}
     void Application::draw() {}
     void Application::update(float dt) {}
 }

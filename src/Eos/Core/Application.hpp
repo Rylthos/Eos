@@ -29,6 +29,8 @@ namespace Eos
         void mainLoop();
 
         virtual GLFWwindow* init();
+        virtual void postInit();
+
         virtual void draw();
         virtual void update(float dt);
     };
