@@ -49,6 +49,7 @@ namespace Eos
     {
         if (m_Initialized)
         {
+            vkDeviceWaitIdle(m_Device);
             getDeletionQueue().flush();
 
             vkDestroyDevice(m_Device, nullptr);
@@ -90,6 +91,84 @@ namespace Eos
             });
 
         return layout;
+    }
+
+    RenderInformation Engine::preRender(int frameNumber)
+    {
+        FrameData& frame = m_Frames[frameNumber % m_FrameOverlap];
+
+        EOS_VK_CHECK(vkWaitForFences(m_Device, 1, &frame.renderFence, true, 1000000000));
+        EOS_VK_CHECK(vkResetFences(m_Device, 1, &frame.renderFence));
+
+        uint32_t swapchainImageIndex;
+        EOS_VK_CHECK(vkAcquireNextImageKHR(m_Device, m_Swapchain.swapchain, 1000000000,
+                    frame.presentSemaphore, nullptr, &swapchainImageIndex));
+        EOS_VK_CHECK(vkResetCommandBuffer(frame.commandBuffer, 0));
+
+        VkCommandBuffer cmd = frame.commandBuffer;
+
+        VkCommandBufferBeginInfo cmdBeginInfo{};
+        cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        cmdBeginInfo.pNext = nullptr;
+        cmdBeginInfo.pInheritanceInfo = nullptr;
+        cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+        VkClearValue background = { { { 0.1f, 0.1f, 0.1f, 1.0f } } };
+        VkClearValue clearValues[1] = { background };
+
+        VkRenderPassBeginInfo rpInfo{};
+        rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        rpInfo.pNext = nullptr;
+        rpInfo.renderPass = m_Renderpass;
+        rpInfo.renderArea.offset.x = 0;
+        rpInfo.renderArea.offset.y = 0;
+        rpInfo.renderArea.extent = m_WindowExtent;
+        rpInfo.framebuffer = m_Framebuffers[swapchainImageIndex];
+        rpInfo.clearValueCount = 1;
+        rpInfo.pClearValues = clearValues;
+
+        vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        RenderInformation information;
+        information.frame = &frame;
+        information.swapchainImageIndex = swapchainImageIndex;
+        information.cmd = &cmd;
+
+        return information;
+    }
+
+    void Engine::postRender(RenderInformation information)
+    {
+        VkCommandBuffer cmd = information.frame->commandBuffer;
+        vkCmdEndRenderPass(cmd);
+        EOS_VK_CHECK(vkEndCommandBuffer(cmd));
+
+        VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
+        VkSubmitInfo submit{};
+        submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit.pNext = nullptr;
+        submit.pWaitDstStageMask = &waitStage;
+        submit.waitSemaphoreCount = 1;
+        submit.pWaitSemaphores = &information.frame->presentSemaphore;
+        submit.signalSemaphoreCount = 1;
+        submit.pSignalSemaphores = &information.frame->renderSemaphore;
+        submit.commandBufferCount = 1;
+        submit.pCommandBuffers = &cmd;
+
+        EOS_VK_CHECK(vkQueueSubmit(m_GraphicsQueue.queue, 1, &submit, information.frame->renderFence));
+        
+        VkPresentInfoKHR presentInfo{};
+        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfo.pNext = nullptr;
+        presentInfo.swapchainCount = 1;
+        presentInfo.pSwapchains = &m_Swapchain.swapchain;
+        presentInfo.waitSemaphoreCount = 1;
+        presentInfo.pWaitSemaphores = &information.frame->renderSemaphore;
+        presentInfo.pImageIndices = &information.swapchainImageIndex;
+        EOS_VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo));
     }
 
     VkPipeline Engine::setupPipeline(VkPipelineLayout layout)

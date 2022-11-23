@@ -24,6 +24,14 @@ namespace Eos
         VkSemaphore renderSemaphore, presentSemaphore;
     };
 
+    struct RenderInformation
+    {
+        FrameData* frame;
+        uint32_t swapchainImageIndex;
+
+        VkCommandBuffer* cmd;
+    };
+
     class EOS_API Engine
     {
     public:
@@ -37,6 +45,9 @@ namespace Eos
 
         VkPipelineLayout setupPipelineLayout();
         VkPipeline setupPipeline(VkPipelineLayout layout);
+
+        RenderInformation preRender(int frameNumber);
+        void postRender(RenderInformation information);
 
     private:
         bool m_Initialized = false;

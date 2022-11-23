@@ -31,7 +31,7 @@ namespace Eos
         virtual GLFWwindow* init();
         virtual void postInit();
 
-        virtual void draw();
+        virtual void draw(VkCommandBuffer cmd);
         virtual void update(float dt);
     };
 

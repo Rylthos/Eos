@@ -33,12 +33,17 @@ namespace Eos
             glfwPollEvents();
 
             update(0.0f);
-            draw();
+
+            RenderInformation info = Engine::get().preRender(1);
+
+            draw(*(info.cmd));
+
+            Engine::get().postRender(info);
         }
     }
 
     GLFWwindow* Application::init() { return nullptr; }
     void Application::postInit() {}
-    void Application::draw() {}
+    void Application::draw(VkCommandBuffer cmd) {}
     void Application::update(float dt) {}
 }
