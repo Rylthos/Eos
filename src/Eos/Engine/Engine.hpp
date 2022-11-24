@@ -35,10 +35,10 @@ namespace Eos
     class EOS_API Engine
     {
     public:
-        static Engine& get();
-        DeletionQueue& getDeletionQueue();
-        PipelineBuilder& getPipelineBuilder();
-        VkDevice& getDevice();
+        static Engine* get();
+        DeletionQueue* getDeletionQueue();
+        PipelineBuilder* getPipelineBuilder();
+        VkDevice* getDevice();
 
         void cleanup();
         void init(GLFWwindow* window, const char* name);

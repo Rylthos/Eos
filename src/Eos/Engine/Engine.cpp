@@ -22,27 +22,27 @@
 
 namespace Eos
 {
-    Engine& Engine::get()
+    Engine* Engine::get()
     {
         static Engine engine{};
-        return engine;
+        return &engine;
     }
 
-    DeletionQueue& Engine::getDeletionQueue()
+    DeletionQueue* Engine::getDeletionQueue()
     {
         static DeletionQueue queue{};
-        return queue;
+        return &queue;
     }
 
-    PipelineBuilder& Engine::getPipelineBuilder()
+    PipelineBuilder* Engine::getPipelineBuilder()
     {
         static PipelineBuilder builder{};
-        return builder;
+        return &builder;
     }
 
-    VkDevice& Engine::getDevice()
+    VkDevice* Engine::getDevice()
     {
-        return m_Device;
+        return &m_Device;
     }
 
     void Engine::cleanup()
@@ -50,7 +50,7 @@ namespace Eos
         if (m_Initialized)
         {
             vkDeviceWaitIdle(m_Device);
-            getDeletionQueue().flush();
+            getDeletionQueue()->flush();
 
             vkDestroyDevice(m_Device, nullptr);
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
@@ -86,7 +86,7 @@ namespace Eos
 
         EOS_VK_CHECK(vkCreatePipelineLayout(m_Device, &info, nullptr, &layout));
 
-        getDeletionQueue().pushFunction([=]() {
+        getDeletionQueue()->pushFunction([=]() {
                 vkDestroyPipelineLayout(m_Device, layout, nullptr); 
             });
 
@@ -173,10 +173,10 @@ namespace Eos
 
     VkPipeline Engine::setupPipeline(VkPipelineLayout layout)
     {
-        getPipelineBuilder().pipelineLayout = layout;
-        VkPipeline pipeline = getPipelineBuilder().buildPipeline(m_Device, m_Renderpass);
+        getPipelineBuilder()->pipelineLayout = layout;
+        VkPipeline pipeline = getPipelineBuilder()->buildPipeline(m_Device, m_Renderpass);
 
-        getDeletionQueue().pushFunction([=]() {
+        getDeletionQueue()->pushFunction([=]() {
                 vkDestroyPipeline(m_Device, pipeline, nullptr); 
             });
 
@@ -220,7 +220,7 @@ namespace Eos
         allocatorInfo.instance = m_Instance;
         vmaCreateAllocator(&allocatorInfo, &m_Allocator);
 
-        getDeletionQueue().pushFunction([=]() {
+        getDeletionQueue()->pushFunction([=]() {
                 vmaDestroyAllocator(m_Allocator);
             });
     }
@@ -240,7 +240,7 @@ namespace Eos
         m_Swapchain.imageViews = vkbSwapchain.get_image_views().value();
         m_Swapchain.imageFormat = vkbSwapchain.image_format;
 
-        getDeletionQueue().pushFunction([=]()
+        getDeletionQueue()->pushFunction([=]()
                 { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
     }
 
@@ -289,7 +289,7 @@ namespace Eos
 
         EOS_VK_CHECK(vkCreateRenderPass(m_Device, &renderpassInfo, nullptr, &m_Renderpass));
 
-        getDeletionQueue().pushFunction([&]()
+        getDeletionQueue()->pushFunction([&]()
                 { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); });
     }
 
@@ -317,7 +317,7 @@ namespace Eos
             EOS_VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr,
                         &m_Framebuffers[i]));
 
-            getDeletionQueue().pushFunction([=]() {
+            getDeletionQueue()->pushFunction([=]() {
                     vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
                     vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
                 });
@@ -341,7 +341,7 @@ namespace Eos
             EOS_VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdAllocInfo,
                         &frame.commandBuffer));
 
-            getDeletionQueue().pushFunction([=]()
+            getDeletionQueue()->pushFunction([=]()
                     { vkDestroyCommandPool(m_Device, m_Frames[i].commandPool,
                             nullptr); });
         }
@@ -363,7 +363,7 @@ namespace Eos
             EOS_VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
                         &frame.renderSemaphore));
 
-            getDeletionQueue().pushFunction([=]() {
+            getDeletionQueue()->pushFunction([=]() {
                     vkDestroyFence(m_Device, m_Frames[i].renderFence, nullptr);
                     vkDestroySemaphore(m_Device, m_Frames[i].presentSemaphore, nullptr);
                     vkDestroySemaphore(m_Device, m_Frames[i].renderSemaphore, nullptr);

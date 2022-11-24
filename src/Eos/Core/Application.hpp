@@ -3,6 +3,7 @@
 #include "Core.hpp"
 
 #include <GLFW/glfw3.h>
+#include "../Engine/Engine.hpp"
 
 #include <string>
 
@@ -23,6 +24,7 @@ namespace Eos
 
     protected:
         GLFWwindow* m_Window;
+        Engine* m_Engine;
     private:
         ApplicationDetails m_Details;
     private:

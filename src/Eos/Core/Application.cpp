@@ -10,16 +10,18 @@ namespace Eos
 
     Application::~Application()
     {
-        Engine::get().cleanup();
+        m_Engine->cleanup();
     }
 
     void Application::start()
     {
+        m_Engine = Engine::get();
+
         m_Window = init();
 
-        Engine::get().init(m_Window, m_Details.name.c_str());
+        m_Engine->init(m_Window, m_Details.name.c_str());
 
-        Engine::get().getPipelineBuilder().defaultPipelineValues();
+        m_Engine->getPipelineBuilder()->defaultPipelineValues();
 
         postInit();
 
@@ -34,11 +36,11 @@ namespace Eos
 
             update(0.0f);
 
-            RenderInformation info = Engine::get().preRender(1);
+            RenderInformation info = m_Engine->preRender(1);
 
             draw(*(info.cmd));
 
-            Engine::get().postRender(info);
+            m_Engine->postRender(info);
         }
     }
 

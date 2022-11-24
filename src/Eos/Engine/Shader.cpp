@@ -34,7 +34,7 @@ namespace Eos
         createInfo.pCode = buffer.data();
 
         VkShaderModule module;
-        if (vkCreateShaderModule(Engine::get().getDevice(), &createInfo, nullptr,
+        if (vkCreateShaderModule(*Engine::get()->getDevice(), &createInfo, nullptr,
                     &module) != VK_SUCCESS)
         {
             exit(-1);
@@ -43,7 +43,7 @@ namespace Eos
         addShaderStage(stage, module);
 
         m_DeletionQueue.pushFunction([=]()
-                { vkDestroyShaderModule(Engine::get().getDevice(), module, nullptr); });
+                { vkDestroyShaderModule(*Engine::get()->getDevice(), module, nullptr); });
     }
 
     void Shader::clearModules()
