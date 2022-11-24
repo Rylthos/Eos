@@ -1,6 +1,8 @@
 #include "Application.hpp"
 #include "../Engine/Engine.hpp"
 
+#include <stdexcept>
+
 namespace Eos
 {
     Application::Application(const ApplicationDetails& details)
@@ -15,12 +17,17 @@ namespace Eos
 
     void Application::start()
     {
+        m_Window.init();
+        init();
+
         m_Engine = Engine::get();
 
-        m_Window = init();
+        if (!m_Window.isValid())
+        {
+            std::runtime_error("Window has not been initialised");
+        }
 
         m_Engine->init(m_Window, m_Details.name.c_str());
-
         m_Engine->getPipelineBuilder()->defaultPipelineValues();
 
         postInit();
@@ -30,7 +37,7 @@ namespace Eos
 
     void Application::mainLoop()
     {
-        while(!glfwWindowShouldClose(m_Window))
+        while(!m_Window.shouldClose())
         {
             glfwPollEvents();
 
@@ -44,7 +51,7 @@ namespace Eos
         }
     }
 
-    GLFWwindow* Application::init() { return nullptr; }
+    void Application::init() {}
     void Application::postInit() {}
     void Application::draw(VkCommandBuffer cmd) {}
     void Application::update(float dt) {}

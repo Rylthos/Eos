@@ -59,12 +59,12 @@ namespace Eos
         }
     }
 
-    void Engine::init(GLFWwindow* window, const char* name)
+    void Engine::init(Window& window, const char* name)
     {
         m_Frames.resize(m_FrameOverlap);
 
         int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
+        glfwGetFramebufferSize(window.getWindow(), &width, &height);
         m_WindowExtent = VkExtent2D{
             static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
@@ -183,7 +183,7 @@ namespace Eos
         return pipeline;
     }
 
-    void Engine::initVulkan(GLFWwindow* window, const char* name)
+    void Engine::initVulkan(Window& window, const char* name)
     {
         vkb::InstanceBuilder builder;
         auto instanceReturn = builder.set_app_name(name)
@@ -197,7 +197,7 @@ namespace Eos
         m_Instance = vkbInstance.instance;
         m_DebugMessenger = vkbInstance.debug_messenger;
 
-        glfwCreateWindowSurface(m_Instance, window, nullptr, &m_Surface);
+        window.createSurface(m_Instance, &m_Surface);
 
         vkb::PhysicalDeviceSelector selector{ vkbInstance };
         vkb::PhysicalDevice vkbPhysicalDevice = selector.set_minimum_version(1, 3)

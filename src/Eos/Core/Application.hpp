@@ -2,8 +2,10 @@
 
 #include "Core.hpp"
 
-#include <GLFW/glfw3.h>
+#include "Window.hpp"
 #include "../Engine/Engine.hpp"
+
+#include <GLFW/glfw3.h>
 
 #include <string>
 
@@ -23,14 +25,14 @@ namespace Eos
         void start();
 
     protected:
-        GLFWwindow* m_Window;
+        Window m_Window;
         Engine* m_Engine;
     private:
         ApplicationDetails m_Details;
     private:
         void mainLoop();
 
-        virtual GLFWwindow* init();
+        virtual void init();
         virtual void postInit();
 
         virtual void draw(VkCommandBuffer cmd);

@@ -1,15 +1,16 @@
 #pragma once
 
 #include "../Core/Core.hpp"
+#include "../Core/Window.hpp"
 
 #include "../Util/DeletionQueue.hpp"
 #include "../Util/Types.hpp"
+
 #include "PipelineBuilder.hpp"
 #include "Shader.hpp"
 
 #include <cstdint>
 
-#include <GLFW/glfw3.h>
 #include <Vulkan/Vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -41,7 +42,7 @@ namespace Eos
         VkDevice* getDevice();
 
         void cleanup();
-        void init(GLFWwindow* window, const char* name);
+        void init(Window& window, const char* name);
 
         VkPipelineLayout setupPipelineLayout();
         VkPipeline setupPipeline(VkPipelineLayout layout);
@@ -74,7 +75,7 @@ namespace Eos
         Engine() {}
         ~Engine() {}
 
-        void initVulkan(GLFWwindow* window, const char* name);
+        void initVulkan(Window& window, const char* name);
         void initSwapchain();
         void initRenderpass();
         void initFramebuffers();
