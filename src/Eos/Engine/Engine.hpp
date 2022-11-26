@@ -6,6 +6,7 @@
 #include "../Util/DeletionQueue.hpp"
 #include "../Util/Types.hpp"
 
+#include "Mesh.hpp"
 #include "PipelineBuilder.hpp"
 #include "Shader.hpp"
 
@@ -13,6 +14,19 @@
 
 #include <Vulkan/Vulkan.h>
 #include <vk_mem_alloc.h>
+
+#include <iostream>
+
+#define EOS_VK_CHECK(x) \
+    do \
+    { \
+        VkResult err = x; \
+        if (err) \
+        { \
+            std::cout << "Detected Vulkan Error: " << err << "\n"; \
+            abort(); \
+        } \
+    } while (0) \
 
 namespace Eos
 {
@@ -33,6 +47,13 @@ namespace Eos
         VkCommandBuffer* cmd;
     };
 
+    struct UploadContext
+    {
+        VkFence uploadFence;
+        VkCommandPool commandPool;
+        VkCommandBuffer commandBuffer;
+    };
+
     class EOS_API Engine
     {
     public:
@@ -48,7 +69,9 @@ namespace Eos
         VkPipeline setupPipeline(VkPipelineLayout layout);
 
         RenderInformation preRender(int frameNumber);
-        void postRender(RenderInformation information);
+        void postRender(RenderInformation& information);
+
+        void immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
     private:
         bool m_Initialized = false;
@@ -71,6 +94,8 @@ namespace Eos
 
         std::vector<FrameData> m_Frames;
 
+        UploadContext m_UploadContext;
+
     private:
         Engine() {}
         ~Engine() {}
@@ -81,6 +106,60 @@ namespace Eos
         void initFramebuffers();
         void initCommands();
         void initSyncStructures();
-        void initPipelines();
+        void initUploadContext();
+
+    public:
+        template <VertexDescription T>
+        void createMesh(Mesh<T>& mesh)
+        {
+            const size_t bufferSize = mesh.getVertices()->size() * mesh.getVertexSize();
+            VkBufferCreateInfo stagingBufferInfo{};
+            stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            stagingBufferInfo.pNext = nullptr;
+            stagingBufferInfo.size = bufferSize;
+            stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+            VmaAllocationCreateInfo vmaAllocInfo{};
+            vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+
+            Buffer stagingBuffer;
+            // ERROR: HANGS
+            EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &stagingBufferInfo,
+                        &vmaAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation,
+                        nullptr));
+
+            void* data;
+            vmaMapMemory(m_Allocator, stagingBuffer.allocation, &data);
+                memcpy(data, mesh.getVertices()->data(), bufferSize);
+            vmaUnmapMemory(m_Allocator, stagingBuffer.allocation);
+
+            VkBufferCreateInfo vertexBufferInfo{};
+            vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            vertexBufferInfo.pNext = nullptr;
+            vertexBufferInfo.size = bufferSize;
+            vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+                VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+            vmaAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+            EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &vertexBufferInfo,
+                        &vmaAllocInfo, &mesh.getBuffer()->buffer,
+                        &mesh.getBuffer()->allocation, nullptr));
+
+            immediateSubmit([=](VkCommandBuffer cmd) {
+                    VkBufferCopy copy;
+                    copy.srcOffset = 0;
+                    copy.dstOffset = 0;
+                    copy.size = bufferSize;
+                    vkCmdCopyBuffer(cmd, stagingBuffer.buffer,
+                            mesh.getBuffer()->buffer, 1, &copy);
+                    });
+
+            getDeletionQueue()->pushFunction([=]() {
+                    vmaDestroyBuffer(m_Allocator, mesh.getBuffer()->buffer,
+                            mesh.getBuffer()->allocation);
+                    });
+            vmaDestroyBuffer(m_Allocator, stagingBuffer.buffer,
+                    stagingBuffer.allocation);
+        }
     };
 }

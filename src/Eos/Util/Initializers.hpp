@@ -9,6 +9,8 @@ namespace Eos::Init
 
     VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool pool,
             uint32_t count = 1, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+    VkCommandBufferBeginInfo commandBufferBeginInfo(VkCommandBufferUsageFlags flags = 0);
+    VkSubmitInfo submitInfo(VkCommandBuffer* cmd);
 
     VkFenceCreateInfo fenceCreateInfo(VkFenceCreateFlags flags = 0);
 

@@ -4,21 +4,9 @@
 
 #include <VkBootstrap.h>
 
-#define VMA_IMPLEMENTATION
 #include <vk_mem_alloc.h>
 
 #include <iostream>
-
-#define EOS_VK_CHECK(x) \
-    do \
-    { \
-        VkResult err = x; \
-        if (err) \
-        { \
-            std::cout << "Detected Vulkan Error: " << err << "\n"; \
-            abort(); \
-        } \
-    } while (0) \
 
 namespace Eos
 {
@@ -75,6 +63,7 @@ namespace Eos
         initFramebuffers();
         initCommands();
         initSyncStructures();
+        initUploadContext();
 
         m_Initialized = true;
     }
@@ -139,7 +128,7 @@ namespace Eos
         return information;
     }
 
-    void Engine::postRender(RenderInformation information)
+    void Engine::postRender(RenderInformation& information)
     {
         VkCommandBuffer cmd = information.frame->commandBuffer;
         vkCmdEndRenderPass(cmd);
@@ -169,6 +158,29 @@ namespace Eos
         presentInfo.pWaitSemaphores = &information.frame->renderSemaphore;
         presentInfo.pImageIndices = &information.swapchainImageIndex;
         EOS_VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo));
+    }
+
+    void Engine::immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function)
+    {
+        VkCommandBuffer cmd = m_UploadContext.commandBuffer;
+
+        VkCommandBufferBeginInfo cmdBeginInfo = Init::commandBufferBeginInfo(
+                VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+        
+        EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+
+        function(cmd);
+
+        EOS_VK_CHECK(vkEndCommandBuffer(cmd));
+
+        VkSubmitInfo submit = Init::submitInfo(&cmd);
+
+        EOS_VK_CHECK(vkQueueSubmit(m_GraphicsQueue.queue, 1, &submit,
+                    m_UploadContext.uploadFence));
+        vkWaitForFences(m_Device, 1, &m_UploadContext.uploadFence, true, 9999999999);
+        vkResetFences(m_Device, 1, &m_UploadContext.uploadFence);
+
+        vkResetCommandPool(m_Device, m_UploadContext.commandPool, 0);
     }
 
     VkPipeline Engine::setupPipeline(VkPipelineLayout layout)
@@ -370,6 +382,30 @@ namespace Eos
                 });
         }
     }
-}
 
-#undef EOS_VK_CHECK
+    void Engine::initUploadContext()
+    {
+        // Pool
+        VkCommandPoolCreateInfo uploadCommandPoolInfo = Init::commandPoolCreateInfo(
+                m_GraphicsQueue.family);
+        EOS_VK_CHECK(vkCreateCommandPool(m_Device, &uploadCommandPoolInfo, nullptr,
+                    &m_UploadContext.commandPool));
+
+        // Buffer
+        VkCommandBufferAllocateInfo cmdAllocInfo = Init::commandBufferAllocateInfo(
+                m_UploadContext.commandPool, 1);
+
+        EOS_VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdAllocInfo,
+                    &m_UploadContext.commandBuffer));
+
+        // Fence
+        VkFenceCreateInfo uploadFenceCreateInfo = Init::fenceCreateInfo();
+        EOS_VK_CHECK(vkCreateFence(m_Device, &uploadFenceCreateInfo, nullptr,
+                    &m_UploadContext.uploadFence));
+
+        getDeletionQueue()->pushFunction([=]() {
+                vkDestroyCommandPool(m_Device, m_UploadContext.commandPool, nullptr);
+                vkDestroyFence(m_Device, m_UploadContext.uploadFence, nullptr);
+            });
+    }
+}

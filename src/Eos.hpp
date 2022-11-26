@@ -13,6 +13,8 @@
 // Engine
 #include "Eos/Engine/Engine.hpp"
 #include "Eos/Engine/Shader.hpp"
+#include "Eos/Engine/Mesh.hpp"
 
 // Util
 #include "Eos/Util/PipelineCreation.hpp"
+#include "Eos/Util/Types.hpp"

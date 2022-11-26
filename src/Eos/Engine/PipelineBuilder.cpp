@@ -1,5 +1,7 @@
 #include "PipelineBuilder.hpp"
 
+#include "../Util/Types.hpp"
+
 #include <iostream>
 
 namespace Eos
@@ -66,5 +68,13 @@ namespace Eos
         }
 
         return pipeline;
+    }
+
+    void PipelineBuilder::addVertexInputInfo(const VertexInputDescription& description)
+    {
+        vertexInputInfo.vertexAttributeDescriptionCount = description.attributes.size();
+        vertexInputInfo.pVertexAttributeDescriptions = description.attributes.data();
+        vertexInputInfo.vertexBindingDescriptionCount = description.bindings.size();
+        vertexInputInfo.pVertexBindingDescriptions = description.bindings.data();
     }
 }

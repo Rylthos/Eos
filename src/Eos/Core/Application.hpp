@@ -4,10 +4,14 @@
 
 #include "Window.hpp"
 #include "../Engine/Engine.hpp"
+#include "../Engine/Mesh.hpp"
+#include "../Util/Types.hpp"
 
 #include <GLFW/glfw3.h>
 
 #include <string>
+
+#include <unordered_map>
 
 namespace Eos
 {
@@ -27,6 +31,9 @@ namespace Eos
     protected:
         Window m_Window;
         Engine* m_Engine;
+    protected:
+        template<VertexDescription T>
+        void uploadMesh(Mesh<T>& mesh) { m_Engine->createMesh(mesh); }
     private:
         ApplicationDetails m_Details;
     private:

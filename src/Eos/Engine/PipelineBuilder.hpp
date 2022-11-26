@@ -9,6 +9,8 @@
 
 namespace Eos
 {
+    struct VertexInputDescription;
+
     class EOS_API PipelineBuilder
     {
     public:
@@ -27,5 +29,7 @@ namespace Eos
     public:
         void defaultPipelineValues();
         VkPipeline buildPipeline(VkDevice device, VkRenderPass renderPass);
+
+        void addVertexInputInfo(const VertexInputDescription& description);
     };
 }
