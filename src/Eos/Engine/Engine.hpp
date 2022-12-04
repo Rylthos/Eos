@@ -161,8 +161,9 @@ namespace Eos
                     stagingBuffer.allocation);
         }
 
-        template <VertexDescription T>
-        void createIndexedMesh(IndexedMesh<T>& mesh)
+        template <VertexDescription T, typename I>
+            requires std::is_integral<I>::value
+        void createIndexedMesh(IndexedMesh<T, I>& mesh)
         {
             createMesh(mesh);
 

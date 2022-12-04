@@ -34,8 +34,9 @@ namespace Eos
     protected:
         template<VertexDescription T>
         void uploadMesh(Mesh<T>& mesh) { m_Engine->createMesh(mesh); }
-        template<VertexDescription T>
-        void uploadIndexedMesh(IndexedMesh<T>& mesh) { m_Engine->createIndexedMesh(mesh); }
+        template<VertexDescription T, typename I>
+            requires std::is_integral<I>::value
+        void uploadIndexedMesh(IndexedMesh<T, I>& mesh) { m_Engine->createIndexedMesh(mesh); }
     private:
         ApplicationDetails m_Details;
     private:

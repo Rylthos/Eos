@@ -27,19 +27,20 @@ namespace Eos
         Buffer m_VertexBuffer;
     };
 
-    template<VertexDescription T>
+    template<VertexDescription T, typename I>
+        requires std::is_integral<I>::value
     class IndexedMesh : public Mesh<T>
     {
     public:
-        void setIndices(std::vector<uint32_t>& indices) { m_Indices = indices; }
-        std::vector<uint32_t>* getIndices() { return &m_Indices; }
+        void setIndices(std::vector<I>& indices) { m_Indices = indices; }
+        std::vector<I>* getIndices() { return &m_Indices; }
 
-        size_t getIndexSize() const { return sizeof(uint32_t); }
+        size_t getIndexSize() const { return sizeof(I); }
 
         Buffer* getIndexBuffer() { return &m_IndexBuffer; }
         const Buffer* getIndexBuffer() const { return &m_IndexBuffer; }
     protected:
-        std::vector<uint32_t> m_Indices;
+        std::vector<I> m_Indices;
         Buffer m_IndexBuffer;
     };
 }
