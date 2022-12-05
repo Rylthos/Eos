@@ -22,6 +22,8 @@ namespace Eos
 
         Buffer* getVertexBuffer() { return &m_VertexBuffer; }
         const Buffer* getVertexBuffer() const { return &m_VertexBuffer; }
+
+        void setVertexBuffer(Buffer buffer) { m_VertexBuffer = buffer; }
     protected:
         std::vector<T> m_Vertices;
         Buffer m_VertexBuffer;
@@ -39,6 +41,8 @@ namespace Eos
 
         Buffer* getIndexBuffer() { return &m_IndexBuffer; }
         const Buffer* getIndexBuffer() const { return &m_IndexBuffer; }
+
+        void setIndexBuffer(Buffer buffer) { m_IndexBuffer = buffer; }
     protected:
         std::vector<I> m_Indices;
         Buffer m_IndexBuffer;

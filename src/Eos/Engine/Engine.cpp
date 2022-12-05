@@ -160,6 +160,25 @@ namespace Eos
         EOS_VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo));
     }
 
+    Buffer Engine::createBuffer(size_t allocSize, VkBufferUsageFlags usage,
+            VmaMemoryUsage memoryUsage)
+    {
+        VkBufferCreateInfo info{};
+        info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        info.pNext = nullptr;
+        info.size = allocSize;
+        info.usage = usage;
+
+        VmaAllocationCreateInfo vmaAllocInfo{};
+        vmaAllocInfo.usage = memoryUsage;
+
+        Buffer buffer;
+        EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &info, &vmaAllocInfo,
+                    &buffer.buffer, &buffer.allocation, nullptr));
+
+        return buffer;
+    }
+
     void Engine::immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function)
     {
         VkCommandBuffer cmd = m_UploadContext.commandBuffer;

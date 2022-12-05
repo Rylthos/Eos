@@ -71,6 +71,9 @@ namespace Eos
         RenderInformation preRender(int frameNumber);
         void postRender(RenderInformation& information);
 
+        Buffer createBuffer(size_t allocSize, VkBufferUsageFlags usage,
+                VmaMemoryUsage memoryUsage);
+
         void immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
     private:
@@ -113,36 +116,17 @@ namespace Eos
         void createMesh(Mesh<T>& mesh)
         {
             const size_t bufferSize = mesh.getVertices()->size() * mesh.getVertexSize();
-            VkBufferCreateInfo stagingBufferInfo{};
-            stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            stagingBufferInfo.pNext = nullptr;
-            stagingBufferInfo.size = bufferSize;
-            stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-            VmaAllocationCreateInfo vmaAllocInfo{};
-            vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-
-            Buffer stagingBuffer;
-            EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &stagingBufferInfo,
-                        &vmaAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation,
-                        nullptr));
+            Buffer stagingBuffer = createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VMA_MEMORY_USAGE_CPU_ONLY);
 
             void* data;
             vmaMapMemory(m_Allocator, stagingBuffer.allocation, &data);
                 memcpy(data, mesh.getVertices()->data(), bufferSize);
             vmaUnmapMemory(m_Allocator, stagingBuffer.allocation);
 
-            VkBufferCreateInfo vertexBufferInfo{};
-            vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            vertexBufferInfo.pNext = nullptr;
-            vertexBufferInfo.size = bufferSize;
-            vertexBufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
-                VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-
-            vmaAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-            EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &vertexBufferInfo,
-                        &vmaAllocInfo, &mesh.getVertexBuffer()->buffer,
-                        &mesh.getVertexBuffer()->allocation, nullptr));
+            mesh.setVertexBuffer(createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+                        VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY));
 
             immediateSubmit([=](VkCommandBuffer cmd) {
                     VkBufferCopy copy;
@@ -168,36 +152,17 @@ namespace Eos
             createMesh(mesh);
 
             const size_t bufferSize = mesh.getIndices()->size() * mesh.getIndexSize();
-            VkBufferCreateInfo stagingBufferInfo{};
-            stagingBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            stagingBufferInfo.pNext = nullptr;
-            stagingBufferInfo.size = bufferSize;
-            stagingBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
-            VmaAllocationCreateInfo vmaAllocInfo{};
-            vmaAllocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-
-            Buffer stagingBuffer;
-            EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &stagingBufferInfo,
-                        &vmaAllocInfo, &stagingBuffer.buffer, &stagingBuffer.allocation,
-                        nullptr));
+            Buffer stagingBuffer = createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                    VMA_MEMORY_USAGE_CPU_ONLY);
 
             void* data;
             vmaMapMemory(m_Allocator, stagingBuffer.allocation, &data);
                 memcpy(data, mesh.getIndices()->data(), bufferSize);
             vmaUnmapMemory(m_Allocator, stagingBuffer.allocation);
 
-            VkBufferCreateInfo vertexBufferInfo{};
-            vertexBufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            vertexBufferInfo.pNext = nullptr;
-            vertexBufferInfo.size = bufferSize;
-            vertexBufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
-                VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-
-            vmaAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-            EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &vertexBufferInfo,
-                        &vmaAllocInfo, &mesh.getIndexBuffer()->buffer,
-                        &mesh.getIndexBuffer()->allocation, nullptr));
+            mesh.setIndexBuffer(createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+                        VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY));
 
             immediateSubmit([=](VkCommandBuffer cmd) {
                     VkBufferCopy copy;
