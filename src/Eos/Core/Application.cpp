@@ -43,7 +43,7 @@ namespace Eos
         {
             glfwPollEvents();
 
-            update(0.0f);
+            update(0.1f);
 
             RenderInformation info = m_Engine->preRender(1);
 

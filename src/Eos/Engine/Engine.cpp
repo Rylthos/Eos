@@ -28,9 +28,19 @@ namespace Eos
         return &builder;
     }
 
+    VmaAllocator* Engine::getAllocator()
+    {
+        return &m_Allocator;
+    }
+
     VkDevice* Engine::getDevice()
     {
         return &m_Device;
+    }
+
+    DescriptorBuilder Engine::createDescriptorBuilder()
+    {
+        return DescriptorBuilder::begin(&m_DescriptorLayoutCache, &m_DescriptorAllocator);
     }
 
     void Engine::cleanup()
@@ -38,6 +48,10 @@ namespace Eos
         if (m_Initialized)
         {
             vkDeviceWaitIdle(m_Device);
+
+            m_DescriptorAllocator.cleanup();
+            m_DescriptorLayoutCache.cleanup();
+
             getDeletionQueue()->flush();
 
             vkDestroyDevice(m_Device, nullptr);
@@ -63,15 +77,26 @@ namespace Eos
         initFramebuffers();
         initCommands();
         initSyncStructures();
+        initDescriptorSets();
         initUploadContext();
 
         m_Initialized = true;
     }
 
+    VkPipelineLayoutCreateInfo Engine::createPipelineLayoutCreateInfo()
+    {
+        return Pipeline::pipelineLayoutCreateInfo();
+    }
+
     VkPipelineLayout Engine::setupPipelineLayout()
     {
-        VkPipelineLayout layout;
         VkPipelineLayoutCreateInfo info = Pipeline::pipelineLayoutCreateInfo();
+        return setupPipelineLayout(info);
+    }
+
+    VkPipelineLayout Engine::setupPipelineLayout(VkPipelineLayoutCreateInfo info)
+    {
+        VkPipelineLayout layout;
 
         EOS_VK_CHECK(vkCreatePipelineLayout(m_Device, &info, nullptr, &layout));
 
@@ -400,6 +425,12 @@ namespace Eos
                     vkDestroySemaphore(m_Device, m_Frames[i].renderSemaphore, nullptr);
                 });
         }
+    }
+
+    void Engine::initDescriptorSets()
+    {
+        m_DescriptorLayoutCache.init(m_Device);
+        m_DescriptorAllocator.init(m_Device);
     }
 
     void Engine::initUploadContext()

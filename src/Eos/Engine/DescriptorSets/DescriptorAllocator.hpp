@@ -33,7 +33,7 @@ namespace Eos
 
         VkDevice device;
     public:
-        void init(VKDevice newDevice);
+        void init(VkDevice newDevice);
         void cleanup();
 
         bool allocate(VkDescriptorSet* set, VkDescriptorSetLayout layout);

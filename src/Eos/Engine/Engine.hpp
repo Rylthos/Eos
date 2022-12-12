@@ -10,6 +10,10 @@
 #include "PipelineBuilder.hpp"
 #include "Shader.hpp"
 
+#include "DescriptorSets/DescriptorAllocator.hpp"
+#include "DescriptorSets/DescriptorLayoutCache.hpp"
+#include "DescriptorSets/DescriptorBuilder.hpp"
+
 #include <cstdint>
 
 #include <Vulkan/Vulkan.h>
@@ -61,11 +65,15 @@ namespace Eos
         DeletionQueue* getDeletionQueue();
         PipelineBuilder* getPipelineBuilder();
         VkDevice* getDevice();
+        VmaAllocator* getAllocator();
+        DescriptorBuilder createDescriptorBuilder();
 
         void cleanup();
         void init(Window& window, const char* name);
 
+        VkPipelineLayoutCreateInfo createPipelineLayoutCreateInfo();
         VkPipelineLayout setupPipelineLayout();
+        VkPipelineLayout setupPipelineLayout(VkPipelineLayoutCreateInfo info);
         VkPipeline setupPipeline(VkPipelineLayout layout);
 
         RenderInformation preRender(int frameNumber);
@@ -99,6 +107,9 @@ namespace Eos
 
         UploadContext m_UploadContext;
 
+        DescriptorAllocator m_DescriptorAllocator;
+        DescriptorLayoutCache m_DescriptorLayoutCache;
+
     private:
         Engine() {}
         ~Engine() {}
@@ -109,6 +120,7 @@ namespace Eos
         void initFramebuffers();
         void initCommands();
         void initSyncStructures();
+        void initDescriptorSets();
         void initUploadContext();
 
     public:

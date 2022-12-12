@@ -12,8 +12,13 @@
 
 // Engine
 #include "Eos/Engine/Engine.hpp"
-#include "Eos/Engine/Shader.hpp"
 #include "Eos/Engine/Mesh.hpp"
+#include "Eos/Engine/PipelineBuilder.hpp"
+#include "Eos/Engine/Shader.hpp"
+
+#include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"
+#include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
+#include "Eos/Engine/DescriptorSets/DescriptorBuilder.hpp"
 
 // Util
 #include "Eos/Util/PipelineCreation.hpp"
