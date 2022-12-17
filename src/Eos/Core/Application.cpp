@@ -21,6 +21,7 @@ namespace Eos
     {
         m_Window.init();
         init();
+        EOS_LOG_INFO("Initialised Application");
 
         m_Engine = Engine::get();
 

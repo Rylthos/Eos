@@ -1,5 +1,7 @@
 #include "Window.hpp"
 
+#include "Logger.hpp"
+
 #include <iostream>
 
 namespace Eos
@@ -19,12 +21,15 @@ namespace Eos
         glfwSetErrorCallback(glfwErrorCallback);
         if (!glfwInit())
         {
-            std::cout << "Failed to init GLFW\n";
+            EOS_LOG_CRITICAL("Failed to init GLFW");
+            exit(-1);
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
         m_Initialised = true;
+
+        EOS_LOG_INFO("Initialised GLFW");
     }
 
     Window& Window::create(const char* title)
@@ -33,6 +38,9 @@ namespace Eos
                 title, nullptr, nullptr);
 
         m_Created = true;
+
+        EOS_LOG_INFO("Created Window \"{}\" - Size {}:{}", title,
+                m_WindowSize.x, m_WindowSize.y);
 
         return *this;
     }
@@ -44,6 +52,6 @@ namespace Eos
 
     void Window::glfwErrorCallback(int, const char* errStr)
     {
-        std::cerr << errStr << "\n";
+        EOS_LOG_ERROR("{}", errStr);
     }
 }

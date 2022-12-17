@@ -21,13 +21,16 @@
 
 #include <iostream>
 
+#include "../Core/Logger.hpp"
+
+            // std::cout << "Vulkan Error: " << err << "\n";
 #define EOS_VK_CHECK(x) \
     do \
     { \
         VkResult err = x; \
         if (err) \
         { \
-            std::cout << "Detected Vulkan Error: " << err << "\n"; \
+            EOS_LOG_ERROR("Vulkan Error: {}", err); \
             abort(); \
         } \
     } while (0) \

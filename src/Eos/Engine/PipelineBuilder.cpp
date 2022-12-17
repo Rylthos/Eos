@@ -1,6 +1,7 @@
 #include "PipelineBuilder.hpp"
 
 #include "../Util/Types.hpp"
+#include "../Core/Logger.hpp"
 
 #include <iostream>
 
@@ -63,9 +64,11 @@ namespace Eos
         if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                     nullptr, &pipeline) != VK_SUCCESS)
         {
-            std::cerr << "Failed to create Pipeline\n";
+            EOS_LOG_CRITICAL("Failed to create Pipeline");
             return VK_NULL_HANDLE;
         }
+
+        EOS_LOG_INFO("Built Pipeline");
 
         return pipeline;
     }

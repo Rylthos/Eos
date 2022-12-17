@@ -2,6 +2,7 @@
 
 #include "../Util/Types.hpp"
 #include <vector>
+#include <concepts>
 
 namespace Eos
 {

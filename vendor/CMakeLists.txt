@@ -16,3 +16,6 @@ add_subdirectory(vk-bootstrap)
 
 # VulkanMemoryAllocator
 add_subdirectory(VulkanMemoryAllocator)
+
+# spdlog
+add_subdirectory(spdlog)

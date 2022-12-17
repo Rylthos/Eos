@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+#include "../Core/Logger.hpp"
+
 namespace Eos
 {
     Engine* Engine::get()
@@ -81,6 +83,8 @@ namespace Eos
         initUploadContext();
 
         m_Initialized = true;
+
+        EOS_LOG_INFO("Initialized Engine");
     }
 
     VkPipelineLayoutCreateInfo Engine::createPipelineLayoutCreateInfo()
@@ -279,6 +283,8 @@ namespace Eos
         getDeletionQueue()->pushFunction([=]() {
                 vmaDestroyAllocator(m_Allocator);
             });
+
+        EOS_LOG_INFO("Initialized Vulkan");
     }
 
     void Engine::initSwapchain()
@@ -298,6 +304,8 @@ namespace Eos
 
         getDeletionQueue()->pushFunction([=]()
                 { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
+
+        EOS_LOG_INFO("Created Swapchain");
     }
 
     void Engine::initRenderpass()
@@ -347,6 +355,8 @@ namespace Eos
 
         getDeletionQueue()->pushFunction([&]()
                 { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); });
+
+        EOS_LOG_INFO("Created Renderpass");
     }
 
     void Engine::initFramebuffers()
@@ -378,6 +388,8 @@ namespace Eos
                     vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
                 });
         }
+
+        EOS_LOG_INFO("Created Framebuffer");
     }
 
     void Engine::initCommands()
@@ -401,6 +413,8 @@ namespace Eos
                     { vkDestroyCommandPool(m_Device, m_Frames[i].commandPool,
                             nullptr); });
         }
+
+        EOS_LOG_INFO("Created Commands Pools");
     }
 
     void Engine::initSyncStructures()
@@ -425,12 +439,16 @@ namespace Eos
                     vkDestroySemaphore(m_Device, m_Frames[i].renderSemaphore, nullptr);
                 });
         }
+
+        EOS_LOG_INFO("Created Sync Structures");
     }
 
     void Engine::initDescriptorSets()
     {
         m_DescriptorLayoutCache.init(m_Device);
         m_DescriptorAllocator.init(m_Device);
+
+        EOS_LOG_INFO("Created Descriptor sets");
     }
 
     void Engine::initUploadContext()
@@ -457,5 +475,7 @@ namespace Eos
                 vkDestroyCommandPool(m_Device, m_UploadContext.commandPool, nullptr);
                 vkDestroyFence(m_Device, m_UploadContext.uploadFence, nullptr);
             });
+
+        EOS_LOG_INFO("Created Upload Context");
     }
 }

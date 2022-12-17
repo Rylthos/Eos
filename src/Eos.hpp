@@ -9,6 +9,7 @@
 #include "Eos/Core/EntryPoint.hpp"
 #include "Eos/Core/Application.hpp"
 #include "Eos/Core/Window.hpp"
+#include "Eos/Core/Logger.hpp"
 
 // Engine
 #include "Eos/Engine/Engine.hpp"

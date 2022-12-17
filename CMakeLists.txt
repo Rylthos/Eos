@@ -28,6 +28,7 @@ target_link_libraries(${PROJECT_NAME}
         glfw
         vk-bootstrap::vk-bootstrap
         VulkanMemoryAllocator
+        spdlog
     )
 
 

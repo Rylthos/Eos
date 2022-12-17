@@ -3,6 +3,7 @@
 #include "Core.hpp"
 
 #include "Window.hpp"
+#include "Logger.hpp"
 #include "../Engine/Engine.hpp"
 #include "../Engine/Mesh.hpp"
 #include "../Util/Types.hpp"
