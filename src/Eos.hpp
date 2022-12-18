@@ -11,6 +11,9 @@
 #include "Eos/Core/Window.hpp"
 #include "Eos/Core/Logger.hpp"
 
+#include "Eos/Core/Events/EventDispatcher.hpp"
+#include "Eos/Core/Events/Events.hpp"
+
 // Engine
 #include "Eos/Engine/Engine.hpp"
 #include "Eos/Engine/Mesh.hpp"

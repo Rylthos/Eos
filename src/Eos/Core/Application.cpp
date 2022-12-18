@@ -20,7 +20,10 @@ namespace Eos
     void Application::start()
     {
         m_Window.init();
+
         init();
+        EventListener::addListeners(m_Window);
+
         EOS_LOG_INFO("Initialised Application");
 
         m_Engine = Engine::get();

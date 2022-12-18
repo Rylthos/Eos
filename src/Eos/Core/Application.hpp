@@ -14,6 +14,9 @@
 
 #include <unordered_map>
 
+#include "Events/EventListener.hpp"
+#include "Events/EventDispatcher.hpp"
+
 namespace Eos
 {
     struct ApplicationDetails
