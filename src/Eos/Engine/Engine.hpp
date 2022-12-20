@@ -37,6 +37,12 @@
 
 namespace Eos
 {
+    struct EngineSetupDetails
+    {
+        const char* name;
+        bool vsync;
+    };
+
     struct FrameData
     {
         VkCommandPool commandPool;
@@ -72,7 +78,7 @@ namespace Eos
         DescriptorBuilder createDescriptorBuilder();
 
         void cleanup();
-        void init(Window& window, const char* name);
+        void init(Window& window, const EngineSetupDetails& setupDetails);
 
         VkPipelineLayoutCreateInfo createPipelineLayoutCreateInfo();
         VkPipelineLayout setupPipelineLayout();
@@ -91,6 +97,8 @@ namespace Eos
         bool m_Initialized = false;
         VkExtent2D m_WindowExtent;
         uint32_t m_FrameOverlap = 2;
+
+        EngineSetupDetails m_SetupDetails;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;

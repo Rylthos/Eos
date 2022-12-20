@@ -63,8 +63,10 @@ namespace Eos
         }
     }
 
-    void Engine::init(Window& window, const char* name)
+    void Engine::init(Window& window, const EngineSetupDetails& details)
     {
+        m_SetupDetails = details;
+
         m_Frames.resize(m_FrameOverlap);
 
         int width, height;
@@ -72,7 +74,7 @@ namespace Eos
         m_WindowExtent = VkExtent2D{
             static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
-        initVulkan(window, name);
+        initVulkan(window, details.name);
 
         initSwapchain();
         initRenderpass();
@@ -289,10 +291,13 @@ namespace Eos
 
     void Engine::initSwapchain()
     {
+        VkPresentModeKHR presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+        if (m_SetupDetails.vsync) presentMode = VK_PRESENT_MODE_FIFO_KHR;
+
         vkb::SwapchainBuilder swapchainBuilder {m_PhysicalDevice, m_Device, m_Surface};
         vkb::Swapchain vkbSwapchain = swapchainBuilder
             .use_default_format_selection()
-            .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+            .set_desired_present_mode(presentMode)
             .set_desired_extent(m_WindowExtent.width, m_WindowExtent.height)
             .build()
             .value();

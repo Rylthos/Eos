@@ -33,7 +33,11 @@ namespace Eos
             std::runtime_error("Window has not been initialised");
         }
 
-        m_Engine->init(m_Window, m_Details.name.c_str());
+        EngineSetupDetails engineSetupDetails = {
+            m_Details.name.c_str(), m_Details.vsync
+        };
+
+        m_Engine->init(m_Window, engineSetupDetails);
         m_Engine->getPipelineBuilder()->defaultPipelineValues();
 
         postInit();
