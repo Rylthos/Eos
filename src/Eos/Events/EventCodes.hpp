@@ -1,21 +1,40 @@
 #pragma once
 
 // Taken from GLFW Events
-namespace Eos
+namespace Eos::Events
 {
-    enum class EventType
+    enum class Type
     {
         KEY_INPUT,
+        MOUSE_PRESS,
+        MOUSE_MOVE,
+        SCROLL,
     };
 
-    enum class ActionType
+    enum class Action
     {
         RELEASE = 0,
         PRESS   = 1,
         REPEAT  = 2,
     };
 
-    enum class KeyType
+    enum class MouseButton
+    {
+        MOUSE_BUTTON_1      = 0,
+        MOUSE_BUTTON_2      = 1,
+        MOUSE_BUTTON_3      = 2,
+        MOUSE_BUTTON_4      = 3,
+        MOUSE_BUTTON_5      = 4,
+        MOUSE_BUTTON_6      = 5,
+        MOUSE_BUTTON_7      = 6,
+        MOUSE_BUTTON_8      = 7,
+        MOUSE_BUTTON_LAST   = MOUSE_BUTTON_8,
+        MOUSE_BUTTON_LEFT   = MOUSE_BUTTON_1,
+        MOUSE_BUTTON_RIGHT  = MOUSE_BUTTON_2,
+        MOUSE_BUTTON_MIDDLE = MOUSE_BUTTON_3,
+    };
+
+    enum class Key
     {
         KEY_UNKNOWN            = -1,
 
@@ -146,7 +165,7 @@ namespace Eos
         KEY_LAST               = KEY_MENU,
     };
 
-    enum class ModType
+    enum class Mods
     {
         SHIFT     = 0x0001,
         CONTROL   = 0x0002,
@@ -156,32 +175,13 @@ namespace Eos
         NUM_LOCK  = 0x0020,
     };
 
-    inline ModType operator|(ModType a, ModType b)
+    inline Mods operator|(Mods a, Mods b)
     {
-        return static_cast<ModType>(static_cast<int>(a) | static_cast<int>(b));
+        return static_cast<Mods>(static_cast<int>(a) | static_cast<int>(b));
     }
 
-    inline ModType operator&(ModType a, ModType b)
+    inline Mods operator&(Mods a, Mods b)
     {
-        return static_cast<ModType>(static_cast<int>(a) & static_cast<int>(b));
+        return static_cast<Mods>(static_cast<int>(a) & static_cast<int>(b));
     }
-
-    struct Event
-    {
-        EventType eventType;
-
-        Event(EventType type)
-            : eventType(type) {}
-    };
-
-    struct KeyEvent : public Event
-    {
-        ActionType action;
-        KeyType key;
-        ModType mod;
-
-        KeyEvent(ActionType action, KeyType key, ModType mod)
-            : Event(EventType::KEY_INPUT), action(action),
-            key(key), mod(mod) {}
-    };
 }

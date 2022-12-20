@@ -22,7 +22,7 @@ namespace Eos
         m_Window.init();
 
         init();
-        EventListener::addListeners(m_Window);
+        Events::EventListener::addListeners(m_Window);
 
         EOS_LOG_INFO("Initialised Application");
 

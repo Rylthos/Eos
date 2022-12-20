@@ -14,8 +14,8 @@
 
 #include <unordered_map>
 
-#include "Events/EventListener.hpp"
-#include "Events/EventDispatcher.hpp"
+#include "../Events/EventListener.hpp"
+#include "../Events/EventDispatcher.hpp"
 
 namespace Eos
 {
@@ -36,11 +36,13 @@ namespace Eos
         Window m_Window;
         Engine* m_Engine;
     protected:
-        template<VertexDescription T>
+        template<VertexTemplate T>
         void uploadMesh(Mesh<T>& mesh) { m_Engine->createMesh(mesh); }
-        template<VertexDescription T, typename I>
+
+        template<VertexTemplate T, typename I>
             requires std::is_integral<I>::value
         void uploadIndexedMesh(IndexedMesh<T, I>& mesh) { m_Engine->createIndexedMesh(mesh); }
+
     private:
         ApplicationDetails m_Details;
     private:

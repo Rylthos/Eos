@@ -127,7 +127,7 @@ namespace Eos
         void initUploadContext();
 
     public:
-        template <VertexDescription T>
+        template <VertexTemplate T>
         void createMesh(Mesh<T>& mesh)
         {
             const size_t bufferSize = mesh.getVertices()->size() * mesh.getVertexSize();
@@ -160,7 +160,7 @@ namespace Eos
                     stagingBuffer.allocation);
         }
 
-        template <VertexDescription T, typename I>
+        template <VertexTemplate T, typename I>
             requires std::is_integral<I>::value
         void createIndexedMesh(IndexedMesh<T, I>& mesh)
         {

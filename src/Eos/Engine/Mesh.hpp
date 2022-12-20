@@ -7,12 +7,12 @@
 namespace Eos
 {
     template <typename T>
-    concept VertexDescription =
+    concept VertexTemplate =
         requires(T t) {
             { T::getVertexDescription() } -> std::convertible_to<VertexInputDescription>;
         };
 
-    template<VertexDescription T>
+    template<VertexTemplate T>
     class Mesh
     {
     public:
@@ -30,7 +30,7 @@ namespace Eos
         Buffer m_VertexBuffer;
     };
 
-    template<VertexDescription T, typename I>
+    template<VertexTemplate T, typename I>
         requires std::is_integral<I>::value
     class IndexedMesh : public Mesh<T>
     {
