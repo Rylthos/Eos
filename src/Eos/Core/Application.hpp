@@ -7,6 +7,7 @@
 #include "../Engine/Engine.hpp"
 #include "../Engine/Mesh.hpp"
 #include "../Util/Types.hpp"
+#include "../Util/Timer.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -35,6 +36,7 @@ namespace Eos
     protected:
         Window m_Window;
         Engine* m_Engine;
+        Timer m_FrameTimer;
     protected:
         template<VertexTemplate T>
         void uploadMesh(Mesh<T>& mesh) { m_Engine->createMesh(mesh); }
@@ -52,7 +54,7 @@ namespace Eos
         virtual void postInit();
 
         virtual void draw(VkCommandBuffer cmd);
-        virtual void update(float dt);
+        virtual void update(double dt);
     };
 
     Application* createApplication();

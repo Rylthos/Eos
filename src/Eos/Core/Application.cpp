@@ -43,22 +43,28 @@ namespace Eos
 
     void Application::mainLoop()
     {
+        m_FrameTimer.start();
+        int currentFrame = 0;
+
         while(!m_Window.shouldClose())
         {
             glfwPollEvents();
 
-            update(0.1f);
+            m_FrameTimer.tick();
+            update(m_FrameTimer.timeElapsed());
 
-            RenderInformation info = m_Engine->preRender(1);
+            RenderInformation info = m_Engine->preRender(currentFrame);
 
             draw(*(info.cmd));
 
             m_Engine->postRender(info);
+            currentFrame++;
         }
+        m_FrameTimer.end();
     }
 
     void Application::init() {}
     void Application::postInit() {}
     void Application::draw(VkCommandBuffer cmd) {}
-    void Application::update(float dt) {}
+    void Application::update(double dt) {}
 }

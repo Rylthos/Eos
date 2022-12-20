@@ -31,3 +31,4 @@
 // Util
 #include "Eos/Util/PipelineCreation.hpp"
 #include "Eos/Util/Types.hpp"
+#include "Eos/Util/Timer.hpp"
