@@ -11,7 +11,7 @@ namespace Eos::Events
     class EOS_API EventListener
     {
     public:
-        static void addListeners(Window& window);
+        void addListeners(Window& window, EventDispatcher* dispatcher);
     private:
         static void glfwKeyCallback(GLFWwindow* window, int key, int scancode,
                 int action, int mods);

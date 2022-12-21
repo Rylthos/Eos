@@ -4,8 +4,11 @@
 
 namespace Eos::Events
 {
-    void EventListener::addListeners(Window& window)
+    void EventListener::addListeners(Window& window,
+            EventDispatcher* eventDispatcher)
     {
+        glfwSetWindowUserPointer(window.getWindow(), (void*)eventDispatcher);
+
         glfwSetKeyCallback(window.getWindow(), glfwKeyCallback);
         glfwSetMouseButtonCallback(window.getWindow(), glfwMouseButtonCallback);
         glfwSetCursorPosCallback(window.getWindow(), glfwMouseMoveCallback);
@@ -23,7 +26,9 @@ namespace Eos::Events
             static_cast<Mods>(mods)
         };
 
-        EventDispatcher::dispatchEvent(event);
+        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
+        dispatcher->dispatchEvent(event);
+
         EOS_LOG_TRACE("Dispatched Key Input Event");
     }
 
@@ -36,7 +41,8 @@ namespace Eos::Events
             static_cast<Mods>(mods)
         };
 
-        EventDispatcher::dispatchEvent(event);
+        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
+        dispatcher->dispatchEvent(event);
         EOS_LOG_TRACE("Dispatched Mouse Button Event");
     }
 
@@ -47,7 +53,8 @@ namespace Eos::Events
             static_cast<float>(y)
         };
 
-        EventDispatcher::dispatchEvent(event);
+        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
+        dispatcher->dispatchEvent(event);
         EOS_LOG_TRACE("Dispatched Mouse Move Event");
     }
 
@@ -58,7 +65,8 @@ namespace Eos::Events
             static_cast<float>(y)
         };
 
-        EventDispatcher::dispatchEvent(event);
+        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
+        dispatcher->dispatchEvent(event);
         EOS_LOG_TRACE("Dispatched Scroll Event");
     }
 }

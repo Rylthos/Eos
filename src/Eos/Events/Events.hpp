@@ -8,6 +8,8 @@ namespace Eos::Events
     {
         Type eventType;
 
+        void* dataPointer = nullptr;
+
         Event() {}
     };
 

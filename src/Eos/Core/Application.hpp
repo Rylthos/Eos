@@ -38,6 +38,9 @@ namespace Eos
         Window m_Window;
         Engine* m_Engine;
         Timer m_FrameTimer;
+
+        Events::EventListener m_MainEventListener;
+        Events::EventDispatcher m_MainEventDispatcher;
     protected:
         template<VertexTemplate T>
         void uploadMesh(Mesh<T>& mesh) { m_Engine->createMesh(mesh); }
