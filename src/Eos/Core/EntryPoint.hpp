@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application.hpp"
+#include "Eos/Core/Application.hpp"
 
 extern Eos::Application* Eos::createApplication();
 

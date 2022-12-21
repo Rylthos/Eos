@@ -1,12 +1,8 @@
 #pragma once
 
-#include "../Core/Core.hpp"
-#include "../Core/Logger.hpp"
+#include "Eos/EosPCH.hpp"
 
-#include "Events.hpp"
-
-#include <unordered_map>
-#include <vector>
+#include "Eos/Events/Events.hpp"
 
 #include <functional>
 
@@ -14,7 +10,6 @@ namespace Eos::Events
 {
     template <typename T>
     concept EventTemplate = std::is_base_of<Event, T>();
-
 
     class EOS_API EventDispatcher
     {

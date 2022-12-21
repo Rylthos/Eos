@@ -1,10 +1,5 @@
 #include "PipelineBuilder.hpp"
 
-#include "../Util/Types.hpp"
-#include "../Core/Logger.hpp"
-
-#include <iostream>
-
 namespace Eos
 {
     void PipelineBuilder::defaultPipelineValues()

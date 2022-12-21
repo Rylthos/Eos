@@ -1,11 +1,8 @@
 #pragma once
 
-#include "../../Core/Core.hpp"
+#include "Eos/EosPCH.hpp"
 
 #include <Vulkan/vulkan.h>
-
-#include <vector>
-#include <unordered_map>
 
 namespace Eos
 {

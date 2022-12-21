@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../Core/Core.hpp"
-#include "../Util/PipelineCreation.hpp"
+#include "Eos/EosPCH.hpp"
+
+#include "Eos/Util/PipelineCreation.hpp"
 
 #include <Vulkan/Vulkan.h>
-
-#include <vector>
 
 namespace Eos
 {

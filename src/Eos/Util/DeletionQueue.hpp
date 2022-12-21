@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Core/Core.hpp"
+#include "Eos/EosPCH.hpp"
 
 #include <functional>
 #include <deque>

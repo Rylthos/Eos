@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../Core/Core.hpp"
-#include "../Core/Logger.hpp"
+#include "Eos/EosPCH.hpp"
 
 #include <chrono>
 

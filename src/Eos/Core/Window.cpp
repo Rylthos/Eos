@@ -1,6 +1,6 @@
 #include "Window.hpp"
 
-#include "Logger.hpp"
+#include "Eos/Core/Logger.hpp"
 
 #include <iostream>
 

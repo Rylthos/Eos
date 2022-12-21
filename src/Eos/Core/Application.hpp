@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Core.hpp"
+#include "Eos/EosPCH.hpp"
 
-#include "Window.hpp"
-#include "Logger.hpp"
-#include "../Engine/Engine.hpp"
-#include "../Engine/Mesh.hpp"
-#include "../Util/Types.hpp"
-#include "../Util/Timer.hpp"
+#include "Eos/Core/Window.hpp"
+#include "Eos/Core/Logger.hpp"
+#include "Eos/Engine/Engine.hpp"
+#include "Eos/Engine/Mesh.hpp"
+#include "Eos/Util/Types.hpp"
+#include "Eos/Util/Timer.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -15,8 +15,8 @@
 
 #include <unordered_map>
 
-#include "../Events/EventListener.hpp"
-#include "../Events/EventDispatcher.hpp"
+#include "Eos/Events/EventListener.hpp"
+#include "Eos/Events/EventDispatcher.hpp"
 
 namespace Eos
 {

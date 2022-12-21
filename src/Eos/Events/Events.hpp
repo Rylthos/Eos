@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EventCodes.hpp"
+#include "Eos/Events/EventCodes.hpp"
 
 namespace Eos::Events
 {

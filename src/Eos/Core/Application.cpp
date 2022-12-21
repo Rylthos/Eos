@@ -1,7 +1,7 @@
 #include "Application.hpp"
 
 #define VMA_IMPLEMENTATION
-#include "../Engine/Engine.hpp"
+#include "Eos/Engine/Engine.hpp"
 
 #include <stdexcept>
 

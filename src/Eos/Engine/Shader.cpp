@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-#include "Engine.hpp"
+#include "Eos/Engine/Engine.hpp"
 
 namespace Eos
 {

@@ -1,10 +1,11 @@
 #pragma once
 
-#include "../Core/Core.hpp"
-#include "../Core/Window.hpp"
+#include "Eos/EosPCH.hpp"
 
-#include "Events.hpp"
-#include "EventDispatcher.hpp"
+#include "Eos/Core/Window.hpp"
+
+#include "Eos/Events/Events.hpp"
+#include "Eos/Events/EventDispatcher.hpp"
 
 namespace Eos::Events
 {

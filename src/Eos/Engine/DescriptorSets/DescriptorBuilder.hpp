@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../../Core/Core.hpp"
-#include "DescriptorLayoutCache.hpp"
-#include "DescriptorAllocator.hpp"
+#include "Eos/EosPCH.hpp"
+
+#include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
+#include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"
 
 #include <Vulkan/vulkan.h>
 

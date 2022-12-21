@@ -1,7 +1,5 @@
 #include "Timer.hpp"
 
-#include <GLFW/glfw3.h>
-
 namespace Eos
 {
     void Timer::start()

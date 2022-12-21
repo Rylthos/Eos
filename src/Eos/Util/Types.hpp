@@ -1,9 +1,9 @@
 #pragma once
 
+#include "Eos/EosPCH.hpp"
+
 #include <Vulkan/Vulkan.h>
 #include "vk_mem_alloc.h"
-
-#include <vector>
 
 namespace Eos
 {

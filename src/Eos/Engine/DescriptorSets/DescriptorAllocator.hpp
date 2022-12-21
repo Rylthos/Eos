@@ -2,11 +2,9 @@
 
 // https://vkguide.dev/docs/extra-chapter/abstracting_descriptors/
 
-#include "../../Core/Core.hpp"
+#include "Eos/EosPCH.hpp"
 
 #include <Vulkan/vulkan.h>
-
-#include <vector>
 
 namespace Eos
 {

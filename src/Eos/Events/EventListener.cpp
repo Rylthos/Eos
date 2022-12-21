@@ -1,7 +1,5 @@
 #include "EventListener.hpp"
 
-#include "../Core/Logger.hpp"
-
 namespace Eos::Events
 {
     void EventListener::addListeners(Window& window,

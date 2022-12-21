@@ -1,14 +1,9 @@
 #include "Engine.hpp"
 
-#include "../Util/Initializers.hpp"
+#include "Eos/Util/Initializers.hpp"
 
 #include <VkBootstrap.h>
-
 #include <vk_mem_alloc.h>
-
-#include <iostream>
-
-#include "../Core/Logger.hpp"
 
 namespace Eos
 {

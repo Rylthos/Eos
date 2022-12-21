@@ -1,29 +1,21 @@
 #pragma once
 
-#include "../Core/Core.hpp"
-#include "../Core/Window.hpp"
+#include "Eos/EosPCH.hpp"
+#include "Eos/Core/Window.hpp"
 
-#include "../Util/DeletionQueue.hpp"
-#include "../Util/Types.hpp"
+#include "Eos/Util/DeletionQueue.hpp"
 
-#include "Mesh.hpp"
-#include "PipelineBuilder.hpp"
-#include "Shader.hpp"
+#include "Eos/Engine/Mesh.hpp"
+#include "Eos/Engine/PipelineBuilder.hpp"
+#include "Eos/Engine/Shader.hpp"
 
-#include "DescriptorSets/DescriptorAllocator.hpp"
-#include "DescriptorSets/DescriptorLayoutCache.hpp"
-#include "DescriptorSets/DescriptorBuilder.hpp"
-
-#include <cstdint>
+#include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"
+#include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
+#include "Eos/Engine/DescriptorSets/DescriptorBuilder.hpp"
 
 #include <Vulkan/Vulkan.h>
 #include <vk_mem_alloc.h>
 
-#include <iostream>
-
-#include "../Core/Logger.hpp"
-
-            // std::cout << "Vulkan Error: " << err << "\n";
 #define EOS_VK_CHECK(x) \
     do \
     { \

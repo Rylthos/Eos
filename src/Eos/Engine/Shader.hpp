@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../Core/Core.hpp"
-#include "../Util/DeletionQueue.hpp"
+#include "Eos/EosPCH.hpp"
+#include "Eos/Util/DeletionQueue.hpp"
 
-#include <vector>
 #include <Vulkan/Vulkan.h>
 
 namespace Eos
