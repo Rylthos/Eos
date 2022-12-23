@@ -21,6 +21,7 @@ namespace Eos
         VkPipelineColorBlendAttachmentState colourBlendAttachment;
         VkPipelineDepthStencilStateCreateInfo depthStencil;
 
+
         VkViewport viewport;
         VkRect2D scissor;
 
@@ -30,5 +31,7 @@ namespace Eos
         VkPipeline buildPipeline(VkDevice device, VkRenderPass renderPass);
 
         void addVertexInputInfo(const VertexInputDescription& description);
+    private:
+        VertexInputDescription m_VertexDescription;
     };
 }

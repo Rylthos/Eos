@@ -70,9 +70,10 @@ namespace Eos
 
     void PipelineBuilder::addVertexInputInfo(const VertexInputDescription& description)
     {
-        vertexInputInfo.vertexAttributeDescriptionCount = description.attributes.size();
-        vertexInputInfo.pVertexAttributeDescriptions = description.attributes.data();
-        vertexInputInfo.vertexBindingDescriptionCount = description.bindings.size();
-        vertexInputInfo.pVertexBindingDescriptions = description.bindings.data();
+        m_VertexDescription = description;
+        vertexInputInfo.vertexAttributeDescriptionCount = m_VertexDescription.attributes.size();
+        vertexInputInfo.pVertexAttributeDescriptions = m_VertexDescription.attributes.data();
+        vertexInputInfo.vertexBindingDescriptionCount = m_VertexDescription.bindings.size();
+        vertexInputInfo.pVertexBindingDescriptions = m_VertexDescription.bindings.data();
     }
 }
