@@ -50,14 +50,13 @@ public:
 private:
     VkPipeline m_Pipeline;
     VkPipelineLayout m_PipelineLayout;
-    Eos::Mesh<Vertex> m_Mesh;
-    Eos::Buffer m_ColourBuffer;
+    Eos::IndexedMesh<Vertex, uint16_t> m_Mesh;
 private:
     void init() override
     {
         m_Window.setWindowSize({ 500, 500 });
 
-        m_Window.create("Basic Triangle");
+        m_Window.create("Indexed Triangle");
     }
 
     void postInit() override
@@ -69,11 +68,16 @@ private:
         };
         m_Mesh.setVertices(vertices);
 
-        uploadMesh(m_Mesh);
+        std::vector<uint16_t> indices = {
+            0, 1, 2
+        };
+        m_Mesh.setIndices(indices);
+
+        uploadIndexedMesh(m_Mesh);
 
         Eos::Shader shader;
-        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "Shaders/BasicTriangle.vert.spv");
-        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "Shaders/BasicTriangle.frag.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "Shaders/IndexedTriangle.vert.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "Shaders/IndexedTriangle.frag.spv");
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
@@ -104,9 +108,11 @@ private:
         VkDeviceSize offset = 0;
         vkCmdBindVertexBuffers(cmd, 0, 1, &m_Mesh.getVertexBuffer()->buffer,
                 &offset);
+        vkCmdBindIndexBuffer(cmd, m_Mesh.getIndexBuffer()->buffer,
+                0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdDraw(cmd, static_cast<uint32_t>(m_Mesh.getVertices()->size()),
-                1, 0, 0);
+        vkCmdDrawIndexed(cmd, static_cast<uint32_t>(m_Mesh.getIndices()->size()),
+                1, 0, 0, 0);
     }
 
     void update(double dt) override
@@ -117,7 +123,7 @@ private:
 Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
-    details.name = "Basic Triangle";
+    details.name = "Indexed Triangle";
 
     return new Sandbox(details);
 }

@@ -37,14 +37,18 @@ endforeach()
 
 # Build the examples
 set (CMAKE_CXX_STANDARD 20)
-
-project (BasicTriangle)
-
-add_executable(BasicTriangle BasicTriangle.cpp)
-
 set (ExamplesLinker "-std=c++2a -g -Wall -Wextra -Wpedantic")
 
-target_include_directories(BasicTriangle PRIVATE "${EOS_PROJECT_DIR}/eos")
-target_link_libraries(BasicTriangle PRIVATE ${ExamplesLinker} PUBLIC Eos)
+file (GLOB_RECURSE AllExamples CONFIGURE_DEPENDS *.cpp)
+foreach (Example ${AllExamples})
+    get_filename_component(Filename ${Example} NAME_WLE)
 
-target_compile_definitions(BasicTriangle PUBLIC EOS_PLATFORM_WINDOWS)
+    project (${Filename})
+
+    add_executable(${Filename} ${Filename}.cpp)
+
+    target_include_directories(${Filename} PRIVATE "${EOS_PROJECT_DIR}/eos")
+    target_link_libraries(${Filename} PRIVATE ${ExamplesLinker} PUBLIC Eos)
+
+    target_compile_definitions(${Filename} PUBLIC EOS_PLATFORM_WINDOWS)
+endforeach ()
