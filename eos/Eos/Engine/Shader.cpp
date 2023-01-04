@@ -16,7 +16,10 @@ namespace Eos
         std::ifstream file(path, std::ios::ate | std::ios::binary);
 
         if (!file.is_open())
-            exit(-1);
+        {
+            EOS_LOG_ERROR("Could not load shader module '{}'", path);
+            return;
+        }
 
         size_t fileSize = (size_t)file.tellg();
 

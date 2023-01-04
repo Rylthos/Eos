@@ -2,10 +2,10 @@
 
 #include <glm/glm.hpp>
 
-#include "Core/Core.hpp"
-#include "Core/Logger.hpp"
+#include "Eos/Core/Core.hpp"
+#include "Eos/Core/Logger.hpp"
 
-#include "Util/Types.hpp"
+#include "Eos/Util/Types.hpp"
 
 #include <vector>
 #include <unordered_map>

@@ -108,6 +108,18 @@ namespace Eos
         return layout;
     }
 
+    VkPipeline Engine::setupPipeline(VkPipelineLayout layout)
+    {
+        getPipelineBuilder()->pipelineLayout = layout;
+        VkPipeline pipeline = getPipelineBuilder()->buildPipeline(m_Device, m_Renderpass);
+
+        getDeletionQueue()->pushFunction([=]() {
+                vkDestroyPipeline(m_Device, pipeline, nullptr); 
+            });
+
+        return pipeline;
+    }
+
     RenderInformation Engine::preRender(int frameNumber)
     {
         FrameData& frame = m_Frames[frameNumber % m_FrameOverlap];
@@ -226,18 +238,6 @@ namespace Eos
         vkResetFences(m_Device, 1, &m_UploadContext.uploadFence);
 
         vkResetCommandPool(m_Device, m_UploadContext.commandPool, 0);
-    }
-
-    VkPipeline Engine::setupPipeline(VkPipelineLayout layout)
-    {
-        getPipelineBuilder()->pipelineLayout = layout;
-        VkPipeline pipeline = getPipelineBuilder()->buildPipeline(m_Device, m_Renderpass);
-
-        getDeletionQueue()->pushFunction([=]() {
-                vkDestroyPipeline(m_Device, pipeline, nullptr); 
-            });
-
-        return pipeline;
     }
 
     void Engine::initVulkan(Window& window, const char* name)
