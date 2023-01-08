@@ -6,33 +6,47 @@ find_program(glslc_exec NAMES glslc HINTS Vulkan::glslc)
 
 add_dependencies(EOS_EXAMPLES BasicTriangle)
 
-set (InputShadersFile "${PROJECT_SOURCE_DIR}/examples/Shaders")
-set (OutputShadersFile "${PROJECT_SOURCE_DIR}/bin/Shaders")
+MACRO(SUBDIRLIST result curdir)
+    FILE (GLOB children RELATIVE ${curdir} ${curdir}/*)
+    set(dirlist "")
+    foreach (child ${children})
+        IF(IS_DIRECTORY ${curdir}/${child})
+            LIST(APPEND dirlist ${child})
+        ENDIF()
+    endforeach()
+    SET(${result} ${dirlist})
+endmacro()
 
-file (GLOB_RECURSE Shaders CONFIGURE_DEPENDS 
-    ${InputShadersFile}/*.vert
-    ${InputShadersFile}/*.frag)
+SUBDIRLIST(AllExamples "${PROJECT_SOURCE_DIR}/examples/res")
+foreach (Example ${AllExamples})
+    set (InputShadersFile "${PROJECT_SOURCE_DIR}/examples/res/${Example}/Shaders")
+    set (OutputShadersFile "${PROJECT_SOURCE_DIR}/bin/res/${Example}/Shaders")
 
-foreach (Shader ${Shaders})
-    get_filename_component(File ${Shader} NAME)
+    file (GLOB_RECURSE Shaders CONFIGURE_DEPENDS 
+        ${InputShadersFile}/*.vert
+        ${InputShadersFile}/*.frag)
 
-    add_custom_command(
-        TARGET EOS_EXAMPLES PRE_BUILD
-        COMMAND
+    foreach (Shader ${Shaders})
+        get_filename_component(File ${Shader} NAME)
+
+        add_custom_command(
+            TARGET EOS_EXAMPLES PRE_BUILD
+            COMMAND
             ${glslc_exec}
             ${InputShadersFile}/${File}
             -o ${InputShadersFile}/${File}.spv
-        COMMENT "Compiled ${File} To ${File}.spv"
-        )
+            COMMENT "Compiled ${File} To ${File}.spv"
+            )
 
-    add_custom_command(
-        TARGET EOS_EXAMPLES POST_BUILD
-        COMMAND
+        add_custom_command(
+            TARGET EOS_EXAMPLES POST_BUILD
+            COMMAND
             ${CMAKE_COMMAND} -E copy
             ${InputShadersFile}/${File}.spv
             ${OutputShadersFile}/${File}.spv
-        COMMENT "Copied ${InputShadersFile}/${File}.spv to ${OutputShadersFile}/${File}.spv"
-        )
+            COMMENT "Copied ${InputShadersFile}/${File}.spv to ${OutputShadersFile}/${File}.spv"
+            )
+    endforeach()
 endforeach()
 
 # Build the examples

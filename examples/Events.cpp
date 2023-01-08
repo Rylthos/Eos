@@ -3,22 +3,19 @@
 #include "Eos/Eos.hpp"
 #include "Eos/Util/PipelineCreation.hpp"
 
-#include <GLFW/glfw3.h>
-
 struct Vertex
 {
     glm::vec3 position;
-    glm::vec3 colour;
 
     static Eos::VertexInputDescription getVertexDescription()
     {
         Eos::VertexInputDescription description;
-        VkVertexInputBindingDescription mainBinding{};
-        mainBinding.binding = 0;
-        mainBinding.stride = sizeof(Vertex);
-        mainBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        VkVertexInputBindingDescription binding{};
+        binding.binding = 0;
+        binding.stride = sizeof(Vertex);
+        binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-        description.bindings.push_back(mainBinding);
+        description.bindings.push_back(binding);
 
         VkVertexInputAttributeDescription positionAttribute{};
         positionAttribute.binding = 0;
@@ -27,19 +24,15 @@ struct Vertex
         positionAttribute.offset = offsetof(Vertex, position);
         description.attributes.push_back(positionAttribute);
 
-        VkVertexInputAttributeDescription colourAttribute{};
-        colourAttribute.binding = 0;
-        colourAttribute.location = 1;
-        colourAttribute.format = VK_FORMAT_R32G32B32_SFLOAT;
-        colourAttribute.offset = offsetof(Vertex, colour);
-        description.attributes.push_back(colourAttribute);
-
         return description;
     }
 };
 
 class Sandbox : public Eos::Application
 {
+public:
+    float mouseX;
+    float mouseY;
 public:
     Sandbox(const Eos::ApplicationDetails& details)
         : Eos::Application(details) {}
@@ -53,16 +46,19 @@ private:
     void init() override
     {
         m_Window.setWindowSize({ 500, 500 });
-
-        m_Window.create("Indexed Triangle");
+        m_Window.create("Events");
     }
 
     void postInit() override
     {
+        m_MainEventDispatcher.addCallback(&keyboardEvent);
+        m_MainEventDispatcher.addCallback(&mouseMoveEvent, this);
+        m_MainEventDispatcher.addCallback(&mousePressEvent, this);
+
         std::vector<Vertex> vertices = {
-            { { -1.0f,  1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-            { {  1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { {  0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+            { { -1.0f,  1.0f, 0.0f} },
+            { { -1.0f,  1.0f, 0.0f} },
+            { {  0.0f, -1.0f, 0.0f} },
         };
         m_Mesh.setVertices(vertices);
 
@@ -74,8 +70,8 @@ private:
         uploadIndexedMesh(m_Mesh);
 
         Eos::Shader shader;
-        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/IndexedTriangle/Shaders/IndexedTriangle.vert.spv");
-        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/IndexedTriangle/Shaders/IndexedTriangle.frag.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Events/Shaders/Events.vert.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/Events/Shaders/Events.frag.spv");
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
@@ -83,8 +79,8 @@ private:
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)m_Window.getWindowExtent().width;
-        viewport.height = (float)m_Window.getWindowExtent().height;
+        viewport.width = static_cast<float>(m_Window.getWindowExtent().width);
+        viewport.height = static_cast<float>(m_Window.getWindowExtent().height);
         m_Engine->getPipelineBuilder()->viewport = viewport;
 
         VkRect2D scissor{};
@@ -93,7 +89,6 @@ private:
         m_Engine->getPipelineBuilder()->scissor = scissor;
 
         m_PipelineLayout = m_Engine->setupPipelineLayout();
-
         m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout);
 
         shader.clearModules();
@@ -113,15 +108,48 @@ private:
                 1, 0, 0, 0);
     }
 
-    void update(double dt) override
+    void update(double dt) override {}
+
+    static bool keyboardEvent(const Eos::Events::KeyInputEvent* event)
     {
+        if (static_cast<int>(event->key) >= 65 && static_cast<int>(event->key) <= 90)
+        {
+            if (event->action == Eos::Events::Action::PRESS)
+            {
+                EOS_LOG_INFO("{}", (char)(static_cast<int>(event->key)));
+            }
+        }
+
+        return true;
+    }
+
+    static bool mouseMoveEvent(const Eos::Events::MouseMoveEvent* event)
+    {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        sb->mouseX = event->xPos;
+        sb->mouseY = event->yPos;
+
+        return true;
+    }
+
+    static bool mousePressEvent(const Eos::Events::MousePressEvent* event)
+    {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        if (event->action == Eos::Events::Action::PRESS)
+        {
+            EOS_LOG_INFO("{} {}", sb->mouseX, sb->mouseY);
+        }
+
+        return true;
     }
 };
 
 Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
-    details.name = "Indexed Triangle";
+    details.name = "Events";
 
     return new Sandbox(details);
 }

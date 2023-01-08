@@ -41,8 +41,6 @@ struct Vertex
 class Sandbox : public Eos::Application
 {
 public:
-    float mouseX, mouseY;
-public:
     Sandbox(const Eos::ApplicationDetails& details)
         : Eos::Application(details) {}
 
@@ -51,7 +49,6 @@ private:
     VkPipeline m_Pipeline;
     VkPipelineLayout m_PipelineLayout;
     Eos::Mesh<Vertex> m_Mesh;
-    Eos::Buffer m_ColourBuffer;
 private:
     void init() override
     {
@@ -72,8 +69,8 @@ private:
         uploadMesh(m_Mesh);
 
         Eos::Shader shader;
-        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "Shaders/BasicTriangle.vert.spv");
-        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "Shaders/BasicTriangle.frag.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/BasicTriangle/Shaders/BasicTriangle.vert.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/BasicTriangle/Shaders/BasicTriangle.frag.spv");
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
