@@ -93,8 +93,8 @@ private:
             .build(m_ColourSet, m_ColourSetLayout);
 
         Eos::Shader shader;
-        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/ColourChangingTriangle/Shaders/ColourChangingTriangle.vert.spv");
-        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/ColourChangingTriangle/Shaders/ColourChangingTriangle.frag.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/BasicDescriptorSets/Shaders/BasicDescriptorSets.vert.spv");
+        shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/BasicDescriptorSets/Shaders/BasicDescriptorSets.frag.spv");
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());

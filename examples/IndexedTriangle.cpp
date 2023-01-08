@@ -62,12 +62,14 @@ private:
         std::vector<Vertex> vertices = {
             { { -1.0f,  1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
             { {  1.0f,  1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { {  0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+            { { -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+            { {  1.0f, -1.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
         };
         m_Mesh.setVertices(vertices);
 
         std::vector<uint16_t> indices = {
-            0, 1, 2
+            0, 1, 2,
+            1, 2, 3
         };
         m_Mesh.setIndices(indices);
 
