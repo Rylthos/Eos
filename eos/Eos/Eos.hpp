@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE // Change GLM for Vulkan for Users
+
 // Libraries
 #include <GLFW/glfw3.h>
 #include <Vulkan/Vulkan.h>
