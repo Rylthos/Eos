@@ -72,7 +72,7 @@ private:
         };
         m_Mesh.setIndices(indices);
 
-        uploadIndexedMesh(m_Mesh);
+        m_Engine->createIndexedMesh(m_Mesh);
 
         m_ColourBuffer = m_Engine->createBuffer(sizeof(Colour), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -98,18 +98,6 @@ private:
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
-
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = (float)m_Window.getWindowExtent().width;
-        viewport.height = (float)m_Window.getWindowExtent().height;
-        m_Engine->getPipelineBuilder()->viewport = viewport;
-
-        VkRect2D scissor{};
-        scissor.offset = { 0, 0 };
-        scissor.extent = m_Window.getWindowExtent();
-        m_Engine->getPipelineBuilder()->scissor = scissor;
 
         VkPipelineLayoutCreateInfo info = m_Engine->createPipelineLayoutCreateInfo();
         info.setLayoutCount = 1;

@@ -160,6 +160,9 @@ namespace Eos
                     stagingBuffer.allocation);
         }
 
+        template <VertexTemplate T>
+        void updateMesh(Mesh<T>& mesh) { createMesh(mesh); }
+
         template <VertexTemplate T, typename I>
             requires std::is_integral<I>::value
         void createIndexedMesh(IndexedMesh<T, I>& mesh)
@@ -195,5 +198,9 @@ namespace Eos
             vmaDestroyBuffer(m_Allocator, stagingBuffer.buffer,
                     stagingBuffer.allocation);
         }
+
+        template <VertexTemplate T, typename I>
+            requires std::is_integral<I>::value
+        void updateIndexedMesh(IndexedMesh<T, I>& mesh) { createIndexedMesh(mesh); }
     };
 }

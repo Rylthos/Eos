@@ -4,6 +4,21 @@ namespace Eos
 {
     void PipelineBuilder::defaultPipelineValues()
     {
+        VkViewport viewport;
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = 1.0f;
+        viewport.height = 1.0f;
+
+        VkRect2D scissor;
+        scissor.offset = { 0, 0 };
+        scissor.extent = { 1, 1 };
+
+        defaultPipelineValues(viewport, scissor);
+    }
+    
+    void PipelineBuilder::defaultPipelineValues(VkViewport viewport, VkRect2D scissor)
+    {
         vertexInputInfo = Pipeline::vertexInputStateCreateInfo();
         inputAssembly = Pipeline::inputAssemblyCreateInfo(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         rasterizer = Pipeline::rasterizationStateCreateInfo(VK_POLYGON_MODE_FILL);
@@ -11,13 +26,8 @@ namespace Eos
         colourBlendAttachment = Pipeline::colourBlendAttachmentState();
         depthStencil = Pipeline::depthStencilCreateInfo(true, true, VK_COMPARE_OP_LESS);
 
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = 1.0f;
-        viewport.height = 1.0f;
-
-        scissor.offset = { 0, 0 };
-        scissor.extent = { 1, 1 };
+        this->viewport = viewport;
+        this->scissor = scissor;
     }
 
     VkPipeline PipelineBuilder::buildPipeline(VkDevice device, VkRenderPass renderPass)

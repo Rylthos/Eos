@@ -21,13 +21,13 @@ namespace Eos
         VkPipelineColorBlendAttachmentState colourBlendAttachment;
         VkPipelineDepthStencilStateCreateInfo depthStencil;
 
-
         VkViewport viewport;
         VkRect2D scissor;
 
         VkPipelineLayout pipelineLayout;
     public:
         void defaultPipelineValues();
+        void defaultPipelineValues(VkViewport viewport, VkRect2D scissor);
         VkPipeline buildPipeline(VkDevice device, VkRenderPass renderPass);
 
         void addVertexInputInfo(const VertexInputDescription& description);

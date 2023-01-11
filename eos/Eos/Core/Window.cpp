@@ -50,6 +50,27 @@ namespace Eos
         glfwCreateWindowSurface(instance, m_Window, nullptr, surface);
     }
 
+    VkViewport Window::getViewport() const
+    {
+        VkViewport viewport;
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(m_WindowSize.x);
+        viewport.height = static_cast<float>(m_WindowSize.y);
+
+        return viewport;
+    }
+
+    VkRect2D Window::getScissor() const
+    {
+        VkRect2D scissor;
+
+        scissor.offset = { 0, 0 };
+        scissor.extent = getWindowExtent();
+
+        return scissor;
+    }
+
     void Window::glfwErrorCallback(int, const char* errStr)
     {
         EOS_LOG_ERROR("{}", errStr);

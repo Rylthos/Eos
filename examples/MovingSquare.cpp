@@ -7,6 +7,7 @@
 struct Data
 {
     glm::mat4 projection;
+    glm::mat4 view;
     glm::mat4 model;
 };
 
@@ -46,10 +47,6 @@ struct Vertex
 class Sandbox : public Eos::Application
 {
 public:
-    float velX = 0.0f;
-    float velY = 0.0f;
-    float posX = 250.0f;
-    float posY = 250.0f;
 public:
     Sandbox(const Eos::ApplicationDetails& details)
         : Eos::Application(details) {}
@@ -66,6 +63,17 @@ private:
     Data m_Data;
 
     Eos::IndexedMesh<Vertex, uint16_t> m_Mesh;
+
+    Eos::OrthographicCamera m_Camera;
+
+    float m_PosX = 250.0f;
+    float m_PosY = 250.0f;
+    float m_VelX = 0.0f;
+    float m_VelY = 0.0f;
+    float m_VelCameraX = 0.0f;
+    float m_VelCameraY = 0.0f;
+
+    float m_MovementSpeed = 100.0f;
 private:
     void init() override
     {
@@ -75,6 +83,9 @@ private:
 
     void postInit() override
     {
+        m_Camera = Eos::OrthographicCamera(m_Window.getWindowSize());
+        m_Camera.setPosition({ 100.0f, 0.0f, 0.0f });
+
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
 
         std::vector<Vertex> vertices = {
@@ -92,7 +103,7 @@ private:
         m_Mesh.setVertices(vertices);
         m_Mesh.setIndices(indices);
 
-        uploadIndexedMesh(m_Mesh);
+        m_Engine->createIndexedMesh(m_Mesh);
 
         // Setup descriptor set
         m_DataBuffer = m_Engine->createBuffer(sizeof(Data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
@@ -119,18 +130,6 @@ private:
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
 
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(m_Window.getWindowExtent().width);
-        viewport.height = static_cast<float>(m_Window.getWindowExtent().height);
-        m_Engine->getPipelineBuilder()->viewport = viewport;
-
-        VkRect2D scissor{};
-        scissor.offset = { 0, 0 };
-        scissor.extent = m_Window.getWindowExtent();
-        m_Engine->getPipelineBuilder()->scissor = scissor;
-
         VkPipelineLayoutCreateInfo info = m_Engine->createPipelineLayoutCreateInfo();
         info.setLayoutCount = 1;
         info.pSetLayouts = &m_DataDescriptorSetLayout;
@@ -139,9 +138,9 @@ private:
 
         m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout);
 
-
         m_Data.model = glm::mat4(1.0f);
-        m_Data.projection = glm::ortho(0.0f, 500.0f, 500.0f, 0.0f, 0.0f, -1.0f);
+        m_Data.view = glm::mat4(1.0f);
+        m_Data.projection = m_Camera.getPerspectiveMatrix();
 
         void* tempBuffer;
         vmaMapMemory(*m_Engine->getAllocator(), m_DataBuffer.allocation, &tempBuffer);
@@ -164,21 +163,24 @@ private:
 
         vkCmdDrawIndexed(cmd, static_cast<uint32_t>(m_Mesh.getIndices()->size()),
                 1, 0, 0, 0);
-
     }
 
     void update(double dt) override
     {
-        posX += velX;
-        posY += velY;
+        m_PosX += m_VelX * m_MovementSpeed * dt;
+        m_PosY += m_VelY * m_MovementSpeed * dt;
+        m_Camera.getPosition().x += m_VelCameraX * m_MovementSpeed * dt;
+        m_Camera.getPosition().y += m_VelCameraY * m_MovementSpeed * dt;
         updateData();
     }
 
     void updateData()
     {
         m_Data.model = glm::mat4(1.0f);
-        m_Data.model = glm::translate(m_Data.model, glm::vec3(posX, posY, 0.0f));
+        m_Data.model = glm::translate(m_Data.model, glm::vec3(m_PosX, m_PosY, 0.0f));
         m_Data.model = glm::scale(m_Data.model, glm::vec3(100.0f));
+
+        m_Data.view = m_Camera.getViewMatrix();
 
         void* tempBuffer;
         vmaMapMemory(*m_Engine->getAllocator(), m_DataBuffer.allocation, &tempBuffer);
@@ -188,10 +190,15 @@ private:
 
     static bool keyboardEvent(const Eos::Events::KeyInputEvent* event)
     {
+        namespace EE = Eos::Events;
+
         static std::unordered_map<Eos::Events::Key, bool> activeKeys;
         Sandbox* sb = (Sandbox*)event->dataPointer;
 
-        namespace EE = Eos::Events;
+        if (event->key == EE::Key::KEY_ESCAPE && event->action == EE::Action::PRESS)
+        {
+            sb->m_Window.setWindowShouldClose(true);
+        }
 
         if (event->action == EE::Action::PRESS)
         {
@@ -202,31 +209,29 @@ private:
             activeKeys[event->key] = false;
         }
 
-        sb->velX = 0.0f;
+        sb->m_VelX = 0.0f;
         if (activeKeys[EE::Key::KEY_A])
-            sb->velX += -1.0f;
+            sb->m_VelX += -1.0f;
         else if (activeKeys[EE::Key::KEY_D])
-            sb->velX += 1.0f;
+            sb->m_VelX += 1.0f;
 
-        sb->velY = 0.0f;
+        sb->m_VelY = 0.0f;
         if (activeKeys[EE::Key::KEY_S])
-            sb->velY += -1.0f;
+            sb->m_VelY += -1.0f;
         else if (activeKeys[EE::Key::KEY_W])
-            sb->velY += 1.0f;
+            sb->m_VelY += 1.0f;
 
-        /* if (event->key == Eos::Events::Key::KEY_A && move) */
-        /*     sb->velX = -1.0f; */
-        /* else if (event->key == Eos::Events::Key::KEY_D && move) */
-        /*     sb->velX = 1.0f; */
-        /* else */
-        /*     sb->velX = 0.0f; */
+        sb->m_VelCameraX = 0.0f;
+        if (activeKeys[EE::Key::KEY_LEFT])
+            sb->m_VelCameraX += -1.0f;
+        else if (activeKeys[EE::Key::KEY_RIGHT])
+            sb->m_VelCameraX += 1.0f;
 
-        /* if (event->key == Eos::Events::Key::KEY_W && move) */
-        /*     sb->velY = 1.0f; */
-        /* else if (event->key == Eos::Events::Key::KEY_S && move) */
-        /*     sb->velY = -1.0f; */
-        /* else */
-        /*     sb->velY = 0.0f; */
+        sb->m_VelCameraY = 0.0f;
+        if (activeKeys[EE::Key::KEY_DOWN])
+            sb->m_VelCameraY += -1.0f;
+        else if (activeKeys[EE::Key::KEY_UP])
+            sb->m_VelCameraY += 1.0f;
 
         return true;
     }

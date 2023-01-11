@@ -41,14 +41,6 @@ namespace Eos
 
         Events::EventListener m_MainEventListener;
         Events::EventDispatcher m_MainEventDispatcher;
-    protected:
-        template<VertexTemplate T>
-        void uploadMesh(Mesh<T>& mesh) { m_Engine->createMesh(mesh); }
-
-        template<VertexTemplate T, typename I>
-            requires std::is_integral<I>::value
-        void uploadIndexedMesh(IndexedMesh<T, I>& mesh) { m_Engine->createIndexedMesh(mesh); }
-
     private:
         ApplicationDetails m_Details;
     private:

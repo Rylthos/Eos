@@ -73,7 +73,7 @@ private:
         };
         m_Mesh.setIndices(indices);
 
-        uploadIndexedMesh(m_Mesh);
+        m_Engine->createIndexedMesh(m_Mesh);
 
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/IndexedTriangle/Shaders/IndexedTriangle.vert.spv");
@@ -81,18 +81,6 @@ private:
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
-
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = (float)m_Window.getWindowExtent().width;
-        viewport.height = (float)m_Window.getWindowExtent().height;
-        m_Engine->getPipelineBuilder()->viewport = viewport;
-
-        VkRect2D scissor{};
-        scissor.offset = { 0, 0 };
-        scissor.extent = m_Window.getWindowExtent();
-        m_Engine->getPipelineBuilder()->scissor = scissor;
 
         m_PipelineLayout = m_Engine->setupPipelineLayout();
 

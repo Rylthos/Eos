@@ -31,8 +31,6 @@ struct Vertex
 class Sandbox : public Eos::Application
 {
 public:
-    float mouseX;
-    float mouseY;
 public:
     Sandbox(const Eos::ApplicationDetails& details)
         : Eos::Application(details) {}
@@ -42,6 +40,9 @@ private:
     VkPipeline m_Pipeline;
     VkPipelineLayout m_PipelineLayout;
     Eos::IndexedMesh<Vertex, uint16_t> m_Mesh;
+
+    float m_MouseX;
+    float m_MouseY;
 private:
     void init() override
     {
@@ -51,7 +52,7 @@ private:
 
     void postInit() override
     {
-        m_MainEventDispatcher.addCallback(&keyboardEvent);
+        m_MainEventDispatcher.addCallback(&keyboardEvent, this);
         m_MainEventDispatcher.addCallback(&mouseMoveEvent, this);
         m_MainEventDispatcher.addCallback(&mousePressEvent, this);
 
@@ -67,7 +68,7 @@ private:
         };
         m_Mesh.setIndices(indices);
 
-        uploadIndexedMesh(m_Mesh);
+        m_Engine->createIndexedMesh(m_Mesh);
 
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Events/Shaders/Events.vert.spv");
@@ -75,18 +76,6 @@ private:
         m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
 
         m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
-
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(m_Window.getWindowExtent().width);
-        viewport.height = static_cast<float>(m_Window.getWindowExtent().height);
-        m_Engine->getPipelineBuilder()->viewport = viewport;
-
-        VkRect2D scissor{};
-        scissor.offset = { 0, 0 };
-        scissor.extent = m_Window.getWindowExtent();
-        m_Engine->getPipelineBuilder()->scissor = scissor;
 
         m_PipelineLayout = m_Engine->setupPipelineLayout();
         m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout);
@@ -112,6 +101,14 @@ private:
 
     static bool keyboardEvent(const Eos::Events::KeyInputEvent* event)
     {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        if (event->key == Eos::Events::Key::KEY_ESCAPE &&
+                event->action == Eos::Events::Action::PRESS)
+        {
+            sb->m_Window.setWindowShouldClose(true);
+        }
+
         if (static_cast<int>(event->key) >= 65 && static_cast<int>(event->key) <= 90)
         {
             if (event->action == Eos::Events::Action::PRESS)
@@ -127,8 +124,8 @@ private:
     {
         Sandbox* sb = (Sandbox*)event->dataPointer;
 
-        sb->mouseX = event->xPos;
-        sb->mouseY = event->yPos;
+        sb->m_MouseX = event->xPos;
+        sb->m_MouseY = event->yPos;
 
         return true;
     }
@@ -139,7 +136,7 @@ private:
 
         if (event->action == Eos::Events::Action::PRESS)
         {
-            EOS_LOG_INFO("{} {}", sb->mouseX, sb->mouseY);
+            EOS_LOG_INFO("{} {}", sb->m_MouseX, sb->m_MouseY);
         }
 
         return true;

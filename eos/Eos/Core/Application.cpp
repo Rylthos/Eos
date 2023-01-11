@@ -38,7 +38,8 @@ namespace Eos
         };
 
         m_Engine->init(m_Window, engineSetupDetails);
-        m_Engine->getPipelineBuilder()->defaultPipelineValues();
+        m_Engine->getPipelineBuilder()->defaultPipelineValues(m_Window.getViewport(),
+                m_Window.getScissor());
 
         postInit();
 

@@ -31,6 +31,11 @@ namespace Eos
             { return { static_cast<uint32_t>(m_WindowSize.x),
                          static_cast<uint32_t>(m_WindowSize.y) }; }
 
+        VkViewport getViewport() const;
+        VkRect2D getScissor() const;
+
+        void setWindowShouldClose(bool value) { glfwSetWindowShouldClose(m_Window, value); }
+
         bool shouldClose() const { return glfwWindowShouldClose(m_Window); }
         bool isValid() const { return m_Created && m_Initialised; }
     private:
