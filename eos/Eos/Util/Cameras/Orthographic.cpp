@@ -20,6 +20,6 @@ namespace Eos
 
     glm::mat4 OrthographicCamera::getPerspectiveMatrix()
     {
-        return glm::ortho(0.0f, m_WindowSize.x, m_WindowSize.y, 0.0f);
+        return glm::ortho(0.0f, m_WindowSize.x, 0.0f, m_WindowSize.y);
     }
 }

@@ -52,6 +52,7 @@ namespace Eos
     void Shader::clearModules()
     {
         m_DeletionQueue.flush();
+        m_ShaderStages.clear();
     }
 
     std::vector<VkPipelineShaderStageCreateInfo>& Shader::getShaderStages()

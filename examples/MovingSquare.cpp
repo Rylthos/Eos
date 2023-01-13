@@ -1,9 +1,5 @@
 #include "Eos/Eos.hpp"
 
-#include <GLFW/glfw3.h>
-
-#include <glm/gtc/matrix_transform.hpp>
-
 struct Data
 {
     glm::mat4 projection;
