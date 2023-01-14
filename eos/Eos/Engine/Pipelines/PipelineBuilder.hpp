@@ -4,41 +4,19 @@
 
 #include "Eos/Engine/Pipelines/PipelineCreationInfo.hpp"
 
+#include "Eos/Core/DeletionQueue.hpp"
+
 #include <Vulkan/Vulkan.h>
 
 namespace Eos
 {
     struct VertexInputDescription;
 
-    /* class EOS_API PipelineBuilder */
-    /* { */
-    /* public: */
-    /*     std::vector<VkPipelineShaderStageCreateInfo> shaderStages; */
-    /*     VkPipelineVertexInputStateCreateInfo vertexInputInfo; */
-    /*     VkPipelineInputAssemblyStateCreateInfo inputAssembly; */
-    /*     VkPipelineMultisampleStateCreateInfo multisampling; */
-    /*     VkPipelineRasterizationStateCreateInfo rasterizer; */
-    /*     VkPipelineColorBlendAttachmentState colourBlendAttachment; */
-    /*     VkPipelineDepthStencilStateCreateInfo depthStencil; */
-
-    /*     VkViewport viewport; */
-    /*     VkRect2D scissor; */
-
-    /*     VkPipelineLayout pipelineLayout; */
-    /* public: */
-    /*     void defaultPipelineValues(); */
-    /*     void defaultPipelineValues(VkViewport viewport, VkRect2D scissor); */
-    /*     VkPipeline buildPipeline(VkDevice device, VkRenderPass renderPass); */
-
-    /*     void addVertexInputInfo(const VertexInputDescription& description); */
-    /* private: */
-    /*     VertexInputDescription m_VertexDescription; */
-    /* }; */
-
     class EOS_API PipelineBuilder
     {
     public:
         static PipelineBuilder begin(VkDevice* device, VkRenderPass* renderPass);
+        static void cleanup();
 
         PipelineBuilder& defaultValues();
 
@@ -77,5 +55,7 @@ namespace Eos
         VkRenderPass* m_RenderPass;
 
         VertexInputDescription m_VertexDescription;
+
+        static DeletionQueue s_DeletionQueue;
     };
 }
