@@ -19,10 +19,9 @@ namespace Eos
         return &queue;
     }
 
-    PipelineBuilder* Engine::getPipelineBuilder()
+    PipelineBuilder Engine::createPipelineBuilder()
     {
-        static PipelineBuilder builder{};
-        return &builder;
+        return PipelineBuilder::begin(getDevice(), &m_Renderpass).defaultValues();
     }
 
     VmaAllocator* Engine::getAllocator()
@@ -82,42 +81,6 @@ namespace Eos
         m_Initialized = true;
 
         EOS_LOG_INFO("Initialized Engine");
-    }
-
-    VkPipelineLayoutCreateInfo Engine::createPipelineLayoutCreateInfo()
-    {
-        return Pipeline::pipelineLayoutCreateInfo();
-    }
-
-    VkPipelineLayout Engine::setupPipelineLayout()
-    {
-        VkPipelineLayoutCreateInfo info = Pipeline::pipelineLayoutCreateInfo();
-        return setupPipelineLayout(info);
-    }
-
-    VkPipelineLayout Engine::setupPipelineLayout(VkPipelineLayoutCreateInfo info)
-    {
-        VkPipelineLayout layout;
-
-        EOS_VK_CHECK(vkCreatePipelineLayout(m_Device, &info, nullptr, &layout));
-
-        getDeletionQueue()->pushFunction([=]() {
-                vkDestroyPipelineLayout(m_Device, layout, nullptr); 
-            });
-
-        return layout;
-    }
-
-    VkPipeline Engine::setupPipeline(VkPipelineLayout layout)
-    {
-        getPipelineBuilder()->pipelineLayout = layout;
-        VkPipeline pipeline = getPipelineBuilder()->buildPipeline(m_Device, m_Renderpass);
-
-        getDeletionQueue()->pushFunction([=]() {
-                vkDestroyPipeline(m_Device, pipeline, nullptr); 
-            });
-
-        return pipeline;
     }
 
     RenderInformation Engine::preRender(int frameNumber)

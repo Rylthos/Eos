@@ -52,7 +52,7 @@ namespace Eos
 
     VkViewport Window::getViewport() const
     {
-        VkViewport viewport;
+        VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
         viewport.width = static_cast<float>(m_WindowSize.x);
@@ -63,7 +63,7 @@ namespace Eos
 
     VkRect2D Window::getScissor() const
     {
-        VkRect2D scissor;
+        VkRect2D scissor{};
 
         scissor.offset = { 0, 0 };
         scissor.extent = getWindowExtent();

@@ -37,7 +37,7 @@ public:
     ~Sandbox() {}
 private:
     VkPipeline m_Pipeline;
-    VkPipelineLayout m_PipelineLayout;
+    /* VkPipelineLayout m_PipelineLayout; */
     Eos::IndexedMesh<Vertex, uint16_t> m_Mesh;
 
     float m_MouseX;
@@ -72,12 +72,18 @@ private:
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Events/Shaders/Events.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/Events/Shaders/Events.frag.spv");
-        m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
+        /* m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages(); */
 
-        m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
+        /* m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription()); */
 
-        m_PipelineLayout = m_Engine->setupPipelineLayout();
-        m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout);
+        /* m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout); */
+
+        m_Engine->createPipelineBuilder()
+            .setShaderStages(shader.getShaderStages())
+            .setVertexInputInfo(Vertex::getVertexDescription())
+            .setViewports({ m_Window.getViewport() })
+            .setScissors({ m_Window.getScissor() })
+            .build(m_Pipeline);
 
         shader.clearModules();
     }

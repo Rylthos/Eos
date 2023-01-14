@@ -64,18 +64,13 @@ namespace Eos
     public:
         static Engine* get();
         DeletionQueue* getDeletionQueue();
-        PipelineBuilder* getPipelineBuilder();
+        PipelineBuilder createPipelineBuilder();
         VkDevice* getDevice();
         VmaAllocator* getAllocator();
         DescriptorBuilder createDescriptorBuilder();
 
         void cleanup();
         void init(Window& window, const EngineSetupDetails& setupDetails);
-
-        VkPipelineLayoutCreateInfo createPipelineLayoutCreateInfo();
-        VkPipelineLayout setupPipelineLayout();
-        VkPipelineLayout setupPipelineLayout(VkPipelineLayoutCreateInfo info);
-        VkPipeline setupPipeline(VkPipelineLayout layout);
 
         RenderInformation preRender(int frameNumber);
         void postRender(RenderInformation& information);

@@ -14,9 +14,11 @@ namespace Eos
     public:
         static DescriptorBuilder begin(DescriptorLayoutCache* layoutCache,
                 DescriptorAllocator* allocator);
+
         DescriptorBuilder& bindBuffer(uint32_t binding,
                 VkDescriptorBufferInfo* bufferInfo, VkDescriptorType type,
                 VkShaderStageFlags stageFlags);
+
         DescriptorBuilder& bindImage(uint32_t binding,
                 VkDescriptorImageInfo* imageInfo, VkDescriptorType type,
                 VkShaderStageFlags stageFlags);

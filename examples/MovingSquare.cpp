@@ -123,16 +123,24 @@ private:
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/MovingSquare/Shaders/MovingSquare.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/MovingSquare/Shaders/MovingSquare.frag.spv");
-        m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages();
-        m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription());
+        /* m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages(); */
+        /* m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription()); */
 
-        VkPipelineLayoutCreateInfo info = m_Engine->createPipelineLayoutCreateInfo();
+        /* VkPipelineLayoutCreateInfo info = m_Engine->createPipelineLayoutCreateInfo(); */
+        VkPipelineLayoutCreateInfo info = Eos::Pipeline::pipelineLayoutCreateInfo();
         info.setLayoutCount = 1;
         info.pSetLayouts = &m_DataDescriptorSetLayout;
 
-        m_PipelineLayout = m_Engine->setupPipelineLayout(info);
+        /* m_PipelineLayout = m_Engine->setupPipelineLayout(info); */
 
-        m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout);
+        /* m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout); */
+        m_Engine->createPipelineBuilder()
+            .setShaderStages(shader.getShaderStages())
+            .setVertexInputInfo(Vertex::getVertexDescription())
+            .setViewports({ m_Window.getViewport() })
+            .setScissors({ m_Window.getScissor() })
+            .createPipelineLayout(m_PipelineLayout, info)
+            .build(m_Pipeline, m_PipelineLayout);
 
         m_Data.model = glm::mat4(1.0f);
         m_Data.view = glm::mat4(1.0f);

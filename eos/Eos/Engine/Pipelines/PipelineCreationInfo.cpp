@@ -1,8 +1,8 @@
 #include "PipelineCreationInfo.hpp"
 
-namespace Eos::Pipeline
+namespace Eos
 {
-    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo()
+    VkPipelineVertexInputStateCreateInfo Pipeline::vertexInputStateCreateInfo()
     {
         VkPipelineVertexInputStateCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -13,7 +13,7 @@ namespace Eos::Pipeline
         return info;
     }
 
-    VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo(
+    VkPipelineInputAssemblyStateCreateInfo Pipeline::inputAssemblyCreateInfo(
             VkPrimitiveTopology topology)
     {
         VkPipelineInputAssemblyStateCreateInfo info{};
@@ -25,7 +25,7 @@ namespace Eos::Pipeline
         return info;
     }
 
-    VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo(
+    VkPipelineRasterizationStateCreateInfo Pipeline::rasterizationStateCreateInfo(
             VkPolygonMode polygonMode)
     {
         VkPipelineRasterizationStateCreateInfo info{};
@@ -45,7 +45,7 @@ namespace Eos::Pipeline
         return info;
     }
 
-    VkPipelineMultisampleStateCreateInfo multisamplingStateCreateInfo()
+    VkPipelineMultisampleStateCreateInfo Pipeline::multisamplingStateCreateInfo()
     {
         VkPipelineMultisampleStateCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -60,7 +60,18 @@ namespace Eos::Pipeline
         return info;
     }
 
-    VkPipelineColorBlendAttachmentState colourBlendAttachmentState()
+    VkPipelineColorBlendStateCreateInfo Pipeline::colourBlendStateCreateInfo()
+    {
+        VkPipelineColorBlendStateCreateInfo colourBlending{};
+        colourBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        colourBlending.pNext = nullptr;
+        colourBlending.logicOpEnable = VK_FALSE;
+        colourBlending.logicOp = VK_LOGIC_OP_COPY;
+
+        return colourBlending;
+    }
+
+    VkPipelineColorBlendAttachmentState Pipeline::colourBlendAttachmentState()
     {
         VkPipelineColorBlendAttachmentState info{};
         info.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT
@@ -70,7 +81,7 @@ namespace Eos::Pipeline
         return info;
     }
 
-    VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo(
+    VkPipelineDepthStencilStateCreateInfo Pipeline::depthStencilCreateInfo(
             bool depthTest, bool depthWrite, VkCompareOp compareOp)
     {
         VkPipelineDepthStencilStateCreateInfo info{};
@@ -87,7 +98,16 @@ namespace Eos::Pipeline
         return info;
     }
 
-    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo()
+    VkPipelineViewportStateCreateInfo Pipeline::viewportStateCreateInfo()
+    {
+        VkPipelineViewportStateCreateInfo viewportState{};
+        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportState.pNext = nullptr;
+
+        return viewportState;
+    }
+
+    VkPipelineLayoutCreateInfo Pipeline::pipelineLayoutCreateInfo()
     {
         VkPipelineLayoutCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

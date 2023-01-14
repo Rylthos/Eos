@@ -1,18 +1,32 @@
 #pragma once
 
+#include "Eos/EosPCH.hpp"
+
 #include <Vulkan/Vulkan.h>
 
-namespace Eos::Pipeline
+namespace Eos
 {
-    VkPipelineVertexInputStateCreateInfo   vertexInputStateCreateInfo();
-    VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo(
-            VkPrimitiveTopology topology);
-    VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo(
-            VkPolygonMode polygonMode);
-    VkPipelineMultisampleStateCreateInfo   multisamplingStateCreateInfo();
-    VkPipelineColorBlendAttachmentState    colourBlendAttachmentState();
-    VkPipelineDepthStencilStateCreateInfo  depthStencilCreateInfo(
-            bool depthTest, bool depthWrite, VkCompareOp compareOp);
+    class EOS_API Pipeline
+    {
+    public:
+        static VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo();
 
-    VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo();
+        static VkPipelineInputAssemblyStateCreateInfo inputAssemblyCreateInfo(
+                VkPrimitiveTopology topology);
+
+        static VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo(
+                VkPolygonMode polygonMode);
+
+        static VkPipelineMultisampleStateCreateInfo multisamplingStateCreateInfo();
+
+        static VkPipelineColorBlendStateCreateInfo colourBlendStateCreateInfo();
+        static VkPipelineColorBlendAttachmentState colourBlendAttachmentState();
+
+        static VkPipelineDepthStencilStateCreateInfo depthStencilCreateInfo(
+                bool depthTest, bool depthWrite, VkCompareOp compareOp);
+
+        static VkPipelineViewportStateCreateInfo viewportStateCreateInfo();
+
+        static VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo();
+    };
 }
