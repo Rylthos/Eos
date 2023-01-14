@@ -3,10 +3,10 @@
 #include "Eos/EosPCH.hpp"
 #include "Eos/Core/Window.hpp"
 
-#include "Eos/Util/DeletionQueue.hpp"
+#include "Eos/Core/DeletionQueue.hpp"
 
 #include "Eos/Engine/Mesh.hpp"
-#include "Eos/Engine/PipelineBuilder.hpp"
+#include "Eos/Engine/Pipelines/PipelineBuilder.hpp"
 #include "Eos/Engine/Shader.hpp"
 
 #include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"

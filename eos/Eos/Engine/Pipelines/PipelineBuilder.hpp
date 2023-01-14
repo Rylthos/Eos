@@ -2,7 +2,7 @@
 
 #include "Eos/EosPCH.hpp"
 
-#include "Eos/Util/PipelineCreation.hpp"
+#include "Eos/Engine/Pipelines/PipelineCreationInfo.hpp"
 
 #include <Vulkan/Vulkan.h>
 

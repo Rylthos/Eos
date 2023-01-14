@@ -1,4 +1,4 @@
-#include "BaseCamera.hpp"
+#include "Base.hpp"
 
 namespace Eos
 {

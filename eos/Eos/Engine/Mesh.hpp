@@ -2,6 +2,8 @@
 
 #include "Eos/EosPCH.hpp"
 
+#include "Eos/Engine/Types.hpp"
+
 namespace Eos
 {
     class Engine;

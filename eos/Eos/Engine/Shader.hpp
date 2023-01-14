@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Eos/EosPCH.hpp"
-#include "Eos/Util/DeletionQueue.hpp"
+#include "Eos/Core/DeletionQueue.hpp"
 
 #include <Vulkan/Vulkan.h>
 

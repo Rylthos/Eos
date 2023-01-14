@@ -1,4 +1,4 @@
-#include "PipelineCreation.hpp"
+#include "PipelineCreationInfo.hpp"
 
 namespace Eos::Pipeline
 {

@@ -1,6 +1,6 @@
 #include "Engine.hpp"
 
-#include "Eos/Util/Initializers.hpp"
+#include "Eos/Engine/Initializers.hpp"
 
 #include <VkBootstrap.h>
 #include <vk_mem_alloc.h>

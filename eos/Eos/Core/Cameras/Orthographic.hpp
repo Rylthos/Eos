@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Eos/EosPCH.hpp"
-#include "Eos/Util/Cameras/BaseCamera.hpp"
+#include "Eos/Core/Cameras/Base.hpp"
 
 #include "glm/gtc/matrix_transform.hpp"
 

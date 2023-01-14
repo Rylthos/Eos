@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "Eos/Eos.hpp"
-#include "Eos/Util/PipelineCreation.hpp"
 
 struct Vertex
 {

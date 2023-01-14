@@ -6,7 +6,7 @@
 #include "Eos/Core/Core.hpp"
 #include "Eos/Core/Logger.hpp"
 
-#include "Eos/Util/Types.hpp"
+#include "Eos/Engine/Types.hpp"
 
 #include <vector>
 #include <unordered_map>

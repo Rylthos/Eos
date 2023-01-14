@@ -4,10 +4,11 @@
 
 #include "Eos/Core/Window.hpp"
 #include "Eos/Core/Logger.hpp"
+#include "Eos/Core/Timer.hpp"
+
 #include "Eos/Engine/Engine.hpp"
 #include "Eos/Engine/Mesh.hpp"
-#include "Eos/Util/Types.hpp"
-#include "Eos/Util/Timer.hpp"
+#include "Eos/Engine/Types.hpp"
 
 #include <GLFW/glfw3.h>
 
