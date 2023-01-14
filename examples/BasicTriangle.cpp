@@ -46,7 +46,6 @@ public:
     ~Sandbox() {}
 private:
     VkPipeline m_Pipeline;
-    /* VkPipelineLayout m_PipelineLayout; */
     Eos::Mesh<Vertex> m_Mesh;
 private:
     void init() override
@@ -70,25 +69,16 @@ private:
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/BasicTriangle/Shaders/BasicTriangle.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/BasicTriangle/Shaders/BasicTriangle.frag.spv");
-        /* m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages(); */
-
-        /* m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription()); */
 
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
         viewport.width = (float)m_Window.getWindowExtent().width;
         viewport.height = (float)m_Window.getWindowExtent().height;
-        /* m_Engine->getPipelineBuilder()->viewport = viewport; */
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
         scissor.extent = m_Window.getWindowExtent();
-        /* m_Engine->getPipelineBuilder()->scissor = scissor; */
-
-        /* m_PipelineLayout = m_Engine->setupPipelineLayout(); */
-
-        /* m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout); */
 
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())

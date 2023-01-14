@@ -113,22 +113,19 @@ namespace Eos
         return *this;
     }
 
-    PipelineBuilder& PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout)
+    void PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout)
     {
         VkPipelineLayoutCreateInfo createInfo = Pipeline::pipelineLayoutCreateInfo();
-        return createPipelineLayout(layout, createInfo);
+        createPipelineLayout(layout, createInfo);
     }
 
-    PipelineBuilder& PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout,
-            VkPipelineLayoutCreateInfo& createInfo)
+    void PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout,
+            const VkPipelineLayoutCreateInfo& createInfo)
     {
         if (vkCreatePipelineLayout(*m_Device, &createInfo, nullptr, &layout) != VK_SUCCESS)
         {
             EOS_LOG_CRITICAL("Failed to create Pipeline Layout");
-            return *this;
         }
-
-        return *this;
     }
 
     bool PipelineBuilder::build(VkPipeline& pipeline)
@@ -177,12 +174,21 @@ namespace Eos
             return false;
         }
 
-        s_DeletionQueue.pushFunction([=]() {
-                vkDestroyPipeline(*m_Device, pipeline, nullptr);
-            });
+        VkDevice tempDevice = *m_Device; // Used for Deletion Queue
+        s_DeletionQueue.pushFunction([=](){
+            vkDestroyPipelineLayout(tempDevice, layout, nullptr);
+            vkDestroyPipeline(tempDevice, pipeline, nullptr);
+        });
 
         EOS_LOG_INFO("Built Pipeline");
 
         return true;
+    }
+
+    bool PipelineBuilder::build(VkPipeline& pipeline, VkPipelineLayout& layout,
+            const VkPipelineLayoutCreateInfo& createInfo)
+    {
+        createPipelineLayout(layout, createInfo);
+        return build(pipeline, layout);
     }
 }

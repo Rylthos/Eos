@@ -14,6 +14,8 @@ namespace Eos
 
     Application::~Application()
     {
+        vkDeviceWaitIdle(*m_Engine->getDevice());
+
         PipelineBuilder::cleanup();
         m_Engine->cleanup();
     }

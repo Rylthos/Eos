@@ -94,28 +94,17 @@ private:
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/BasicDescriptorSets/Shaders/BasicDescriptorSets.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/BasicDescriptorSets/Shaders/BasicDescriptorSets.frag.spv");
-        /* m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages(); */
 
-        /* m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription()); */
-
-        /* VkPipelineLayoutCreateInfo info = m_Engine->createPipelineLayoutCreateInfo(); */
         VkPipelineLayoutCreateInfo info = Eos::Pipeline::pipelineLayoutCreateInfo();
         info.setLayoutCount = 1;
         info.pSetLayouts = &m_ColourSetLayout;
-
-        /* m_PipelineLayout = m_Engine->setupPipelineLayout(info); */
-
-        /* m_Pipeline = m_Engine->setupPipeline(m_PipelineLayout); */
 
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
             .setViewports({ m_Window.getViewport() })
             .setScissors({ m_Window.getScissor() })
-            .createPipelineLayout(m_PipelineLayout, info)
-            .build(m_Pipeline, m_PipelineLayout);
-
-        shader.clearModules();
+            .build(m_Pipeline, m_PipelineLayout, info);
 
         Colour c;
         c.colour = glm::vec4(1.0f, 1.0f, 0.0f, 0.0f);

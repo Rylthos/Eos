@@ -32,11 +32,12 @@ namespace Eos
         PipelineBuilder& setViewports(const std::vector<VkViewport>& viewports);
         PipelineBuilder& setScissors(const std::vector<VkRect2D>& scissors);
 
-        PipelineBuilder& createPipelineLayout(VkPipelineLayout& layout);
-        PipelineBuilder& createPipelineLayout(VkPipelineLayout& layout, VkPipelineLayoutCreateInfo& createInfo);
+        void createPipelineLayout(VkPipelineLayout& layout);
+        void createPipelineLayout(VkPipelineLayout& layout, const VkPipelineLayoutCreateInfo& createInfo);
 
         bool build(VkPipeline& pipeline);
         bool build(VkPipeline& pipeline, const VkPipelineLayout& layout);
+        bool build(VkPipeline& pipeline, VkPipelineLayout& layout, const VkPipelineLayoutCreateInfo& createInfo);
     private:
         std::vector<VkPipelineShaderStageCreateInfo> m_ShaderStages;
         VkPipelineVertexInputStateCreateInfo m_VertexInputInfo{};

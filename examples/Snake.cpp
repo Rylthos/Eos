@@ -230,12 +230,9 @@ private:
 
     void createPipelines()
     {
-        /* m_Engine->getPipelineBuilder()->addVertexInputInfo(Vertex::getVertexDescription()); */
-
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Snake/Shaders/Snake.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/Snake/Shaders/Snake.frag.spv");
-        /* m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages(); */
 
         m_GlobalDataBuffer = m_Engine->createBuffer(sizeof(GlobalShaderData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -262,6 +259,10 @@ private:
         segmentInfo.offset = 0;
         segmentInfo.range = sizeof(SegmentShaderData) * m_MaxSegments;
 
+        VkPipelineLayoutCreateInfo info = Eos::Pipeline::pipelineLayoutCreateInfo();
+        info.setLayoutCount = 1;
+        info.pSetLayouts = &m_SnakeSetLayout;
+
         m_Engine->createDescriptorBuilder()
             .bindBuffer(0, &globalInfo, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                     VK_SHADER_STAGE_VERTEX_BIT)
@@ -269,32 +270,25 @@ private:
                     VK_SHADER_STAGE_VERTEX_BIT)
             .build(m_SnakeSet, m_SnakeSetLayout);
 
-        /* VkPipelineLayoutCreateInfo info = m_Engine->createPipelineLayoutCreateInfo(); */
-        VkPipelineLayoutCreateInfo info = Eos::Pipeline::pipelineLayoutCreateInfo();
-        info.setLayoutCount = 1;
-        info.pSetLayouts = &m_SnakeSetLayout;
-
-        /* m_SnakePipelineLayout = m_Engine->setupPipelineLayout(info); */
-        /* m_SnakePipeline = m_Engine->setupPipeline(m_SnakePipelineLayout); */
-
         m_Engine->createPipelineBuilder()
             .defaultValues()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
             .setViewports({ m_Window.getViewport() })
             .setScissors({ m_Window.getScissor() })
-            .createPipelineLayout(m_SnakePipelineLayout, info)
-            .build(m_SnakePipeline, m_SnakePipelineLayout);
+            .build(m_SnakePipeline, m_SnakePipelineLayout, info);
 
 
         shader.clearModules();
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Snake/Shaders/Snake.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/Snake/Shaders/Apple.frag.spv");
-        /* m_Engine->getPipelineBuilder()->shaderStages = shader.getShaderStages(); */
 
         segmentInfo.buffer = m_SegmentDataBuffer.buffer;
         segmentInfo.offset = sizeof(SegmentShaderData) * m_MaxSegments;
         segmentInfo.range = sizeof(SegmentShaderData) * m_AppleCount;
+
+        info.setLayoutCount = 1;
+        info.pSetLayouts = &m_AppleSetLayout;
 
         m_Engine->createDescriptorBuilder()
             .bindBuffer(0, &globalInfo, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -303,19 +297,12 @@ private:
                     VK_SHADER_STAGE_VERTEX_BIT)
             .build(m_AppleSet, m_AppleSetLayout);
 
-        info.setLayoutCount = 1;
-        info.pSetLayouts = &m_AppleSetLayout;
-
-        /* m_ApplePipelineLayout = m_Engine->setupPipelineLayout(info); */
-        /* m_ApplePipeline = m_Engine->setupPipeline(m_ApplePipelineLayout); */
-
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
             .setViewports({ m_Window.getViewport() })
             .setScissors({ m_Window.getScissor() })
-            .createPipelineLayout(m_ApplePipelineLayout, info)
-            .build(m_ApplePipeline, m_ApplePipelineLayout);
+            .build(m_ApplePipeline, m_ApplePipelineLayout, info);
     }
 
     void reset()
