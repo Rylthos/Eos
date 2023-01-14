@@ -99,7 +99,7 @@ private:
         m_Mesh.setVertices(vertices);
         m_Mesh.setIndices(indices);
 
-        m_Engine->createIndexedMesh(m_Mesh);
+        m_Mesh.create(m_Engine);
 
         // Setup descriptor set
         m_DataBuffer = m_Engine->createBuffer(sizeof(Data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,

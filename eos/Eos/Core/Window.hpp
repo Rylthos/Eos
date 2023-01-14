@@ -23,6 +23,9 @@ namespace Eos
         void createSurface(VkInstance& instance, VkSurfaceKHR* surface) const;
 
         void setWindowHint(int hint, int value) { glfwWindowHint(hint, value); }
+        void setWindowAttrib(int attrib, int value)
+            { glfwSetWindowAttrib(m_Window, attrib, value); }
+
         void setWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }
 
         GLFWwindow* getWindow() { return m_Window; }

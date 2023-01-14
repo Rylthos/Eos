@@ -3,7 +3,8 @@ find_package (Vulkan REQUIRED)
 set (CMAKE_CXX_STANDARD 20)
 
 file (GLOB_RECURSE EOS_PROJECT_FILES CONFIGURE_DEPENDS
-    "${EOS_PROJECT_DIR}/eos/*.cpp" "${EOS_PROJECT_DIR}/eos/*.hpp")
+    "${EOS_PROJECT_DIR}/eos/*.cpp" "${EOS_PROJECT_DIR}/eos/*.hpp
+     ${EOS_PRKECT_DIR}/eos/*.inl")
 add_library(Eos SHARED ${EOS_PROJECT_FILES})
 
 set_target_properties(Eos PROPERTIES VERSION ${PROJECT_VERSION})

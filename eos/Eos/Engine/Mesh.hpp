@@ -4,6 +4,8 @@
 
 namespace Eos
 {
+    class Engine;
+
     template <typename T>
     concept VertexTemplate =
         requires(T t) {
@@ -23,6 +25,10 @@ namespace Eos
         const Buffer* getVertexBuffer() const { return &m_VertexBuffer; }
 
         void setVertexBuffer(Buffer buffer) { m_VertexBuffer = buffer; }
+
+        void update(Engine* engine) { create(engine); }
+        void create(Engine* engine);
+
     protected:
         std::vector<T> m_Vertices;
         Buffer m_VertexBuffer;
@@ -42,8 +48,14 @@ namespace Eos
         const Buffer* getIndexBuffer() const { return &m_IndexBuffer; }
 
         void setIndexBuffer(Buffer buffer) { m_IndexBuffer = buffer; }
+
+        void update(Engine* engine) { create(engine); }
+        void create(Engine* engine);
+
     protected:
         std::vector<I> m_Indices;
         Buffer m_IndexBuffer;
     };
 }
+
+/* #include "Mesh.inl" */

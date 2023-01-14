@@ -23,7 +23,8 @@ namespace Eos
     struct ApplicationDetails
     {
         std::string name;
-        bool vsync = true;
+        bool enableVsync = true;
+        bool enableWindowResizing = false;
     };
 
     class EOS_API Application

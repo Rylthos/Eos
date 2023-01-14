@@ -129,7 +129,7 @@ private:
         };
         m_GeneralMesh.setIndices(indices);
 
-        m_Engine->createIndexedMesh(m_GeneralMesh);
+        m_GeneralMesh.create(m_Engine);
 
         m_Snake.reserve(m_MaxSegments);
         m_Apples.reserve(m_AppleCount);
@@ -503,7 +503,6 @@ Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
     details.name = "Snake";
-    details.vsync = false;
 
     return new Snake(details);
 }

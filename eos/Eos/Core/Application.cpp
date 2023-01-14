@@ -21,6 +21,9 @@ namespace Eos
     {
         m_Window.init();
 
+        m_Window.setWindowHint(GLFW_RESIZABLE,
+                m_Details.enableWindowResizing ? GLFW_TRUE : GLFW_FALSE);
+
         init();
         m_MainEventListener.addListeners(m_Window, &m_MainEventDispatcher);
 
@@ -34,7 +37,8 @@ namespace Eos
         }
 
         EngineSetupDetails engineSetupDetails = {
-            m_Details.name.c_str(), m_Details.vsync
+            m_Details.name.c_str(),
+            m_Details.enableVsync
         };
 
         m_Engine->init(m_Window, engineSetupDetails);
