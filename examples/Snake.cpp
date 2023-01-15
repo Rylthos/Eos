@@ -6,11 +6,13 @@ struct GlobalShaderData
 {
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
+    alignas(16) uint32_t totalSnakeSegments;
 };
 
 struct SegmentShaderData
 {
     glm::mat4 modelMatrix;
+    alignas(16) uint32_t currentSnakeSegment;
 };
 
 struct Vertex
@@ -420,6 +422,7 @@ private:
         GlobalShaderData data;
         data.projectionMatrix = m_Camera.getPerspectiveMatrix();
         data.viewMatrix = m_Camera.getViewMatrix();
+        data.totalSnakeSegments = m_Snake.size();
 
         void* temp;
         vmaMapMemory(Eos::GlobalData::getAllocator(), m_GlobalDataBuffer.allocation, &temp);
@@ -441,6 +444,7 @@ private:
             model = glm::translate(model, glm::vec3(position.x, position.y, 0));
             model = glm::scale(model, glm::vec3(m_CellWidth / 2, m_CellHeight / 2, 1.0f));
             data[i].modelMatrix = model;
+            data[i].currentSnakeSegment = i;
         }
 
         for (int i = 0; i < m_Apples.size(); i++)
@@ -453,12 +457,21 @@ private:
             model = glm::scale(model, glm::vec3(m_CellWidth / 2, m_CellHeight / 2, 1.0f));
 
             data[m_MaxSegments + i].modelMatrix = model;
+            data[m_MaxSegments + i].currentSnakeSegment = 0;
         }
 
         void* temp;
         vmaMapMemory(Eos::GlobalData::getAllocator(), m_SegmentDataBuffer.allocation, &temp);
             memcpy(temp, &data, sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount));
         vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_SegmentDataBuffer.allocation);
+
+        GlobalShaderData globalData;
+        globalData.projectionMatrix = m_Camera.getPerspectiveMatrix();
+        globalData.viewMatrix = m_Camera.getViewMatrix();
+        globalData.totalSnakeSegments = m_Snake.size();
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_GlobalDataBuffer.allocation, &temp);
+            memcpy(temp, &globalData, sizeof(GlobalShaderData));
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_GlobalDataBuffer.allocation);
     }
 
     glm::vec2 gridPositionToWorldPos(glm::ivec2 pos)
