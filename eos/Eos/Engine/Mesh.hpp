@@ -3,6 +3,7 @@
 #include "Eos/EosPCH.hpp"
 
 #include "Eos/Engine/Types.hpp"
+#include "Eos/Core/DeletionQueue.hpp"
 
 namespace Eos
 {
@@ -18,6 +19,11 @@ namespace Eos
     class Mesh
     {
     public:
+        ~Mesh()
+        {
+            m_DeletionQueue.flush();
+        }
+
         void setVertices(std::vector<T>& vertices) { m_Vertices = vertices; }
         std::vector<T>* getVertices() { return &m_Vertices; }
 
@@ -34,6 +40,8 @@ namespace Eos
     protected:
         std::vector<T> m_Vertices;
         Buffer m_VertexBuffer;
+
+        DeletionQueue m_DeletionQueue;
     };
 
     template<VertexTemplate T, typename I>
@@ -54,7 +62,7 @@ namespace Eos
         void update(Engine* engine) { create(engine); }
         void create(Engine* engine);
 
-    protected:
+    private:
         std::vector<I> m_Indices;
         Buffer m_IndexBuffer;
     };

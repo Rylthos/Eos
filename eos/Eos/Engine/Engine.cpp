@@ -13,17 +13,6 @@ namespace Eos
         return &engine;
     }
 
-    DeletionQueue* Engine::getDeletionQueue()
-    {
-        static DeletionQueue queue{};
-        return &queue;
-    }
-
-    PipelineBuilder Engine::createPipelineBuilder()
-    {
-        return PipelineBuilder::begin(getDevice(), &m_Renderpass).defaultValues();
-    }
-
     VmaAllocator* Engine::getAllocator()
     {
         return &m_Allocator;
@@ -32,6 +21,11 @@ namespace Eos
     VkDevice* Engine::getDevice()
     {
         return &m_Device;
+    }
+
+    PipelineBuilder Engine::createPipelineBuilder()
+    {
+        return PipelineBuilder::begin(getDevice(), &m_Renderpass).defaultValues();
     }
 
     DescriptorBuilder Engine::createDescriptorBuilder()
@@ -48,7 +42,7 @@ namespace Eos
             m_DescriptorAllocator.cleanup();
             m_DescriptorLayoutCache.cleanup();
 
-            getDeletionQueue()->flush();
+            m_DeletionQueue.flush();
 
             vkDestroyDevice(m_Device, nullptr);
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
@@ -240,7 +234,7 @@ namespace Eos
         allocatorInfo.instance = m_Instance;
         vmaCreateAllocator(&allocatorInfo, &m_Allocator);
 
-        getDeletionQueue()->pushFunction([=]() {
+        m_DeletionQueue.pushFunction([=]() {
                 vmaDestroyAllocator(m_Allocator);
             });
 
@@ -265,7 +259,7 @@ namespace Eos
         m_Swapchain.imageViews = vkbSwapchain.get_image_views().value();
         m_Swapchain.imageFormat = vkbSwapchain.image_format;
 
-        getDeletionQueue()->pushFunction([=]()
+        m_DeletionQueue.pushFunction([=]()
                 { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
 
         EOS_LOG_INFO("Created Swapchain");
@@ -316,7 +310,7 @@ namespace Eos
 
         EOS_VK_CHECK(vkCreateRenderPass(m_Device, &renderpassInfo, nullptr, &m_Renderpass));
 
-        getDeletionQueue()->pushFunction([&]()
+        m_DeletionQueue.pushFunction([&]()
                 { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); });
 
         EOS_LOG_INFO("Created Renderpass");
@@ -346,7 +340,7 @@ namespace Eos
             EOS_VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr,
                         &m_Framebuffers[i]));
 
-            getDeletionQueue()->pushFunction([=]() {
+            m_DeletionQueue.pushFunction([=]() {
                     vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
                     vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
                 });
@@ -372,7 +366,7 @@ namespace Eos
             EOS_VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdAllocInfo,
                         &frame.commandBuffer));
 
-            getDeletionQueue()->pushFunction([=]()
+            m_DeletionQueue.pushFunction([=]()
                     { vkDestroyCommandPool(m_Device, m_Frames[i].commandPool,
                             nullptr); });
         }
@@ -396,7 +390,7 @@ namespace Eos
             EOS_VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreCreateInfo, nullptr,
                         &frame.renderSemaphore));
 
-            getDeletionQueue()->pushFunction([=]() {
+            m_DeletionQueue.pushFunction([=]() {
                     vkDestroyFence(m_Device, m_Frames[i].renderFence, nullptr);
                     vkDestroySemaphore(m_Device, m_Frames[i].presentSemaphore, nullptr);
                     vkDestroySemaphore(m_Device, m_Frames[i].renderSemaphore, nullptr);
@@ -434,7 +428,7 @@ namespace Eos
         EOS_VK_CHECK(vkCreateFence(m_Device, &uploadFenceCreateInfo, nullptr,
                     &m_UploadContext.uploadFence));
 
-        getDeletionQueue()->pushFunction([=]() {
+        m_DeletionQueue.pushFunction([=]() {
                 vkDestroyCommandPool(m_Device, m_UploadContext.commandPool, nullptr);
                 vkDestroyFence(m_Device, m_UploadContext.uploadFence, nullptr);
             });

@@ -240,14 +240,14 @@ private:
         m_SegmentDataBuffer = m_Engine->createBuffer(sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount),
                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        m_Engine->getDeletionQueue()->pushFunction([&]()
-                {
-                    vmaDestroyBuffer(*m_Engine->getAllocator(), m_GlobalDataBuffer.buffer,
-                            m_GlobalDataBuffer.allocation);
+        m_DeletionQueue.pushFunction([&]()
+        {
+            vmaDestroyBuffer(*m_Engine->getAllocator(), m_GlobalDataBuffer.buffer,
+                    m_GlobalDataBuffer.allocation);
 
-                    vmaDestroyBuffer(*m_Engine->getAllocator(), m_SegmentDataBuffer.buffer,
-                            m_SegmentDataBuffer.allocation);
-                });
+            vmaDestroyBuffer(*m_Engine->getAllocator(), m_SegmentDataBuffer.buffer,
+                    m_SegmentDataBuffer.allocation);
+        });
 
         VkDescriptorBufferInfo globalInfo{};
         globalInfo.buffer = m_GlobalDataBuffer.buffer;

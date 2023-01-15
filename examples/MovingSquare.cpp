@@ -48,6 +48,7 @@ public:
         : Eos::Application(details) {}
 
     ~Sandbox() {}
+
 private:
     VkPipeline m_Pipeline;
     VkPipelineLayout m_PipelineLayout;
@@ -114,11 +115,11 @@ private:
                     VK_SHADER_STAGE_VERTEX_BIT)
             .build(m_DataDescriptorSet, m_DataDescriptorSetLayout);
 
-        m_Engine->getDeletionQueue()->pushFunction([&]()
-                {
-                    vmaDestroyBuffer(*m_Engine->getAllocator(), m_DataBuffer.buffer,
-                            m_DataBuffer.allocation);
-                });
+        m_DeletionQueue.pushFunction([&]()
+        {
+            vmaDestroyBuffer(*m_Engine->getAllocator(), m_DataBuffer.buffer,
+                    m_DataBuffer.allocation);
+        });
 
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/MovingSquare/Shaders/MovingSquare.vert.spv");

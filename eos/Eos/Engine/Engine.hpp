@@ -63,13 +63,14 @@ namespace Eos
     {
     public:
         static Engine* get();
-        DeletionQueue* getDeletionQueue();
-        PipelineBuilder createPipelineBuilder();
         VkDevice* getDevice();
         VmaAllocator* getAllocator();
+
+        PipelineBuilder createPipelineBuilder();
         DescriptorBuilder createDescriptorBuilder();
 
         void cleanup();
+
         void init(Window& window, const EngineSetupDetails& setupDetails);
 
         RenderInformation preRender(int frameNumber);
@@ -80,6 +81,8 @@ namespace Eos
 
         void immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
 
+        Engine(const Engine&) = delete;
+        void operator=(const Engine&) = delete;
     private:
         bool m_Initialized = false;
         VkExtent2D m_WindowExtent;
@@ -107,6 +110,8 @@ namespace Eos
 
         DescriptorAllocator m_DescriptorAllocator;
         DescriptorLayoutCache m_DescriptorLayoutCache;
+
+        DeletionQueue m_DeletionQueue;
 
     private:
         Engine() {}

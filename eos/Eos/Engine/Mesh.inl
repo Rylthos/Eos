@@ -29,7 +29,7 @@ namespace Eos
                         m_VertexBuffer.buffer, 1, &copy);
                 });
 
-        engine->getDeletionQueue()->pushFunction([=]() {
+        m_DeletionQueue.pushFunction([=]() {
                 vmaDestroyBuffer(*engine->getAllocator(), m_VertexBuffer.buffer,
                         m_VertexBuffer.allocation);
                 });
@@ -66,10 +66,11 @@ namespace Eos
                         m_IndexBuffer.buffer, 1, &copy);
                 });
 
-        engine->getDeletionQueue()->pushFunction([=]() {
+        Mesh<T>::m_DeletionQueue.pushFunction([=]() {
                 vmaDestroyBuffer(*engine->getAllocator(), m_IndexBuffer.buffer,
                 m_IndexBuffer.allocation);
         });
+
         vmaDestroyBuffer(*engine->getAllocator(), stagingBuffer.buffer,
                 stagingBuffer.allocation);
     }

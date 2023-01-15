@@ -41,6 +41,7 @@ public:
         : Eos::Application(details) {}
 
     ~Sandbox() {}
+
 private:
     VkPipeline m_Pipeline;
     VkPipelineLayout m_PipelineLayout;
@@ -75,11 +76,12 @@ private:
 
         m_ColourBuffer = m_Engine->createBuffer(sizeof(Colour), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
-        m_Engine->getDeletionQueue()->pushFunction([&]()
-                {
-                    vmaDestroyBuffer(*m_Engine->getAllocator(), m_ColourBuffer.buffer,
-                            m_ColourBuffer.allocation);
-                });
+
+        m_DeletionQueue.pushFunction([&]()
+        {
+            vmaDestroyBuffer(*m_Engine->getAllocator(), m_ColourBuffer.buffer,
+                    m_ColourBuffer.allocation);
+        });
 
         VkDescriptorBufferInfo colourInfo{};
         colourInfo.buffer = m_ColourBuffer.buffer;

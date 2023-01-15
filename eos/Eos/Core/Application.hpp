@@ -43,6 +43,8 @@ namespace Eos
 
         Events::EventListener m_MainEventListener;
         Events::EventDispatcher m_MainEventDispatcher;
+
+        DeletionQueue m_DeletionQueue;
     private:
         ApplicationDetails m_Details;
     private:
