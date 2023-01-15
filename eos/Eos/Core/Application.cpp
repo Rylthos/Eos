@@ -14,14 +14,7 @@ namespace Eos
 
     Application::~Application()
     {
-        if (vkDeviceWaitIdle(*m_Engine->getDevice()) != VK_SUCCESS)
-        {
-            EOS_LOG_ERROR("Failed");
-        }
-
         PipelineBuilder::cleanup();
-
-        m_DeletionQueue.flush();
 
         m_Engine->cleanup();
     }
@@ -55,6 +48,9 @@ namespace Eos
         postInit();
 
         mainLoop();
+
+        // For Destructors
+        vkDeviceWaitIdle(GlobalData::getDevice());
     }
 
     void Application::mainLoop()

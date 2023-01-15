@@ -115,9 +115,9 @@ private:
                     VK_SHADER_STAGE_VERTEX_BIT)
             .build(m_DataDescriptorSet, m_DataDescriptorSetLayout);
 
-        m_DeletionQueue.pushFunction([&]()
+        Eos::GlobalData::getDeletionQueue().pushFunction([=]()
         {
-            vmaDestroyBuffer(*m_Engine->getAllocator(), m_DataBuffer.buffer,
+            vmaDestroyBuffer(Eos::GlobalData::getAllocator(), m_DataBuffer.buffer,
                     m_DataBuffer.allocation);
         });
 
@@ -141,9 +141,9 @@ private:
         m_Data.projection = m_Camera.getPerspectiveMatrix();
 
         void* tempBuffer;
-        vmaMapMemory(*m_Engine->getAllocator(), m_DataBuffer.allocation, &tempBuffer);
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_DataBuffer.allocation, &tempBuffer);
             memcpy(tempBuffer, &m_Data, sizeof(Data));
-        vmaUnmapMemory(*m_Engine->getAllocator(), m_DataBuffer.allocation);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_DataBuffer.allocation);
     }
 
     void draw(VkCommandBuffer cmd) override
@@ -181,9 +181,9 @@ private:
         m_Data.view = m_Camera.getViewMatrix();
 
         void* tempBuffer;
-        vmaMapMemory(*m_Engine->getAllocator(), m_DataBuffer.allocation, &tempBuffer);
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_DataBuffer.allocation, &tempBuffer);
             memcpy(tempBuffer, &m_Data, sizeof(Data));
-        vmaUnmapMemory(*m_Engine->getAllocator(), m_DataBuffer.allocation);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_DataBuffer.allocation);
     }
 
     static bool keyboardEvent(const Eos::Events::KeyInputEvent* event)
@@ -215,9 +215,9 @@ private:
 
         sb->m_VelY = 0.0f;
         if (activeKeys[EE::Key::KEY_S])
-            sb->m_VelY += -1.0f;
-        else if (activeKeys[EE::Key::KEY_W])
             sb->m_VelY += 1.0f;
+        else if (activeKeys[EE::Key::KEY_W])
+            sb->m_VelY += -1.0f;
 
         sb->m_VelCameraX = 0.0f;
         if (activeKeys[EE::Key::KEY_LEFT])
@@ -227,9 +227,9 @@ private:
 
         sb->m_VelCameraY = 0.0f;
         if (activeKeys[EE::Key::KEY_DOWN])
-            sb->m_VelCameraY += -1.0f;
-        else if (activeKeys[EE::Key::KEY_UP])
             sb->m_VelCameraY += 1.0f;
+        else if (activeKeys[EE::Key::KEY_UP])
+            sb->m_VelCameraY += -1.0f;
 
         return true;
     }

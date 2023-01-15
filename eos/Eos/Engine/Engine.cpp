@@ -5,6 +5,8 @@
 #include <VkBootstrap.h>
 #include <vk_mem_alloc.h>
 
+#include "Eos/Engine/GlobalData.hpp"
+
 namespace Eos
 {
     Engine* Engine::get()
@@ -13,19 +15,9 @@ namespace Eos
         return &engine;
     }
 
-    VmaAllocator* Engine::getAllocator()
-    {
-        return &m_Allocator;
-    }
-
-    VkDevice* Engine::getDevice()
-    {
-        return &m_Device;
-    }
-
     PipelineBuilder Engine::createPipelineBuilder()
     {
-        return PipelineBuilder::begin(getDevice(), &m_Renderpass).defaultValues();
+        return PipelineBuilder::begin(&m_Device, &m_Renderpass).defaultValues();
     }
 
     DescriptorBuilder Engine::createDescriptorBuilder()
@@ -41,6 +33,8 @@ namespace Eos
 
             m_DescriptorAllocator.cleanup();
             m_DescriptorLayoutCache.cleanup();
+
+            vkDeviceWaitIdle(m_Device);
 
             m_DeletionQueue.flush();
 
@@ -71,6 +65,10 @@ namespace Eos
         initSyncStructures();
         initDescriptorSets();
         initUploadContext();
+
+        GlobalData::s_Device = &m_Device;
+        GlobalData::s_Allocator = &m_Allocator;
+        GlobalData::s_DeletionQueue = &m_DeletionQueue;
 
         m_Initialized = true;
 
@@ -191,6 +189,7 @@ namespace Eos
 
         EOS_VK_CHECK(vkQueueSubmit(m_GraphicsQueue.queue, 1, &submit,
                     m_UploadContext.uploadFence));
+
         vkWaitForFences(m_Device, 1, &m_UploadContext.uploadFence, true, 9999999999);
         vkResetFences(m_Device, 1, &m_UploadContext.uploadFence);
 

@@ -63,8 +63,6 @@ namespace Eos
     {
     public:
         static Engine* get();
-        VkDevice* getDevice();
-        VmaAllocator* getAllocator();
 
         PipelineBuilder createPipelineBuilder();
         DescriptorBuilder createDescriptorBuilder();

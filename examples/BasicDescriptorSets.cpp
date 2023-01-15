@@ -77,9 +77,9 @@ private:
         m_ColourBuffer = m_Engine->createBuffer(sizeof(Colour), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        m_DeletionQueue.pushFunction([&]()
+        Eos::GlobalData::getDeletionQueue().pushFunction([&]()
         {
-            vmaDestroyBuffer(*m_Engine->getAllocator(), m_ColourBuffer.buffer,
+            vmaDestroyBuffer(Eos::GlobalData::getAllocator(), m_ColourBuffer.buffer,
                     m_ColourBuffer.allocation);
         });
 
@@ -111,9 +111,9 @@ private:
         Colour c;
         c.colour = glm::vec4(1.0f, 1.0f, 0.0f, 0.0f);
         void* data;
-        vmaMapMemory(*m_Engine->getAllocator(), m_ColourBuffer.allocation, &data);
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_ColourBuffer.allocation, &data);
             memcpy(data, &c, sizeof(Colour));
-        vmaUnmapMemory(*m_Engine->getAllocator(), m_ColourBuffer.allocation);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_ColourBuffer.allocation);
     }
 
     void draw(VkCommandBuffer cmd) override
@@ -141,9 +141,9 @@ private:
         Colour c;
         c.colour = glm::vec4(fmax(sin(time), 0.0f), fmax(cos(time), 0.0f), 0.0f, 1.0f);
         void* data;
-        vmaMapMemory(*m_Engine->getAllocator(), m_ColourBuffer.allocation, &data);
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_ColourBuffer.allocation, &data);
             memcpy(data, &c, sizeof(Colour));
-        vmaUnmapMemory(*m_Engine->getAllocator(), m_ColourBuffer.allocation);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_ColourBuffer.allocation);
     }
 };
 

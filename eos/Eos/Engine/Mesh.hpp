@@ -4,6 +4,7 @@
 
 #include "Eos/Engine/Types.hpp"
 #include "Eos/Core/DeletionQueue.hpp"
+#include "Eos/Engine/GlobalData.hpp"
 
 namespace Eos
 {

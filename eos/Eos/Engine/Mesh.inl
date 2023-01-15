@@ -2,6 +2,8 @@
 
 #include "vk_mem_alloc.h"
 
+#include "Eos/Engine/GlobalData.hpp"
+
 namespace Eos
 {
     template <VertexTemplate T>
@@ -13,9 +15,9 @@ namespace Eos
                 VMA_MEMORY_USAGE_CPU_ONLY);
 
         void* data;
-        vmaMapMemory(*engine->getAllocator(), stagingBuffer.allocation, &data);
+        vmaMapMemory(GlobalData::getAllocator(), stagingBuffer.allocation, &data);
             memcpy(data, m_Vertices.data(), bufferSize);
-        vmaUnmapMemory(*engine->getAllocator(), stagingBuffer.allocation);
+        vmaUnmapMemory(GlobalData::getAllocator(), stagingBuffer.allocation);
 
         setVertexBuffer(engine->createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                     VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY));
@@ -30,11 +32,11 @@ namespace Eos
                 });
 
         m_DeletionQueue.pushFunction([=]() {
-                vmaDestroyBuffer(*engine->getAllocator(), m_VertexBuffer.buffer,
+                vmaDestroyBuffer(GlobalData::getAllocator(), m_VertexBuffer.buffer,
                         m_VertexBuffer.allocation);
                 });
 
-        vmaDestroyBuffer(*engine->getAllocator(), stagingBuffer.buffer,
+        vmaDestroyBuffer(GlobalData::getAllocator(), stagingBuffer.buffer,
                 stagingBuffer.allocation);
     }
 
@@ -50,9 +52,9 @@ namespace Eos
                 VMA_MEMORY_USAGE_CPU_ONLY);
 
         void* data;
-        vmaMapMemory(*engine->getAllocator(), stagingBuffer.allocation, &data);
+        vmaMapMemory(GlobalData::getAllocator(), stagingBuffer.allocation, &data);
             memcpy(data, m_Indices.data(), bufferSize);
-        vmaUnmapMemory(*engine->getAllocator(), stagingBuffer.allocation);
+        vmaUnmapMemory(GlobalData::getAllocator(), stagingBuffer.allocation);
 
         setIndexBuffer(engine->createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
                     VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY));
@@ -67,11 +69,11 @@ namespace Eos
                 });
 
         Mesh<T>::m_DeletionQueue.pushFunction([=]() {
-                vmaDestroyBuffer(*engine->getAllocator(), m_IndexBuffer.buffer,
+                vmaDestroyBuffer(GlobalData::getAllocator(), m_IndexBuffer.buffer,
                 m_IndexBuffer.allocation);
         });
 
-        vmaDestroyBuffer(*engine->getAllocator(), stagingBuffer.buffer,
+        vmaDestroyBuffer(GlobalData::getAllocator(), stagingBuffer.buffer,
                 stagingBuffer.allocation);
     }
 }

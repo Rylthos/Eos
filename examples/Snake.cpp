@@ -240,12 +240,12 @@ private:
         m_SegmentDataBuffer = m_Engine->createBuffer(sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount),
                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        m_DeletionQueue.pushFunction([&]()
+        Eos::GlobalData::getDeletionQueue().pushFunction([&]()
         {
-            vmaDestroyBuffer(*m_Engine->getAllocator(), m_GlobalDataBuffer.buffer,
+            vmaDestroyBuffer(Eos::GlobalData::getAllocator(), m_GlobalDataBuffer.buffer,
                     m_GlobalDataBuffer.allocation);
 
-            vmaDestroyBuffer(*m_Engine->getAllocator(), m_SegmentDataBuffer.buffer,
+            vmaDestroyBuffer(Eos::GlobalData::getAllocator(), m_SegmentDataBuffer.buffer,
                     m_SegmentDataBuffer.allocation);
         });
 
@@ -428,9 +428,9 @@ private:
         data.viewMatrix = m_Camera.getViewMatrix();
 
         void* temp;
-        vmaMapMemory(*m_Engine->getAllocator(), m_GlobalDataBuffer.allocation, &temp);
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_GlobalDataBuffer.allocation, &temp);
             memcpy(temp, &data, sizeof(GlobalShaderData));
-        vmaUnmapMemory(*m_Engine->getAllocator(), m_GlobalDataBuffer.allocation);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_GlobalDataBuffer.allocation);
     }
     
     void updateSegmentData()
@@ -462,9 +462,9 @@ private:
         }
 
         void* temp;
-        vmaMapMemory(*m_Engine->getAllocator(), m_SegmentDataBuffer.allocation, &temp);
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_SegmentDataBuffer.allocation, &temp);
             memcpy(temp, &data, sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount));
-        vmaUnmapMemory(*m_Engine->getAllocator(), m_SegmentDataBuffer.allocation);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_SegmentDataBuffer.allocation);
     }
 
     glm::vec2 gridPositionToWorldPos(glm::ivec2 pos)

@@ -27,6 +27,7 @@
 #include "Engine/Mesh.hpp"
 #include "Engine/Shader.hpp"
 #include "Engine/Types.hpp"
+#include "Engine/GlobalData.hpp"
 
 // Engine / Descriptor Sets
 #include "Engine/DescriptorSets/DescriptorAllocator.hpp"
