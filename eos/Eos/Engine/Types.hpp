@@ -21,12 +21,6 @@ namespace Eos
         std::vector<VkImageView> imageViews;
     };
 
-    struct Buffer
-    {
-        VkBuffer buffer;
-        VmaAllocation allocation;
-    };
-
     struct VertexInputDescription
     {
         std::vector<VkVertexInputBindingDescription> bindings;

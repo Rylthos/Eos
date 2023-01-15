@@ -74,7 +74,7 @@ private:
 
         m_Mesh.create(m_Engine);
 
-        m_ColourBuffer = m_Engine->createBuffer(sizeof(Colour), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        m_ColourBuffer.create(sizeof(Colour), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
 
         Eos::GlobalData::getDeletionQueue().pushFunction([&]()

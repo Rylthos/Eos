@@ -16,17 +16,6 @@
 #include <Vulkan/Vulkan.h>
 #include <vk_mem_alloc.h>
 
-#define EOS_VK_CHECK(x) \
-    do \
-    { \
-        VkResult err = x; \
-        if (err) \
-        { \
-            EOS_LOG_ERROR("Vulkan Error: {}", err); \
-            abort(); \
-        } \
-    } while (0) \
-
 namespace Eos
 {
     struct EngineSetupDetails
@@ -74,11 +63,6 @@ namespace Eos
         RenderInformation preRender(int frameNumber);
         void postRender(RenderInformation& information);
 
-        Buffer createBuffer(size_t allocSize, VkBufferUsageFlags usage,
-                VmaMemoryUsage memoryUsage);
-
-        void immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
-
         Engine(const Engine&) = delete;
         void operator=(const Engine&) = delete;
     private:
@@ -97,6 +81,8 @@ namespace Eos
         VmaAllocator m_Allocator;
 
         Queue m_GraphicsQueue;
+        Queue m_TransferQueue;
+
         Swapchain m_Swapchain;
 
         VkRenderPass m_Renderpass;
@@ -122,8 +108,5 @@ namespace Eos
         void initCommands();
         void initSyncStructures();
         void initDescriptorSets();
-        void initUploadContext();
     };
 }
-
-#include "Mesh.inl" // Define Mesh Template Functions

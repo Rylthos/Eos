@@ -234,10 +234,10 @@ private:
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Snake/Shaders/Snake.vert.spv");
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT, "res/Snake/Shaders/Snake.frag.spv");
 
-        m_GlobalDataBuffer = m_Engine->createBuffer(sizeof(GlobalShaderData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        m_GlobalDataBuffer.create(sizeof(GlobalShaderData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        m_SegmentDataBuffer = m_Engine->createBuffer(sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount),
+        m_SegmentDataBuffer.create(sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount),
                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
         Eos::GlobalData::getDeletionQueue().pushFunction([&]()

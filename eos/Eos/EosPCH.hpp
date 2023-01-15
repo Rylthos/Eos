@@ -12,3 +12,14 @@
 #include <unordered_map>
 #include <cstdint>
 #include <concepts>
+
+#define EOS_VK_CHECK(x) \
+    do \
+    { \
+        VkResult err = x; \
+        if (err) \
+        { \
+            EOS_LOG_ERROR("Vulkan Error: {}", err); \
+            abort(); \
+        } \
+    } while (0) \

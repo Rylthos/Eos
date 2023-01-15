@@ -64,11 +64,12 @@ namespace Eos
         initCommands();
         initSyncStructures();
         initDescriptorSets();
-        initUploadContext();
 
         GlobalData::s_Device = &m_Device;
         GlobalData::s_Allocator = &m_Allocator;
         GlobalData::s_DeletionQueue = &m_DeletionQueue;
+
+        TransferSubmit::setup(&m_TransferQueue);
 
         m_Initialized = true;
 
@@ -153,49 +154,6 @@ namespace Eos
         EOS_VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo));
     }
 
-    Buffer Engine::createBuffer(size_t allocSize, VkBufferUsageFlags usage,
-            VmaMemoryUsage memoryUsage)
-    {
-        VkBufferCreateInfo info{};
-        info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        info.pNext = nullptr;
-        info.size = allocSize;
-        info.usage = usage;
-
-        VmaAllocationCreateInfo vmaAllocInfo{};
-        vmaAllocInfo.usage = memoryUsage;
-
-        Buffer buffer;
-        EOS_VK_CHECK(vmaCreateBuffer(m_Allocator, &info, &vmaAllocInfo,
-                    &buffer.buffer, &buffer.allocation, nullptr));
-
-        return buffer;
-    }
-
-    void Engine::immediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function)
-    {
-        VkCommandBuffer cmd = m_UploadContext.commandBuffer;
-
-        VkCommandBufferBeginInfo cmdBeginInfo = Init::commandBufferBeginInfo(
-                VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
-        
-        EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
-
-        function(cmd);
-
-        EOS_VK_CHECK(vkEndCommandBuffer(cmd));
-
-        VkSubmitInfo submit = Init::submitInfo(&cmd);
-
-        EOS_VK_CHECK(vkQueueSubmit(m_GraphicsQueue.queue, 1, &submit,
-                    m_UploadContext.uploadFence));
-
-        vkWaitForFences(m_Device, 1, &m_UploadContext.uploadFence, true, 9999999999);
-        vkResetFences(m_Device, 1, &m_UploadContext.uploadFence);
-
-        vkResetCommandPool(m_Device, m_UploadContext.commandPool, 0);
-    }
-
     void Engine::initVulkan(Window& window, const char* name)
     {
         vkb::InstanceBuilder builder;
@@ -226,6 +184,9 @@ namespace Eos
 
         m_GraphicsQueue.queue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
         m_GraphicsQueue.family = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+
+        m_TransferQueue.queue = vkbDevice.get_queue(vkb::QueueType::transfer).value();
+        m_TransferQueue.family = vkbDevice.get_queue_index(vkb::QueueType::transfer).value();
 
         VmaAllocatorCreateInfo allocatorInfo{};
         allocatorInfo.physicalDevice = m_PhysicalDevice;
@@ -405,33 +366,5 @@ namespace Eos
         m_DescriptorAllocator.init(m_Device);
 
         EOS_LOG_INFO("Created Descriptor sets");
-    }
-
-    void Engine::initUploadContext()
-    {
-        // Pool
-        VkCommandPoolCreateInfo uploadCommandPoolInfo = Init::commandPoolCreateInfo(
-                m_GraphicsQueue.family);
-        EOS_VK_CHECK(vkCreateCommandPool(m_Device, &uploadCommandPoolInfo, nullptr,
-                    &m_UploadContext.commandPool));
-
-        // Buffer
-        VkCommandBufferAllocateInfo cmdAllocInfo = Init::commandBufferAllocateInfo(
-                m_UploadContext.commandPool, 1);
-
-        EOS_VK_CHECK(vkAllocateCommandBuffers(m_Device, &cmdAllocInfo,
-                    &m_UploadContext.commandBuffer));
-
-        // Fence
-        VkFenceCreateInfo uploadFenceCreateInfo = Init::fenceCreateInfo();
-        EOS_VK_CHECK(vkCreateFence(m_Device, &uploadFenceCreateInfo, nullptr,
-                    &m_UploadContext.uploadFence));
-
-        m_DeletionQueue.pushFunction([=]() {
-                vkDestroyCommandPool(m_Device, m_UploadContext.commandPool, nullptr);
-                vkDestroyFence(m_Device, m_UploadContext.uploadFence, nullptr);
-            });
-
-        EOS_LOG_INFO("Created Upload Context");
     }
 }

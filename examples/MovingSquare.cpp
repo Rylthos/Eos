@@ -103,8 +103,9 @@ private:
         m_Mesh.create(m_Engine);
 
         // Setup descriptor set
-        m_DataBuffer = m_Engine->createBuffer(sizeof(Data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        m_DataBuffer.create(sizeof(Data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
+
         VkDescriptorBufferInfo dataInfo{};
         dataInfo.buffer = m_DataBuffer.buffer;
         dataInfo.offset = 0;
