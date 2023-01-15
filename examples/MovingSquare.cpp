@@ -105,6 +105,7 @@ private:
         // Setup descriptor set
         m_DataBuffer.create(sizeof(Data), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
+        m_DataBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
         VkDescriptorBufferInfo dataInfo{};
         dataInfo.buffer = m_DataBuffer.buffer;
@@ -115,12 +116,6 @@ private:
             .bindBuffer(0, &dataInfo, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
                     VK_SHADER_STAGE_VERTEX_BIT)
             .build(m_DataDescriptorSet, m_DataDescriptorSetLayout);
-
-        Eos::GlobalData::getDeletionQueue().pushFunction([=]()
-        {
-            vmaDestroyBuffer(Eos::GlobalData::getAllocator(), m_DataBuffer.buffer,
-                    m_DataBuffer.allocation);
-        });
 
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/MovingSquare/Shaders/MovingSquare.vert.spv");

@@ -33,5 +33,13 @@ namespace Eos
                         &info, &vmaAllocInfo, &buffer,
                         &allocation, nullptr));
         }
+
+        void addToDeletionQueue(DeletionQueue& deletionQueue)
+        {
+            deletionQueue.pushFunction([&]()
+            {
+                vmaDestroyBuffer(GlobalData::getAllocator(), buffer, allocation);
+            });
+        }
     };
 }

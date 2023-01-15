@@ -77,11 +77,7 @@ private:
         m_ColourBuffer.create(sizeof(Colour), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-        Eos::GlobalData::getDeletionQueue().pushFunction([&]()
-        {
-            vmaDestroyBuffer(Eos::GlobalData::getAllocator(), m_ColourBuffer.buffer,
-                    m_ColourBuffer.allocation);
-        });
+        m_ColourBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
         VkDescriptorBufferInfo colourInfo{};
         colourInfo.buffer = m_ColourBuffer.buffer;
