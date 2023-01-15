@@ -13,7 +13,7 @@
 #include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
 #include "Eos/Engine/DescriptorSets/DescriptorBuilder.hpp"
 
-#include <Vulkan/Vulkan.h>
+#include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
 namespace Eos

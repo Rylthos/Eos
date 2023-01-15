@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Vulkan/Vulkan.hpp>
+#include <vulkan/vulkan.hpp>
 
 namespace Eos::Init
 {

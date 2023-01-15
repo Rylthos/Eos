@@ -2,7 +2,7 @@
 
 #include "Eos/EosPCH.hpp"
 
-#include <Vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 
 namespace Eos
 {

@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include <Vulkan/Vulkan.h>
+#include <vulkan/vulkan.h>
 
 namespace Eos
 {

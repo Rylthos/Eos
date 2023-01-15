@@ -1,6 +1,8 @@
-build/**
 **.bat
+**.sh
+
 bin/**
 **.spv
+build/**
 
 compile_commands.json

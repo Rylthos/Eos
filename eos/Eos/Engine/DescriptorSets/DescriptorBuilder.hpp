@@ -5,7 +5,7 @@
 #include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
 #include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"
 
-#include <Vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 
 namespace Eos
 {

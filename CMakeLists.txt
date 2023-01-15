@@ -4,11 +4,21 @@ project(Eos VERSION 0.1.0 DESCRIPTION "Vulkan Render Engine")
 
 set (EOS_PROJECT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
+set (CMAKE_VERSION 20)
+
 option(EOS_BUILD_EXAMPLES "Build the EOS Example programs" ON)
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EOS_PROJECT_DIR}/bin)
 if (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set (EOS_BUILDING_STANDALONE TRUE)
+endif ()
+
+find_package(Vulkan REQUIRED)
+
+if (WIN32)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+elseif (UNIX)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -std=c++20")
 endif ()
 
 add_subdirectory(vendor)

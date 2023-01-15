@@ -3,7 +3,7 @@
 #include "Eos/EosPCH.hpp"
 #include "Eos/Core/DeletionQueue.hpp"
 
-#include <Vulkan/Vulkan.h>
+#include <vulkan/vulkan.h>
 
 namespace Eos
 {

@@ -4,7 +4,7 @@
 
 // Libraries
 #include <GLFW/glfw3.h>
-#include <Vulkan/Vulkan.h>
+#include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -42,6 +42,6 @@
 
 
 // Events
-#include "/Events/EventDispatcher.hpp"
-#include "/Events/EventCodes.hpp"
-#include "/Events/Events.hpp"
+#include "Events/EventDispatcher.hpp"
+#include "Events/EventCodes.hpp"
+#include "Events/Events.hpp"
