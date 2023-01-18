@@ -30,6 +30,7 @@
 #include "Engine/Initializers.hpp"
 #include "Engine/Mesh.hpp"
 #include "Engine/Shader.hpp"
+#include "Engine/Texture.hpp"
 #include "Engine/Types.hpp"
 
 // Engine / Descriptor Sets

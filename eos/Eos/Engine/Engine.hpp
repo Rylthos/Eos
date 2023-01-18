@@ -8,6 +8,7 @@
 #include "Eos/Engine/Mesh.hpp"
 #include "Eos/Engine/Pipelines/PipelineBuilder.hpp"
 #include "Eos/Engine/Shader.hpp"
+#include "Eos/Engine/Texture.hpp"
 
 #include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"
 #include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
@@ -87,6 +88,9 @@ namespace Eos
 
         VkRenderPass m_Renderpass;
         std::vector<VkFramebuffer> m_Framebuffers;
+
+        VkFormat m_DepthFormat = VK_FORMAT_D32_SFLOAT;
+        Texture2D m_DepthImage;
 
         std::vector<FrameData> m_Frames;
 

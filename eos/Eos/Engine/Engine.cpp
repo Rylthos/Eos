@@ -4,6 +4,7 @@
 
 #include <VkBootstrap.h>
 #include <vk_mem_alloc.h>
+#include <vulkan/vulkan_core.h>
 
 #include "Eos/Engine/GlobalData.hpp"
 
@@ -59,15 +60,17 @@ namespace Eos
         initVulkan(window, details.name);
 
         initSwapchain();
+
+        GlobalData::s_Device = &m_Device;
+        GlobalData::s_Allocator = &m_Allocator;
+        GlobalData::s_DeletionQueue = &m_DeletionQueue;
+
         initRenderpass();
         initFramebuffers();
         initCommands();
         initSyncStructures();
         initDescriptorSets();
 
-        GlobalData::s_Device = &m_Device;
-        GlobalData::s_Allocator = &m_Allocator;
-        GlobalData::s_DeletionQueue = &m_DeletionQueue;
 
         TransferSubmit::setup(&m_TransferQueue);
 
@@ -99,7 +102,9 @@ namespace Eos
         EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
         VkClearValue background = { { { 0.1f, 0.1f, 0.1f, 1.0f } } };
-        VkClearValue clearValues[1] = { background };
+        VkClearValue depthClear;
+        depthClear.depthStencil.depth = 1.0f;
+        VkClearValue clearValues[2] = { background, depthClear };
 
         VkRenderPassBeginInfo rpInfo{};
         rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -109,8 +114,8 @@ namespace Eos
         rpInfo.renderArea.offset.y = 0;
         rpInfo.renderArea.extent = m_WindowExtent;
         rpInfo.framebuffer = m_Framebuffers[swapchainImageIndex];
-        rpInfo.clearValueCount = 1;
-        rpInfo.pClearValues = clearValues;
+        rpInfo.clearValueCount = 2;
+        rpInfo.pClearValues = &clearValues[0];
 
         vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -235,6 +240,19 @@ namespace Eos
 
     void Engine::initRenderpass()
     {
+        // TEMP
+        VkExtent3D depthImageExtent = {
+            m_WindowExtent.width,
+            m_WindowExtent.height,
+            1
+        };
+
+        m_DepthImage.createImage(m_DepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                depthImageExtent, VMA_MEMORY_USAGE_GPU_ONLY,
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        m_DepthImage.createImageView(m_DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+        m_DepthImage.addToDeletionQueue(m_DeletionQueue);
+
         VkAttachmentDescription colourAttachment{};
         colourAttachment.format = m_Swapchain.imageFormat;
         colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -257,15 +275,38 @@ namespace Eos
         colourDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         colourDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-        std::vector<VkAttachmentDescription> attachments = { colourAttachment };
+        VkAttachmentDescription depthAttachment{};
+        depthAttachment.flags = 0;
+        depthAttachment.format = m_DepthFormat;
+        depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkAttachmentReference depthAttachmentRef{};
+        depthAttachmentRef.attachment = 1;
+        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        VkSubpassDependency depthDependency{};
+        depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        depthDependency.dstSubpass = 0;
+        depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+        depthDependency.srcAccessMask = 0;
+        depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+        depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+        std::vector<VkAttachmentDescription> attachments = { colourAttachment, depthAttachment };
         std::vector<VkAttachmentReference> references = { colourAttachmentRef };
-        std::vector<VkSubpassDependency> dependencies = { colourDependency };
+        std::vector<VkSubpassDependency> dependencies = { colourDependency, depthDependency };
 
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = static_cast<uint32_t>(references.size());
         subpass.pColorAttachments = references.data();
-        subpass.pDepthStencilAttachment = nullptr;
+        subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
         VkRenderPassCreateInfo renderpassInfo{};
         renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -300,7 +341,7 @@ namespace Eos
 
         for (size_t i = 0; i < swapchainImageCount; i++)
         {
-            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i] };
+            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i], m_DepthImage.imageView };
 
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();
