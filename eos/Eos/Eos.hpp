@@ -19,6 +19,7 @@
 
 // Core / Cameras
 #include "Core/Cameras/Orthographic.hpp"
+#include "Core/Cameras/Perspective.hpp"
 
 
 // Engine

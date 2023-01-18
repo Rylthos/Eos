@@ -1,7 +1,10 @@
 #pragma once
 
 #pragma warning(push, 0)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <spdlog/spdlog.h>
+#pragma clang diagnostic pop
 #pragma warning(pop)
 
 #ifndef EOS_DISABLE_LOG

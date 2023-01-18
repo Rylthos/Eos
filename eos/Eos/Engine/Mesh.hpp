@@ -36,9 +36,9 @@ namespace Eos
 
         void setVertexBuffer(Buffer buffer) { m_VertexBuffer = buffer; }
 
-        void update(Engine* engine) { create(engine); }
+        void update() { create(); }
 
-        void create(Engine* engine)
+        void create()
         {
             const size_t bufferSize = m_Vertices.size() * sizeof(T);
 
@@ -94,11 +94,11 @@ namespace Eos
 
         void setIndexBuffer(Buffer buffer) { m_IndexBuffer = buffer; }
 
-        void update(Engine* engine) { create(engine); }
+        void update() { create(); }
 
-        void create(Engine* engine)
+        void create()
         {
-            Mesh<T>::create(engine);
+            Mesh<T>::create();
 
             const size_t bufferSize = m_Indices.size() * sizeof(I);
 

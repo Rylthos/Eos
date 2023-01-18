@@ -66,7 +66,7 @@ private:
         };
         m_Mesh.setIndices(indices);
 
-        m_Mesh.create(m_Engine);
+        m_Mesh.create();
 
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT, "res/Events/Shaders/Events.vert.spv");

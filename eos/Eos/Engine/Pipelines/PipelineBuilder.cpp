@@ -113,19 +113,23 @@ namespace Eos
         return *this;
     }
 
-    void PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout)
+    PipelineBuilder& PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout)
     {
         VkPipelineLayoutCreateInfo createInfo = Pipeline::pipelineLayoutCreateInfo();
         createPipelineLayout(layout, createInfo);
+
+        return *this;
     }
 
-    void PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout,
+    PipelineBuilder& PipelineBuilder::createPipelineLayout(VkPipelineLayout& layout,
             const VkPipelineLayoutCreateInfo& createInfo)
     {
         if (vkCreatePipelineLayout(*m_Device, &createInfo, nullptr, &layout) != VK_SUCCESS)
         {
             EOS_LOG_CRITICAL("Failed to create Pipeline Layout");
         }
+
+        return *this;
     }
 
     bool PipelineBuilder::build(VkPipeline& pipeline)

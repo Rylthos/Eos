@@ -131,7 +131,7 @@ private:
         };
         m_GeneralMesh.setIndices(indices);
 
-        m_GeneralMesh.create(m_Engine);
+        m_GeneralMesh.create();
 
         m_Snake.reserve(m_MaxSegments);
         m_Apples.reserve(m_AppleCount);
