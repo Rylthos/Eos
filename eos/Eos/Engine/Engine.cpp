@@ -18,7 +18,7 @@ namespace Eos
 
     PipelineBuilder Engine::createPipelineBuilder()
     {
-        return PipelineBuilder::begin(&m_Device, &m_Renderpass).defaultValues();
+        return PipelineBuilder::begin(&m_Device, &m_Renderpass.renderPass).defaultValues();
     }
 
     DescriptorBuilder Engine::createDescriptorBuilder()
@@ -67,10 +67,10 @@ namespace Eos
 
         initRenderpass();
         initFramebuffers();
+
         initCommands();
         initSyncStructures();
         initDescriptorSets();
-
 
         TransferSubmit::setup(&m_TransferQueue);
 
@@ -109,7 +109,7 @@ namespace Eos
         VkRenderPassBeginInfo rpInfo{};
         rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         rpInfo.pNext = nullptr;
-        rpInfo.renderPass = m_Renderpass;
+        rpInfo.renderPass = m_Renderpass.renderPass;
         rpInfo.renderArea.offset.x = 0;
         rpInfo.renderArea.offset.y = 0;
         rpInfo.renderArea.extent = m_WindowExtent;
@@ -240,19 +240,19 @@ namespace Eos
 
     void Engine::initRenderpass()
     {
-        // TEMP
-        VkExtent3D depthImageExtent = {
-            m_WindowExtent.width,
-            m_WindowExtent.height,
-            1
-        };
-
-        m_DepthImage.createImage(m_DepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                depthImageExtent, VMA_MEMORY_USAGE_GPU_ONLY,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_DepthImage.createImageView(m_DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
-        m_DepthImage.addToDeletionQueue(m_DeletionQueue);
-
+        /* // TEMP */
+        /* VkExtent3D depthImageExtent = { */
+        /*     m_WindowExtent.width, */
+        /*     m_WindowExtent.height, */
+        /*     1 */
+        /* }; */
+        /**/
+        /* m_DepthImage.createImage(m_DepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, */
+        /*         depthImageExtent, VMA_MEMORY_USAGE_GPU_ONLY, */
+        /*         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT); */
+        /* m_DepthImage.createImageView(m_DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT); */
+        /* m_DepthImage.addToDeletionQueue(m_DeletionQueue); */
+        /**/
         VkAttachmentDescription colourAttachment{};
         colourAttachment.format = m_Swapchain.imageFormat;
         colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -262,11 +262,11 @@ namespace Eos
         colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference colourAttachmentRef{};
-        colourAttachmentRef.attachment = 0;
-        colourAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
+        /**/
+        /* VkAttachmentReference colourAttachmentRef{}; */
+        /* colourAttachmentRef.attachment = 0; */
+        /* colourAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; */
+        /**/
         VkSubpassDependency colourDependency{};
         colourDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         colourDependency.dstSubpass = 0;
@@ -275,54 +275,61 @@ namespace Eos
         colourDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         colourDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-        VkAttachmentDescription depthAttachment{};
-        depthAttachment.flags = 0;
-        depthAttachment.format = m_DepthFormat;
-        depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        RenderPassBuilder::begin(m_Renderpass)
+            .addAttachment(colourAttachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                    colourDependency)
+            .createDepthBuffer(m_WindowExtent.width, m_WindowExtent.height)
+            .build();
 
-        VkAttachmentReference depthAttachmentRef{};
-        depthAttachmentRef.attachment = 1;
-        depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDependency depthDependency{};
-        depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-        depthDependency.dstSubpass = 0;
-        depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-        depthDependency.srcAccessMask = 0;
-        depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
-        depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-        std::vector<VkAttachmentDescription> attachments = { colourAttachment, depthAttachment };
-        std::vector<VkAttachmentReference> references = { colourAttachmentRef };
-        std::vector<VkSubpassDependency> dependencies = { colourDependency, depthDependency };
-
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = static_cast<uint32_t>(references.size());
-        subpass.pColorAttachments = references.data();
-        subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-        VkRenderPassCreateInfo renderpassInfo{};
-        renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderpassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        renderpassInfo.pAttachments = attachments.data();
-        renderpassInfo.subpassCount = 1;
-        renderpassInfo.pSubpasses = &subpass;
-        renderpassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-        renderpassInfo.pDependencies = dependencies.data();
-
-        EOS_VK_CHECK(vkCreateRenderPass(m_Device, &renderpassInfo, nullptr, &m_Renderpass));
-
-        m_DeletionQueue.pushFunction([&]()
-                { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); });
-
-        EOS_LOG_INFO("Created Renderpass");
+        /**/
+        /* VkAttachmentDescription depthAttachment{}; */
+        /* depthAttachment.flags = 0; */
+        /* depthAttachment.format = m_DepthFormat; */
+        /* depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT; */
+        /* depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; */
+        /* depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; */
+        /* depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; */
+        /* depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; */
+        /* depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; */
+        /* depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; */
+        /**/
+        /* VkAttachmentReference depthAttachmentRef{}; */
+        /* depthAttachmentRef.attachment = 1; */
+        /* depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; */
+        /**/
+        /* VkSubpassDependency depthDependency{}; */
+        /* depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL; */
+        /* depthDependency.dstSubpass = 0; */
+        /* depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT; */
+        /* depthDependency.srcAccessMask = 0; */
+        /* depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT; */
+        /* depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT; */
+        /**/
+        /* std::vector<VkAttachmentDescription> attachments = { colourAttachment, depthAttachment }; */
+        /* std::vector<VkAttachmentReference> references = { colourAttachmentRef }; */
+        /* std::vector<VkSubpassDependency> dependencies = { colourDependency, depthDependency }; */
+        /**/
+        /* VkSubpassDescription subpass{}; */
+        /* subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS; */
+        /* subpass.colorAttachmentCount = static_cast<uint32_t>(references.size()); */
+        /* subpass.pColorAttachments = references.data(); */
+        /* subpass.pDepthStencilAttachment = &depthAttachmentRef; */
+        /**/
+        /* VkRenderPassCreateInfo renderpassInfo{}; */
+        /* renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO; */
+        /* renderpassInfo.attachmentCount = static_cast<uint32_t>(attachments.size()); */
+        /* renderpassInfo.pAttachments = attachments.data(); */
+        /* renderpassInfo.subpassCount = 1; */
+        /* renderpassInfo.pSubpasses = &subpass; */
+        /* renderpassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size()); */
+        /* renderpassInfo.pDependencies = dependencies.data(); */
+        /**/
+        /* EOS_VK_CHECK(vkCreateRenderPass(m_Device, &renderpassInfo, nullptr, &m_Renderpass)); */
+        /**/
+        /* m_DeletionQueue.pushFunction([&]() */
+        /*         { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); }); */
+        /**/
+        /* EOS_LOG_INFO("Created Renderpass"); */
     }
 
     void Engine::initFramebuffers()
@@ -330,7 +337,7 @@ namespace Eos
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.pNext = nullptr;
-        framebufferInfo.renderPass = m_Renderpass;
+        framebufferInfo.renderPass = m_Renderpass.renderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.width = m_WindowExtent.width;
         framebufferInfo.height = m_WindowExtent.height;
@@ -341,7 +348,8 @@ namespace Eos
 
         for (size_t i = 0; i < swapchainImageCount; i++)
         {
-            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i], m_DepthImage.imageView };
+            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i],
+                m_Renderpass.depthImage.imageView };
 
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();

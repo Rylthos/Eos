@@ -30,7 +30,7 @@ namespace Eos
 
         m_ColourBlendAttachments = { Pipeline::colourBlendAttachmentState() };
         m_Viewports = { { 0.0f, 0.0f, 1.0f, 1.0f } };
-        m_Scissors = { { { 0, 0 }, { 1, 1}  } };
+        m_Scissors = { { { 0, 0 }, { 1, 1 }  } };
 
         return *this;
     }

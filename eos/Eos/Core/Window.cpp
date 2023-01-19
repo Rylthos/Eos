@@ -57,6 +57,8 @@ namespace Eos
         viewport.y = 0.0f;
         viewport.width = static_cast<float>(m_WindowSize.x);
         viewport.height = static_cast<float>(m_WindowSize.y);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
 
         return viewport;
     }

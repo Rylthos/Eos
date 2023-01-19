@@ -36,9 +36,9 @@ namespace Eos
 
         void addToDeletionQueue(DeletionQueue& deletionQueue)
         {
-            deletionQueue.pushFunction([&]()
-            {
-                vmaDestroyBuffer(GlobalData::getAllocator(), buffer, allocation);
+            deletionQueue.pushFunction([=]() {
+                vmaDestroyBuffer(GlobalData::getAllocator(),
+                    buffer, allocation);
             });
         }
     };

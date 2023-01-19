@@ -238,11 +238,10 @@ private:
 
         m_GlobalDataBuffer.create(sizeof(GlobalShaderData), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                 VMA_MEMORY_USAGE_CPU_TO_GPU);
+        m_GlobalDataBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
         m_SegmentDataBuffer.create(sizeof(SegmentShaderData) * (m_MaxSegments + m_AppleCount),
                 VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-        m_GlobalDataBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
         m_SegmentDataBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
         VkDescriptorBufferInfo globalInfo{};

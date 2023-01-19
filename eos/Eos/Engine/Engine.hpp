@@ -1,18 +1,21 @@
 #pragma once
 
 #include "Eos/EosPCH.hpp"
+
 #include "Eos/Core/Window.hpp"
-
 #include "Eos/Core/DeletionQueue.hpp"
-
-#include "Eos/Engine/Mesh.hpp"
-#include "Eos/Engine/Pipelines/PipelineBuilder.hpp"
-#include "Eos/Engine/Shader.hpp"
-#include "Eos/Engine/Texture.hpp"
 
 #include "Eos/Engine/DescriptorSets/DescriptorAllocator.hpp"
 #include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
 #include "Eos/Engine/DescriptorSets/DescriptorBuilder.hpp"
+
+#include "Eos/Engine/Pipelines/PipelineBuilder.hpp"
+
+#include "Eos/Engine/Mesh.hpp"
+#include "Eos/Engine/RenderPassBuilder.hpp"
+#include "Eos/Engine/Shader.hpp"
+#include "Eos/Engine/Texture.hpp"
+
 
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
@@ -86,11 +89,8 @@ namespace Eos
 
         Swapchain m_Swapchain;
 
-        VkRenderPass m_Renderpass;
+        RenderPass m_Renderpass;
         std::vector<VkFramebuffer> m_Framebuffers;
-
-        VkFormat m_DepthFormat = VK_FORMAT_D32_SFLOAT;
-        Texture2D m_DepthImage;
 
         std::vector<FrameData> m_Frames;
 

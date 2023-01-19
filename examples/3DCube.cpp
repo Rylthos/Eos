@@ -69,25 +69,54 @@ private:
 
     void postInit() override
     {
+        m_MainEventDispatcher.addCallback(&keyboardEvent, this);
+
         m_Camera = Eos::PerspectiveCamera(m_Window.getWindowSize());
         m_Camera.setNearClippingPlane(0.1f);
         m_Camera.setFarClippingPlane(200.0f);
 
-        m_Camera.getPosition().y -= 5.0f;
+        m_Camera.getPosition().y -= 0.0f;
+        /* m_Camera.getPosition().z += 3.0f; */
 
-        m_Camera.setYaw(-90.0f);
-        m_Camera.setPitch(-20.0f);
+        m_Camera.setYaw(90.0f);
+        m_Camera.setPitch(0.0f);
 
         std::vector<Vertex> vertices = {
-            { { -1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 0.0f } }, // 0
-            { {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 1
-            { { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f } }, // 2
-            { {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f } }, // 3
+            // Front
+            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 0
+            { {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 1
+            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 2
+            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 3
 
-            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 4
-            { {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f } }, // 5
-            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } }, // 6
-            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } }, // 7
+            // Back
+            { { -1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 4
+            { {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 5
+            { { -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 6
+            { {  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 7
+
+            // Left
+            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } }, // 8
+            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } }, // 9
+            { { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f } }, // 10
+            { { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f } }, // 11
+
+            // Right
+            { {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } }, // 12
+            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } }, // 13
+            { {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f } }, // 14
+            { {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f } }, // 15
+
+            // Up
+            { { -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f } }, // 16
+            { {  1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f } }, // 17
+            { { -1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f } }, // 18
+            { {  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f } }, // 19
+
+            // Down
+            { { -1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f } }, // 20
+            { {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f } }, // 21
+            { { -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f } }, // 22
+            { {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f } }, // 23
         };
 
         std::vector<uint16_t> indices = {
@@ -98,6 +127,22 @@ private:
             // Back
             4, 5, 6,
             5, 6, 7,
+
+            // Left
+            8, 9, 10,
+            9, 10, 11,
+
+            // Right
+            12, 13, 14,
+            13, 14, 15,
+
+            // Up
+            16, 17, 18,
+            17, 18, 19,
+
+            // Down
+            20, 21, 22,
+            21, 22, 23,
         };
 
         m_CubeMesh.setVertices(vertices);
@@ -139,7 +184,7 @@ private:
         modelData.viewMatrix = m_Camera.getViewMatrix();
 
         glm::mat4 model(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -10.0f));
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 10.0f));
         modelData.modelMatrix = model;
 
         void* temp;
@@ -162,6 +207,46 @@ private:
                 0, 1, &m_CubeSet, 0, nullptr);
 
         vkCmdDrawIndexed(cmd, m_CubeMesh.getIndices()->size(), 1, 0, 0, 0);
+    }
+
+    void updateData()
+    {
+        ModelData modelData;
+        modelData.perspectiveMatrix = m_Camera.getPerspectiveMatrix();
+        modelData.viewMatrix = m_Camera.getViewMatrix();
+
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 10.0f));
+        modelData.modelMatrix = model;
+
+        void* temp;
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_CubeDataBuffer.allocation, &temp);
+            memcpy(temp, &modelData, sizeof(ModelData));
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_CubeDataBuffer.allocation);
+    }
+
+    static bool keyboardEvent(const Eos::Events::KeyInputEvent* event)
+    {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        static std::unordered_map<Eos::Events::Key, bool> activeKeys;
+
+        if (event->action == Eos::Events::Action::PRESS)
+            activeKeys[event->key] = true;
+        else if (event->action == Eos::Events::Action::RELEASE)
+            activeKeys[event->key] = false;
+
+        if (activeKeys[Eos::Events::Key::KEY_ESCAPE])
+            sb->m_Window.setWindowShouldClose(true);
+
+        if (activeKeys[Eos::Events::Key::KEY_SPACE])
+            sb->m_Camera.getPosition().y -= 0.1f;
+        else if (activeKeys[Eos::Events::Key::KEY_LEFT_CONTROL])
+            sb->m_Camera.getPosition().y += 0.1f;
+
+        sb->updateData();
+
+        return true;
     }
 };
 

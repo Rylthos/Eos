@@ -61,10 +61,9 @@ namespace Eos
                         &info, nullptr, &imageView));
         }
 
-        void addToDeletionQueue(DeletionQueue& deletionQueue)
+        void addToDeletionQueue(DeletionQueue& queue)
         {
-            deletionQueue.pushFunction([&]()
-            {
+            queue.pushFunction([=]() {
                 vkDestroyImageView(GlobalData::getDevice(), imageView, nullptr);
                 vmaDestroyImage(GlobalData::getAllocator(), image, allocation);
             });

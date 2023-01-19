@@ -1,6 +1,7 @@
 #pragma once
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE // Change GLM for Vulkan for Users
+#define GLM_FORCE_LEFT_HANDED // Change GLM for Vulkan for Users
 
 // Libraries
 #include <GLFW/glfw3.h>
@@ -29,6 +30,7 @@
 #include "Engine/ImmediateSubmit.hpp"
 #include "Engine/Initializers.hpp"
 #include "Engine/Mesh.hpp"
+#include "Engine/RenderPassBuilder.hpp"
 #include "Engine/Shader.hpp"
 #include "Engine/Texture.hpp"
 #include "Engine/Types.hpp"

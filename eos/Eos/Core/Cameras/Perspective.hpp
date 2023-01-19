@@ -24,7 +24,7 @@ namespace Eos
         void setYaw(float yaw) { m_Yaw = yaw; updateCameraVectors(); }
         float& getYaw() { return m_Yaw; }
 
-        void setPitch(float pitch) { m_Pitch = -pitch; updateCameraVectors(); }
+        void setPitch(float pitch) { m_Pitch = pitch; updateCameraVectors(); }
         float& getPitch() { return m_Pitch; }
 
         void setVFOV(float vFOV) { m_VFOV = vFOV; updateCameraVectors(); }

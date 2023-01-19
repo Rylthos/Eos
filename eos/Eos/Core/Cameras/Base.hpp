@@ -23,7 +23,7 @@ namespace Eos
         void setNearClippingPlane(float value) { m_NearClipping = value; }
         void setFarClippingPlane(float value) { m_FarClipping = value; }
     protected:
-        glm::vec3 m_WorldUp { 0.0f, -1.0f, 0.0f };
+        glm::vec3 m_WorldUp { 0.0f, 1.0f, 0.0f }; // Perspective matrix flips y
         glm::vec3 m_WorldRight { 1.0f, 0.0f, 0.0f };
         glm::vec3 m_WorldFront { 0.0f, 0.0f, 1.0f };
 
