@@ -51,14 +51,14 @@ private:
     VkDescriptorSetLayout m_ColourSetLayout;
     Eos::Buffer m_ColourBuffer;
 private:
-    void init() override
+    void windowInit() override
     {
         m_Window.setWindowSize({ 500, 500 });
 
         m_Window.create("Colour Changing Triangle");
     }
 
-    void postInit() override
+    void postEngineInit() override
     {
         std::vector<Vertex> vertices = {
             { { -1.0f,  1.0f, 0.0f } },

@@ -42,13 +42,13 @@ private:
     float m_MouseX;
     float m_MouseY;
 private:
-    void init() override
+    void windowInit() override
     {
         m_Window.setWindowSize({ 500, 500 });
         m_Window.create("Events");
     }
 
-    void postInit() override
+    void postEngineInit() override
     {
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
         m_MainEventDispatcher.addCallback(&mouseMoveEvent, this);

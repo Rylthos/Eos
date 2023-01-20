@@ -21,7 +21,7 @@ namespace Eos
     public:
         static RenderPassBuilder begin(RenderPass& renderpass);
 
-        RenderPassBuilder& createDepthBuffer(int width, int height);
+        RenderPassBuilder& addDefaultDepthBuffer(int width, int height);
         
         RenderPassBuilder& addAttachment(VkAttachmentDescription& description,
                 VkImageLayout layout, VkSubpassDependency& dependency);

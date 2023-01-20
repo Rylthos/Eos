@@ -105,13 +105,13 @@ private:
     int16_t m_VelX = 1;
     int16_t m_VelY = 0;
 private:
-    void init() override
+    void windowInit() override
     {
         m_Window.setWindowSize({ 500, 500 });
         m_Window.create("Snake");
     }
 
-    void postInit() override
+    void postEngineInit() override
     {
         m_Camera = Eos::OrthographicCamera(m_Window.getWindowSize());
 

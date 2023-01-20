@@ -26,6 +26,9 @@ namespace Eos
         void setWindowAttrib(int attrib, int value)
             { glfwSetWindowAttrib(m_Window, attrib, value); }
 
+        void setInputMode(int mode, int value)
+            { glfwSetInputMode(m_Window, mode, value); }
+
         void setWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }
 
         GLFWwindow* getWindow() { return m_Window; }

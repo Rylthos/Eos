@@ -57,7 +57,7 @@ namespace Eos
         m_WindowExtent = VkExtent2D{
             static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 
-        initVulkan(window, details.name);
+        initVulkan(window);
 
         initSwapchain();
 
@@ -65,7 +65,11 @@ namespace Eos
         GlobalData::s_Allocator = &m_Allocator;
         GlobalData::s_DeletionQueue = &m_DeletionQueue;
 
-        initRenderpass();
+        if (m_SetupDetails.renderpassCreationFunc.has_value())
+            (m_SetupDetails.renderpassCreationFunc.value())(m_Renderpass);
+        else
+            initDefaultRenderpass();
+
         initFramebuffers();
 
         initCommands();
@@ -163,10 +167,10 @@ namespace Eos
         EOS_VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo));
     }
 
-    void Engine::initVulkan(Window& window, const char* name)
+    void Engine::initVulkan(Window& window)
     {
         vkb::InstanceBuilder builder;
-        auto instanceReturn = builder.set_app_name(name)
+        auto instanceReturn = builder.set_app_name(m_SetupDetails.name)
             .request_validation_layers(true)
             .require_api_version(1, 3, 0)
             .use_default_debug_messenger()
@@ -242,21 +246,8 @@ namespace Eos
         EOS_LOG_INFO("Created Swapchain");
     }
 
-    void Engine::initRenderpass()
+    void Engine::initDefaultRenderpass()
     {
-        /* // TEMP */
-        /* VkExtent3D depthImageExtent = { */
-        /*     m_WindowExtent.width, */
-        /*     m_WindowExtent.height, */
-        /*     1 */
-        /* }; */
-        /**/
-        /* m_DepthImage.createImage(m_DepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, */
-        /*         depthImageExtent, VMA_MEMORY_USAGE_GPU_ONLY, */
-        /*         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT); */
-        /* m_DepthImage.createImageView(m_DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT); */
-        /* m_DepthImage.addToDeletionQueue(m_DeletionQueue); */
-        /**/
         VkAttachmentDescription colourAttachment{};
         colourAttachment.format = m_Swapchain.imageFormat;
         colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -266,11 +257,7 @@ namespace Eos
         colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-        /**/
-        /* VkAttachmentReference colourAttachmentRef{}; */
-        /* colourAttachmentRef.attachment = 0; */
-        /* colourAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; */
-        /**/
+
         VkSubpassDependency colourDependency{};
         colourDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
         colourDependency.dstSubpass = 0;
@@ -282,58 +269,9 @@ namespace Eos
         RenderPassBuilder::begin(m_Renderpass)
             .addAttachment(colourAttachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                     colourDependency)
-            .createDepthBuffer(m_WindowExtent.width, m_WindowExtent.height)
             .build();
 
-        /**/
-        /* VkAttachmentDescription depthAttachment{}; */
-        /* depthAttachment.flags = 0; */
-        /* depthAttachment.format = m_DepthFormat; */
-        /* depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT; */
-        /* depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; */
-        /* depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; */
-        /* depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; */
-        /* depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE; */
-        /* depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED; */
-        /* depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; */
-        /**/
-        /* VkAttachmentReference depthAttachmentRef{}; */
-        /* depthAttachmentRef.attachment = 1; */
-        /* depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL; */
-        /**/
-        /* VkSubpassDependency depthDependency{}; */
-        /* depthDependency.srcSubpass = VK_SUBPASS_EXTERNAL; */
-        /* depthDependency.dstSubpass = 0; */
-        /* depthDependency.srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT; */
-        /* depthDependency.srcAccessMask = 0; */
-        /* depthDependency.dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT; */
-        /* depthDependency.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT; */
-        /**/
-        /* std::vector<VkAttachmentDescription> attachments = { colourAttachment, depthAttachment }; */
-        /* std::vector<VkAttachmentReference> references = { colourAttachmentRef }; */
-        /* std::vector<VkSubpassDependency> dependencies = { colourDependency, depthDependency }; */
-        /**/
-        /* VkSubpassDescription subpass{}; */
-        /* subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS; */
-        /* subpass.colorAttachmentCount = static_cast<uint32_t>(references.size()); */
-        /* subpass.pColorAttachments = references.data(); */
-        /* subpass.pDepthStencilAttachment = &depthAttachmentRef; */
-        /**/
-        /* VkRenderPassCreateInfo renderpassInfo{}; */
-        /* renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO; */
-        /* renderpassInfo.attachmentCount = static_cast<uint32_t>(attachments.size()); */
-        /* renderpassInfo.pAttachments = attachments.data(); */
-        /* renderpassInfo.subpassCount = 1; */
-        /* renderpassInfo.pSubpasses = &subpass; */
-        /* renderpassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size()); */
-        /* renderpassInfo.pDependencies = dependencies.data(); */
-        /**/
-        /* EOS_VK_CHECK(vkCreateRenderPass(m_Device, &renderpassInfo, nullptr, &m_Renderpass)); */
-        /**/
-        /* m_DeletionQueue.pushFunction([&]() */
-        /*         { vkDestroyRenderPass(m_Device, m_Renderpass, nullptr); }); */
-        /**/
-        /* EOS_LOG_INFO("Created Renderpass"); */
+        EOS_LOG_INFO("Created Default Renderpass");
     }
 
     void Engine::initFramebuffers()

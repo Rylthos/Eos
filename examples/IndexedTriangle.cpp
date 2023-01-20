@@ -48,14 +48,14 @@ private:
     VkPipeline m_Pipeline;
     Eos::IndexedMesh<Vertex, uint16_t> m_Mesh;
 private:
-    void init() override
+    void windowInit() override
     {
         m_Window.setWindowSize({ 500, 500 });
 
         m_Window.create("Indexed Triangle");
     }
 
-    void postInit() override
+    void postEngineInit() override
     {
         std::vector<Vertex> vertices = {
             { { -1.0f,  1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },

@@ -10,7 +10,7 @@ namespace Eos
         return RenderPassBuilder(renderpass);
     }
 
-    RenderPassBuilder& RenderPassBuilder::createDepthBuffer(int width, int height)
+    RenderPassBuilder& RenderPassBuilder::addDefaultDepthBuffer(int width, int height)
     {
         m_RenderPass.depthImageFormat = std::make_optional(VK_FORMAT_D32_SFLOAT);
         m_DepthImageExtent = VkExtent3D {
@@ -100,7 +100,7 @@ namespace Eos
         GlobalData::getDeletionQueue().pushFunction([=]()
                 { vkDestroyRenderPass(GlobalData::getDevice(), rp, nullptr); });
 
-        EOS_LOG_INFO("Create Render pass");
+        EOS_LOG_INFO("Created Render Pass");
 
         return true;
     }

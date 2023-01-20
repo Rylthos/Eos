@@ -16,7 +16,6 @@
 #include "Eos/Engine/Shader.hpp"
 #include "Eos/Engine/Texture.hpp"
 
-
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 
@@ -26,6 +25,8 @@ namespace Eos
     {
         const char* name;
         bool vsync;
+
+        std::optional<std::function<void(RenderPass&)>> renderpassCreationFunc;
     };
 
     struct FrameData
@@ -59,6 +60,8 @@ namespace Eos
 
         PipelineBuilder createPipelineBuilder();
         DescriptorBuilder createDescriptorBuilder();
+
+        Swapchain& getSwapchain() { return m_Swapchain; }
 
         void cleanup();
 
@@ -105,9 +108,9 @@ namespace Eos
         Engine() {}
         ~Engine() {}
 
-        void initVulkan(Window& window, const char* name);
+        void initVulkan(Window& window);
         void initSwapchain();
-        void initRenderpass();
+        void initDefaultRenderpass();
         void initFramebuffers();
         void initCommands();
         void initSyncStructures();

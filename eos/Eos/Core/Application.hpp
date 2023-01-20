@@ -26,6 +26,7 @@ namespace Eos
         std::string name;
         bool enableVsync = true;
         bool enableWindowResizing = false;
+        bool customRenderpass = false;
     };
 
     class EOS_API Application
@@ -48,8 +49,9 @@ namespace Eos
     private:
         void mainLoop();
 
-        virtual void init();
-        virtual void postInit();
+        virtual void windowInit();
+        virtual void renderPassInit(RenderPass& renderPass);
+        virtual void postEngineInit();
 
         virtual void draw(VkCommandBuffer cmd);
         virtual void update(double dt);

@@ -5,6 +5,8 @@
 
 #include <stdexcept>
 
+#include <functional>
+
 namespace Eos
 {
     Application::Application(const ApplicationDetails& details)
@@ -26,7 +28,7 @@ namespace Eos
         m_Window.setWindowHint(GLFW_RESIZABLE,
                 m_Details.enableWindowResizing ? GLFW_TRUE : GLFW_FALSE);
 
-        init();
+        windowInit();
         m_MainEventListener.addListeners(m_Window, &m_MainEventDispatcher);
 
         EOS_LOG_INFO("Initialised Application");
@@ -43,9 +45,16 @@ namespace Eos
             m_Details.enableVsync
         };
 
+        if (m_Details.customRenderpass)
+        {
+            engineSetupDetails.renderpassCreationFunc = std::make_optional(
+                    std::bind(&Application::renderPassInit, this,
+                        std::placeholders::_1));
+        }
+
         m_Engine->init(m_Window, engineSetupDetails);
 
-        postInit();
+        postEngineInit();
 
         mainLoop();
 
@@ -75,8 +84,10 @@ namespace Eos
         m_FrameTimer.end();
     }
 
-    void Application::init() {}
-    void Application::postInit() {}
+    void Application::windowInit() {}
+    void Application::renderPassInit(RenderPass& renderPass)
+        { EOS_LOG_CRITICAL("This needs to be overriden when customRenderpass is defined"); }
+    void Application::postEngineInit() {}
     void Application::draw(VkCommandBuffer cmd) {}
     void Application::update(double dt) {}
 }

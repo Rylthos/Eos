@@ -1,4 +1,5 @@
 #include "Eos/Eos.hpp"
+#include <vulkan/vulkan_core.h>
 
 struct ModelData
 {
@@ -62,16 +63,50 @@ private:
 
     std::unordered_map<Eos::Events::Key, bool> m_ActiveKeys;
 
+    float m_PreviousMouseX = -1.0f;
+    float m_PreviousMouseY = -1.0f;
+    bool m_CapturedMouse = false;
+    bool m_RightClick = false;
+
 private:
-    void init() override
+    void windowInit() override
     {
         m_Window.setWindowSize({ 500, 500 });
         m_Window.create("3D Cube");
     }
 
-    void postInit() override
+    void renderPassInit(Eos::RenderPass& renderPass) override
+    {
+        VkAttachmentDescription colourAttachment{};
+        colourAttachment.format = m_Engine->getSwapchain().imageFormat;
+        colourAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+        colourAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colourAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        colourAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        colourAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        colourAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        colourAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+        VkSubpassDependency colourDependency{};
+        colourDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        colourDependency.dstSubpass = 0;
+        colourDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        colourDependency.srcAccessMask = 0;
+        colourDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        colourDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        Eos::RenderPassBuilder::begin(renderPass)
+            .addAttachment(colourAttachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                    colourDependency)
+            .addDefaultDepthBuffer(m_Window.getWindowSize().x, m_Window.getWindowSize().y)
+            .build();
+    }
+
+    void postEngineInit() override
     {
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
+        m_MainEventDispatcher.addCallback(&mouseMoveEvent, this);
+        m_MainEventDispatcher.addCallback(&mousePressEvent, this);
 
         m_Camera = Eos::PerspectiveCamera(m_Window.getWindowSize());
         m_Camera.setNearClippingPlane(0.1f);
@@ -84,41 +119,14 @@ private:
         m_Camera.setPitch(0.0f);
 
         std::vector<Vertex> vertices = {
-            // Front
-            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 0
-            { {  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 1
-            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 2
-            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 3
-
-            // Back
-            { { -1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 4
-            { {  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 5
-            { { -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 6
-            { {  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 7
-
-            // Left
-            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } }, // 8
-            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f } }, // 9
-            { { -1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f } }, // 10
-            { { -1.0f,  1.0f,  1.0f }, { 0.0f, 1.0f, 0.0f } }, // 11
-
-            // Right
-            { {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } }, // 12
-            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f } }, // 13
-            { {  1.0f, -1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f } }, // 14
-            { {  1.0f,  1.0f,  1.0f }, { 0.0f, 0.0f, 1.0f } }, // 15
-
-            // Up
-            { { -1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f } }, // 16
-            { {  1.0f, -1.0f, -1.0f }, { 1.0f, 1.0f, 1.0f } }, // 17
-            { { -1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f } }, // 18
-            { {  1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f } }, // 19
-
-            // Down
-            { { -1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f } }, // 20
-            { {  1.0f,  1.0f, -1.0f }, { 1.0f, 1.0f, 0.0f } }, // 21
-            { { -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f } }, // 22
-            { {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f } }, // 23
+            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f }}, // 0
+            { {  1.0f, -1.0f, -1.0f }, { 1.0f, 0.0f, 0.0f }}, // 1
+            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }}, // 2
+            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }}, // 3
+            { { -1.0f, -1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }}, // 4
+            { {  1.0f, -1.0f,  1.0f }, { 0.0f, 1.0f, 1.0f }}, // 5
+            { { -1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 1.0f }}, // 6
+            { {  1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 1.0f }}, // 7
         };
 
         std::vector<uint16_t> indices = {
@@ -130,21 +138,21 @@ private:
             4, 5, 6,
             5, 6, 7,
 
-            // Left
-            8, 9, 10,
-            9, 10, 11,
-
             // Right
-            12, 13, 14,
-            13, 14, 15,
+            1, 3, 5,
+            3, 5, 7,
+
+            // Left
+            0, 2, 4,
+            2, 4, 6,
 
             // Up
-            16, 17, 18,
-            17, 18, 19,
+            0, 1, 4,
+            1, 4, 5,
 
             // Down
-            20, 21, 22,
-            21, 22, 23,
+            2, 3, 6,
+            3, 6, 7,
         };
 
         m_CubeMesh.setVertices(vertices);
@@ -214,17 +222,28 @@ private:
     void update(double dt) override
     {
         float movementAmount = 5.0f * dt;
+
+        glm::vec3 front = m_Camera.getFrontVector() * movementAmount;
+        glm::vec3 right = m_Camera.getRightVector() * movementAmount;
+        glm::vec3 up = m_Camera.getUpVector() * movementAmount;
+
         // Up / Down
         if (m_ActiveKeys[Eos::Events::Key::KEY_SPACE])
-            m_Camera.getPosition().y -= movementAmount;
+            m_Camera.getPosition() -= up;
         else if (m_ActiveKeys[Eos::Events::Key::KEY_LEFT_CONTROL])
-            m_Camera.getPosition().y += movementAmount;
+            m_Camera.getPosition() += up;
 
         // Left / Right
         if (m_ActiveKeys[Eos::Events::Key::KEY_A])
-            m_Camera.getPosition().x -= movementAmount;
+            m_Camera.getPosition() -= right;
         else if (m_ActiveKeys[Eos::Events::Key::KEY_D])
-            m_Camera.getPosition().x += movementAmount;
+            m_Camera.getPosition() += right;
+
+        // Forward / Back
+        if (m_ActiveKeys[Eos::Events::Key::KEY_W])
+            m_Camera.getPosition() += front;
+        else if (m_ActiveKeys[Eos::Events::Key::KEY_S])
+            m_Camera.getPosition() -= front;
 
         updateData();
     }
@@ -259,12 +278,66 @@ private:
 
         return true;
     }
+
+    static bool mouseMoveEvent(const Eos::Events::MouseMoveEvent* event)
+    {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        if (!sb->m_RightClick)
+            return false;
+
+        if (!sb->m_CapturedMouse)
+        {
+            sb->m_PreviousMouseX = event->xPos;
+            sb->m_PreviousMouseY = event->yPos;
+
+            sb->m_CapturedMouse = true;
+        }
+
+        const float mouseSens = 0.5f;
+
+        float offsetX = (sb->m_PreviousMouseX - event->xPos) * mouseSens;
+        float offsetY = (sb->m_PreviousMouseY - event->yPos) * mouseSens;
+
+        sb->m_Camera.getPitch() += offsetY;
+        sb->m_Camera.getYaw() += offsetX;
+
+        sb->m_PreviousMouseX = event->xPos;
+        sb->m_PreviousMouseY = event->yPos;
+
+        sb->updateData();
+
+        return true;
+    }
+
+    static bool mousePressEvent(const Eos::Events::MousePressEvent* event)
+    {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        if (event->button == Eos::Events::MouseButton::MOUSE_BUTTON_RIGHT)
+        {
+            if (event->action == Eos::Events::Action::PRESS)
+            {
+                sb->m_RightClick = true;
+                sb->m_Window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                sb->m_CapturedMouse = false;
+            }
+            else
+            {
+                sb->m_RightClick = false;
+                sb->m_Window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
+        }
+
+        return true;
+    }
 };
 
 Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
     details.name = "3D Cube";
+    details.customRenderpass = true;
 
     return new Sandbox(details);
 }
