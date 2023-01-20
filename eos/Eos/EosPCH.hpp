@@ -14,6 +14,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include <concepts>
+#include <optional>
 
 #define EOS_VK_CHECK(x) \
     do \

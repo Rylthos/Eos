@@ -10,8 +10,8 @@ namespace Eos
 {
     struct RenderPass
     {
-        Texture2D depthImage;
-        VkFormat depthImageFormat;
+        std::optional<Texture2D> depthImage;
+        std::optional<VkFormat> depthImageFormat;
 
         VkRenderPass renderPass;
     };
@@ -38,6 +38,6 @@ namespace Eos
         std::vector<VkSubpassDependency> m_SubpassDependencies;
 
         VkExtent3D m_DepthImageExtent;
-        VkAttachmentReference m_DepthAttachmentReference;
+        std::optional<VkAttachmentReference> m_DepthAttachmentReference;
     };
 }

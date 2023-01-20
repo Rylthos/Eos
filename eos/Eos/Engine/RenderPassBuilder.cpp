@@ -12,20 +12,22 @@ namespace Eos
 
     RenderPassBuilder& RenderPassBuilder::createDepthBuffer(int width, int height)
     {
-        m_RenderPass.depthImageFormat = VK_FORMAT_D32_SFLOAT;
+        m_RenderPass.depthImageFormat = std::make_optional(VK_FORMAT_D32_SFLOAT);
         m_DepthImageExtent = VkExtent3D {
             static_cast<uint32_t>(width),
             static_cast<uint32_t>(height), 1 };
 
-        m_RenderPass.depthImage.createImage(m_RenderPass.depthImageFormat,
+        m_RenderPass.depthImage = std::make_optional(Texture2D{});
+
+        m_RenderPass.depthImage->createImage(*m_RenderPass.depthImageFormat,
                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, m_DepthImageExtent,
                 VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_RenderPass.depthImage.createImageView(m_RenderPass.depthImageFormat,
+        m_RenderPass.depthImage->createImageView(*m_RenderPass.depthImageFormat,
                 VK_IMAGE_ASPECT_DEPTH_BIT);
-        m_RenderPass.depthImage.addToDeletionQueue(GlobalData::getDeletionQueue());
+        m_RenderPass.depthImage->addToDeletionQueue(GlobalData::getDeletionQueue());
 
         VkAttachmentDescription attachment{};
-        attachment.format = m_RenderPass.depthImageFormat;
+        attachment.format = *m_RenderPass.depthImageFormat;
         attachment.samples = VK_SAMPLE_COUNT_1_BIT;
         attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -50,7 +52,8 @@ namespace Eos
 
         m_AttachmentDescriptions.push_back(attachment);
         m_SubpassDependencies.push_back(dependency);
-        m_DepthAttachmentReference = reference;
+
+        m_DepthAttachmentReference = std::make_optional(reference);
 
         return *this;
     }
@@ -75,7 +78,10 @@ namespace Eos
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = static_cast<uint32_t>(m_AttachmentReferences.size());
         subpass.pColorAttachments = m_AttachmentReferences.data();
-        subpass.pDepthStencilAttachment = &m_DepthAttachmentReference;
+        subpass.pDepthStencilAttachment = nullptr;
+
+        if (m_DepthAttachmentReference.has_value())
+            subpass.pDepthStencilAttachment = &m_DepthAttachmentReference.value();
 
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

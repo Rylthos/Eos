@@ -102,9 +102,13 @@ namespace Eos
         EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
         VkClearValue background = { { { 0.1f, 0.1f, 0.1f, 1.0f } } };
-        VkClearValue depthClear;
-        depthClear.depthStencil.depth = 1.0f;
-        VkClearValue clearValues[2] = { background, depthClear };
+        std::vector<VkClearValue> clearValues = { background };
+        if (m_Renderpass.depthImage.has_value())
+        {
+            VkClearValue depthClear;
+            depthClear.depthStencil.depth = 1.0f;
+            clearValues.push_back(depthClear);
+        }
 
         VkRenderPassBeginInfo rpInfo{};
         rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -114,8 +118,8 @@ namespace Eos
         rpInfo.renderArea.offset.y = 0;
         rpInfo.renderArea.extent = m_WindowExtent;
         rpInfo.framebuffer = m_Framebuffers[swapchainImageIndex];
-        rpInfo.clearValueCount = 2;
-        rpInfo.pClearValues = &clearValues[0];
+        rpInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        rpInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -348,8 +352,9 @@ namespace Eos
 
         for (size_t i = 0; i < swapchainImageCount; i++)
         {
-            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i],
-                m_Renderpass.depthImage.imageView };
+            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i] };
+            if (m_Renderpass.depthImage.has_value())
+                attachments.push_back(m_Renderpass.depthImage->imageView);
 
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();

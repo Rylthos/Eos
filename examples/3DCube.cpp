@@ -60,6 +60,8 @@ private:
 
     Eos::PerspectiveCamera m_Camera;
 
+    std::unordered_map<Eos::Events::Key, bool> m_ActiveKeys;
+
 private:
     void init() override
     {
@@ -83,10 +85,10 @@ private:
 
         std::vector<Vertex> vertices = {
             // Front
-            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 0
-            { {  1.0f, -1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 1
-            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 2
-            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 0.0f } }, // 3
+            { { -1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 0
+            { {  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 1
+            { { -1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 2
+            { {  1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f } }, // 3
 
             // Back
             { { -1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f } }, // 4
@@ -209,6 +211,24 @@ private:
         vkCmdDrawIndexed(cmd, m_CubeMesh.getIndices()->size(), 1, 0, 0, 0);
     }
 
+    void update(double dt) override
+    {
+        float movementAmount = 5.0f * dt;
+        // Up / Down
+        if (m_ActiveKeys[Eos::Events::Key::KEY_SPACE])
+            m_Camera.getPosition().y -= movementAmount;
+        else if (m_ActiveKeys[Eos::Events::Key::KEY_LEFT_CONTROL])
+            m_Camera.getPosition().y += movementAmount;
+
+        // Left / Right
+        if (m_ActiveKeys[Eos::Events::Key::KEY_A])
+            m_Camera.getPosition().x -= movementAmount;
+        else if (m_ActiveKeys[Eos::Events::Key::KEY_D])
+            m_Camera.getPosition().x += movementAmount;
+
+        updateData();
+    }
+
     void updateData()
     {
         ModelData modelData;
@@ -229,22 +249,13 @@ private:
     {
         Sandbox* sb = (Sandbox*)event->dataPointer;
 
-        static std::unordered_map<Eos::Events::Key, bool> activeKeys;
-
         if (event->action == Eos::Events::Action::PRESS)
-            activeKeys[event->key] = true;
+            sb->m_ActiveKeys[event->key] = true;
         else if (event->action == Eos::Events::Action::RELEASE)
-            activeKeys[event->key] = false;
+            sb->m_ActiveKeys[event->key] = false;
 
-        if (activeKeys[Eos::Events::Key::KEY_ESCAPE])
+        if (sb->m_ActiveKeys[Eos::Events::Key::KEY_ESCAPE])
             sb->m_Window.setWindowShouldClose(true);
-
-        if (activeKeys[Eos::Events::Key::KEY_SPACE])
-            sb->m_Camera.getPosition().y -= 0.1f;
-        else if (activeKeys[Eos::Events::Key::KEY_LEFT_CONTROL])
-            sb->m_Camera.getPosition().y += 0.1f;
-
-        sb->updateData();
 
         return true;
     }
