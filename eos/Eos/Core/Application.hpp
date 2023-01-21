@@ -15,6 +15,7 @@
 #include <string>
 
 #include <unordered_map>
+#include <vulkan/vulkan_core.h>
 
 #include "Eos/Events/EventListener.hpp"
 #include "Eos/Events/EventDispatcher.hpp"
@@ -27,6 +28,8 @@ namespace Eos
         bool enableVsync = true;
         bool enableWindowResizing = false;
         bool customRenderpass = false;
+        bool customClearValues = false;
+        uint32_t framesInFlight = 1;
     };
 
     class EOS_API Application
@@ -40,18 +43,28 @@ namespace Eos
     protected:
         Window m_Window;
         Engine* m_Engine;
-        Timer m_FrameTimer;
 
-        Events::EventListener m_MainEventListener;
         Events::EventDispatcher m_MainEventDispatcher;
     private:
         ApplicationDetails m_Details;
+        Timer m_FrameTimer;
+
+        Events::EventListener m_MainEventListener;
     private:
         void mainLoop();
 
         virtual void windowInit();
+
         virtual void renderPassInit(RenderPass& renderPass);
+
+        virtual std::vector<VkImageView> framebufferCreation(
+                VkFramebufferCreateInfo& framebuffer, VkImageView& swapchainImage,
+                RenderPass& renderpass);
+
+
         virtual void postEngineInit();
+
+        virtual std::vector<VkClearValue> renderClearValues();
 
         virtual void draw(VkCommandBuffer cmd);
         virtual void update(double dt);

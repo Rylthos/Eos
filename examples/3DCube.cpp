@@ -102,6 +102,15 @@ private:
             .build();
     }
 
+    std::vector<VkImageView> framebufferCreation(VkFramebufferCreateInfo& framebuffer,
+            VkImageView& swapchainImage, Eos::RenderPass& renderpass) override
+    {
+        std::vector<VkImageView> attachments = 
+        { swapchainImage, renderpass.depthImage->imageView };
+
+        return attachments;
+    }
+
     void postEngineInit() override
     {
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
@@ -201,6 +210,16 @@ private:
         vmaMapMemory(Eos::GlobalData::getAllocator(), m_CubeDataBuffer.allocation, &temp);
             memcpy(temp, &modelData, sizeof(ModelData));
         vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_CubeDataBuffer.allocation);
+    }
+
+    std::vector<VkClearValue> renderClearValues() override
+    {
+        VkClearValue background = { { { 0.1f, 0.1f, 0.1f, 1.0f } } };
+
+        VkClearValue depthColour{};
+        depthColour.depthStencil.depth = 1.0f;
+
+        return { background, depthColour };
     }
 
     void draw(VkCommandBuffer cmd) override
@@ -337,7 +356,9 @@ Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
     details.name = "3D Cube";
+    details.enableVsync = false;
     details.customRenderpass = true;
+    details.customClearValues = true;
 
     return new Sandbox(details);
 }

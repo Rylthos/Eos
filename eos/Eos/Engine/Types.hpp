@@ -1,6 +1,9 @@
 #pragma once
 
-#include "Eos/EosPCH.hpp"
+#include "Eos/Engine/Texture.hpp"
+
+#include <vector>
+#include <optional>
 
 #include <vulkan/vulkan.h>
 #include "vk_mem_alloc.h"
@@ -27,5 +30,13 @@ namespace Eos
         std::vector<VkVertexInputAttributeDescription> attributes;
 
         VkPipelineVertexInputStateCreateFlags flags = 0;
+    };
+
+    struct RenderPass
+    {
+        std::optional<Texture2D> depthImage;
+        std::optional<VkFormat> depthImageFormat;
+
+        VkRenderPass renderPass;
     };
 }

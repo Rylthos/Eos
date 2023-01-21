@@ -50,7 +50,7 @@ namespace Eos
     {
         m_SetupDetails = details;
 
-        m_Frames.resize(m_FrameOverlap);
+        m_Frames.resize(m_SetupDetails.framesInFlight);
 
         int width, height;
         glfwGetFramebufferSize(window.getWindow(), &width, &height);
@@ -83,9 +83,10 @@ namespace Eos
         EOS_LOG_INFO("Initialized Engine");
     }
 
-    RenderInformation Engine::preRender(int frameNumber)
+    RenderInformation Engine::preRender()
     {
-        FrameData& frame = m_Frames[frameNumber % m_FrameOverlap];
+        static uint32_t currentFrame = 0;
+        FrameData& frame = m_Frames[currentFrame % m_SetupDetails.framesInFlight];
 
         EOS_VK_CHECK(vkWaitForFences(m_Device, 1, &frame.renderFence, true, 1000000000));
         EOS_VK_CHECK(vkResetFences(m_Device, 1, &frame.renderFence));
@@ -105,13 +106,16 @@ namespace Eos
 
         EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
-        VkClearValue background = { { { 0.1f, 0.1f, 0.1f, 1.0f } } };
-        std::vector<VkClearValue> clearValues = { background };
-        if (m_Renderpass.depthImage.has_value())
+        std::vector<VkClearValue> clearValues;
+
+        if (m_SetupDetails.renderClearValues.has_value())
         {
-            VkClearValue depthClear;
-            depthClear.depthStencil.depth = 1.0f;
-            clearValues.push_back(depthClear);
+            clearValues = (m_SetupDetails.renderClearValues.value())();
+        }
+        else
+        {
+            VkClearValue background = { { { 0.0f, 0.0f, 0.0f, 1.0f } } };
+            clearValues = { background };
         }
 
         VkRenderPassBeginInfo rpInfo{};
@@ -131,6 +135,10 @@ namespace Eos
         information.frame = &frame;
         information.swapchainImageIndex = swapchainImageIndex;
         information.cmd = &cmd;
+
+        currentFrame++;
+        if (currentFrame >= m_SetupDetails.framesInFlight)
+            currentFrame = 0;
 
         return information;
     }
@@ -290,9 +298,16 @@ namespace Eos
 
         for (size_t i = 0; i < swapchainImageCount; i++)
         {
-            std::vector<VkImageView> attachments = { m_Swapchain.imageViews[i] };
-            if (m_Renderpass.depthImage.has_value())
-                attachments.push_back(m_Renderpass.depthImage->imageView);
+            std::vector<VkImageView> attachments;
+            if (m_SetupDetails.framebufferCreationFunc.has_value())
+            {
+                attachments = (m_SetupDetails.framebufferCreationFunc.value())(
+                        framebufferInfo, m_Swapchain.imageViews[i], m_Renderpass);
+            }
+            else
+            {
+                attachments = { m_Swapchain.imageViews[i] };
+            }
 
             framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
             framebufferInfo.pAttachments = attachments.data();
@@ -314,7 +329,7 @@ namespace Eos
         VkCommandPoolCreateInfo commandPoolInfo = Init::commandPoolCreateInfo(
                 m_GraphicsQueue.family, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 
-        for (uint8_t i = 0; i < m_FrameOverlap; i++)
+        for (uint8_t i = 0; i < m_SetupDetails.framesInFlight; i++)
         {
             FrameData& frame = m_Frames[i];
             EOS_VK_CHECK(vkCreateCommandPool(m_Device, &commandPoolInfo,
@@ -339,7 +354,7 @@ namespace Eos
         VkFenceCreateInfo fenceCreateInfo = Init::fenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
         VkSemaphoreCreateInfo semaphoreCreateInfo = Init::semaphoreCreateInfo();
 
-        for (uint32_t i = 0; i < m_FrameOverlap; i++)
+        for (uint32_t i = 0; i < m_SetupDetails.framesInFlight; i++)
         {
             FrameData& frame = m_Frames[i];
             EOS_VK_CHECK(vkCreateFence(m_Device, &fenceCreateInfo, nullptr,

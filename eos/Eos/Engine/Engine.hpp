@@ -16,8 +16,10 @@
 #include "Eos/Engine/Shader.hpp"
 #include "Eos/Engine/Texture.hpp"
 
+#include <vector>
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
+#include <vulkan/vulkan_core.h>
 
 namespace Eos
 {
@@ -25,8 +27,14 @@ namespace Eos
     {
         const char* name;
         bool vsync;
+        uint32_t framesInFlight;
 
         std::optional<std::function<void(RenderPass&)>> renderpassCreationFunc;
+
+        std::optional<std::function<std::vector<VkImageView>(VkFramebufferCreateInfo&,
+                VkImageView&, RenderPass&)>> framebufferCreationFunc;
+
+        std::optional<std::function<std::vector<VkClearValue>()>> renderClearValues;
     };
 
     struct FrameData
@@ -67,7 +75,7 @@ namespace Eos
 
         void init(Window& window, const EngineSetupDetails& setupDetails);
 
-        RenderInformation preRender(int frameNumber);
+        RenderInformation preRender();
         void postRender(RenderInformation& information);
 
         Engine(const Engine&) = delete;
@@ -75,7 +83,6 @@ namespace Eos
     private:
         bool m_Initialized = false;
         VkExtent2D m_WindowExtent;
-        uint32_t m_FrameOverlap = 2;
 
         EngineSetupDetails m_SetupDetails;
 

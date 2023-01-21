@@ -42,7 +42,8 @@ namespace Eos
 
         EngineSetupDetails engineSetupDetails = {
             m_Details.name.c_str(),
-            m_Details.enableVsync
+            m_Details.enableVsync,
+            m_Details.framesInFlight
         };
 
         if (m_Details.customRenderpass)
@@ -50,6 +51,17 @@ namespace Eos
             engineSetupDetails.renderpassCreationFunc = std::make_optional(
                     std::bind(&Application::renderPassInit, this,
                         std::placeholders::_1));
+
+            engineSetupDetails.framebufferCreationFunc = std::make_optional(
+                    std::bind(&Application::framebufferCreation, this,
+                        std::placeholders::_1, std::placeholders::_2,
+                        std::placeholders::_3));
+        }
+
+        if (m_Details.customClearValues)
+        {
+            engineSetupDetails.renderClearValues = std::make_optional(
+                    std::bind(&Application::renderClearValues, this));
         }
 
         m_Engine->init(m_Window, engineSetupDetails);
@@ -65,7 +77,6 @@ namespace Eos
     void Application::mainLoop()
     {
         m_FrameTimer.start();
-        int currentFrame = 0;
 
         while(!m_Window.shouldClose())
         {
@@ -74,19 +85,29 @@ namespace Eos
             m_FrameTimer.tick();
             update(m_FrameTimer.timeElapsed());
 
-            RenderInformation info = m_Engine->preRender(currentFrame);
+            RenderInformation info = m_Engine->preRender();
 
             draw(*(info.cmd));
 
             m_Engine->postRender(info);
-            currentFrame++;
         }
         m_FrameTimer.end();
     }
 
     void Application::windowInit() {}
+
     void Application::renderPassInit(RenderPass& renderPass)
-        { EOS_LOG_CRITICAL("This needs to be overriden when customRenderpass is defined"); }
+    { EOS_LOG_CRITICAL("(renderPassInit) This needs to be overriden when customRenderpass is set"); }
+
+    std::vector<VkImageView> Application::framebufferCreation(VkFramebufferCreateInfo& framebuffer,
+            VkImageView& swapchainImage, RenderPass& renderpass)
+    { EOS_LOG_CRITICAL("(framebufferCreation) This needs to be overriden when customRenderpass is set");
+        return {}; };
+
+    std::vector<VkClearValue> Application::renderClearValues()
+    { EOS_LOG_CRITICAL("(renderClearValues) This needs to be overriden when customClearValues is set");
+        return {}; };
+
     void Application::postEngineInit() {}
     void Application::draw(VkCommandBuffer cmd) {}
     void Application::update(double dt) {}

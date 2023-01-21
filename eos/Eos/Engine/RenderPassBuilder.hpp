@@ -8,14 +8,6 @@
 
 namespace Eos
 {
-    struct RenderPass
-    {
-        std::optional<Texture2D> depthImage;
-        std::optional<VkFormat> depthImageFormat;
-
-        VkRenderPass renderPass;
-    };
-
     class EOS_API RenderPassBuilder
     {
     public:
