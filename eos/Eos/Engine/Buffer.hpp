@@ -18,7 +18,7 @@ namespace Eos
         Buffer() {}
 
         void create(size_t allocSize, VkBufferUsageFlags usage,
-                VmaMemoryUsage memoryUsage)
+                VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0)
         {
             VkBufferCreateInfo info{};
             info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -28,6 +28,29 @@ namespace Eos
 
             VmaAllocationCreateInfo vmaAllocInfo{};
             vmaAllocInfo.usage = memoryUsage;
+            vmaAllocInfo.flags = flags;
+
+            EOS_VK_CHECK(vmaCreateBuffer(GlobalData::getAllocator(),
+                        &info, &vmaAllocInfo, &buffer,
+                        &allocation, nullptr));
+        }
+
+        void create(size_t allocSize, VkBufferUsageFlags usage,
+                VkSharingMode sharingMode, std::vector<uint32_t> queues,
+                VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0)
+        {
+            VkBufferCreateInfo info{};
+            info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+            info.pNext = nullptr;
+            info.size = allocSize;
+            info.usage = usage;
+            info.sharingMode = sharingMode;
+            info.queueFamilyIndexCount = static_cast<uint32_t>(queues.size());
+            info.pQueueFamilyIndices = queues.data();
+
+            VmaAllocationCreateInfo vmaAllocInfo{};
+            vmaAllocInfo.usage = memoryUsage;
+            vmaAllocInfo.flags = flags;
 
             EOS_VK_CHECK(vmaCreateBuffer(GlobalData::getAllocator(),
                         &info, &vmaAllocInfo, &buffer,

@@ -1,18 +1,28 @@
 #pragma once
 
+#include "Eos/EosPCH.hpp"
+
 #include <vulkan/vulkan.hpp>
 
-namespace Eos::Init
+namespace Eos
 {
-    VkCommandPoolCreateInfo commandPoolCreateInfo(uint32_t queueFamilyIndex,
-            VkCommandPoolCreateFlags flags = 0);
+    class EOS_API Init
+    {
+    public:
+        static VkCommandPoolCreateInfo commandPoolCreateInfo(uint32_t queueFamilyIndex,
+                VkCommandPoolCreateFlags flags = 0);
 
-    VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool pool,
-            uint32_t count = 1, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-    VkCommandBufferBeginInfo commandBufferBeginInfo(VkCommandBufferUsageFlags flags = 0);
-    VkSubmitInfo submitInfo(VkCommandBuffer* cmd);
+        static VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool pool,
+                uint32_t count = 1, VkCommandBufferLevel level = VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
-    VkFenceCreateInfo fenceCreateInfo(VkFenceCreateFlags flags = 0);
+        static VkCommandBufferBeginInfo commandBufferBeginInfo(VkCommandBufferUsageFlags flags = 0);
 
-    VkSemaphoreCreateInfo semaphoreCreateInfo(VkSemaphoreCreateFlags flags = 0);
+        static VkSubmitInfo submitInfo(VkCommandBuffer* cmd);
+
+        static VkFenceCreateInfo fenceCreateInfo(VkFenceCreateFlags flags = 0);
+
+        static VkSemaphoreCreateInfo semaphoreCreateInfo(VkSemaphoreCreateFlags flags = 0);
+    private:
+        Init() {}
+    };
 }

@@ -71,6 +71,10 @@ namespace Eos
 
         Swapchain& getSwapchain() { return m_Swapchain; }
 
+        Queue getGraphicsQueue() { return m_GraphicsQueue; }
+        Queue getTransferQueue() { return m_TransferQueue; }
+        Queue getComputeQueue() { return m_ComputeQueue; }
+
         void cleanup();
 
         void init(Window& window, const EngineSetupDetails& setupDetails);
@@ -96,6 +100,7 @@ namespace Eos
 
         Queue m_GraphicsQueue;
         Queue m_TransferQueue;
+        Queue m_ComputeQueue;
 
         Swapchain m_Swapchain;
 

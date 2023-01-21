@@ -1,0 +1,17 @@
+#version 450
+
+layout (std140, set = 0, binding = 0) buffer InBuffer
+{
+    int value[];
+} b_InBuffer;
+
+layout (std140, set = 0, binding = 1) buffer OutBuffer
+{
+    int value[];
+} b_OutBuffer;
+
+void main()
+{
+    uint index = gl_GlobalInvocationID.x;
+    b_OutBuffer.value[index] = b_InBuffer.value[index] * b_InBuffer.value[index];
+}

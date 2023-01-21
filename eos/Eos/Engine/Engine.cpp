@@ -217,6 +217,17 @@ namespace Eos
             m_TransferQueue = m_GraphicsQueue;
         }
 
+        auto computeQueueRet = vkbDevice.get_queue(vkb::QueueType::compute);
+        if (computeQueueRet)
+        {
+            m_ComputeQueue.queue = vkbDevice.get_queue(vkb::QueueType::compute).value();
+            m_ComputeQueue.family = vkbDevice.get_queue_index(vkb::QueueType::compute).value();
+        }
+        else // If not Compute Queue then use the graphics queue
+        {
+            m_ComputeQueue = m_GraphicsQueue;
+        }
+
         VmaAllocatorCreateInfo allocatorInfo{};
         allocatorInfo.physicalDevice = m_PhysicalDevice;
         allocatorInfo.device = m_Device;

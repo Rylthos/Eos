@@ -2,9 +2,9 @@
 
 #include <cstdlib>
 
-namespace Eos::Init
+namespace Eos
 {
-    VkCommandPoolCreateInfo commandPoolCreateInfo(uint32_t queueFamilyIndex,
+    VkCommandPoolCreateInfo Init::commandPoolCreateInfo(uint32_t queueFamilyIndex,
             VkCommandPoolCreateFlags flags)
     {
         VkCommandPoolCreateInfo info{};
@@ -16,7 +16,7 @@ namespace Eos::Init
         return info;
     }
 
-    VkCommandBufferAllocateInfo commandBufferAllocateInfo(VkCommandPool pool,
+    VkCommandBufferAllocateInfo Init::commandBufferAllocateInfo(VkCommandPool pool,
             uint32_t count, VkCommandBufferLevel level)
     {
         VkCommandBufferAllocateInfo info{};
@@ -29,7 +29,7 @@ namespace Eos::Init
         return info;
     }
 
-    VkCommandBufferBeginInfo commandBufferBeginInfo(VkCommandBufferUsageFlags flags)
+    VkCommandBufferBeginInfo Init::commandBufferBeginInfo(VkCommandBufferUsageFlags flags)
     {
         VkCommandBufferBeginInfo info{};
         info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -40,7 +40,7 @@ namespace Eos::Init
         return info;
     }
 
-    VkSubmitInfo submitInfo(VkCommandBuffer* cmd)
+    VkSubmitInfo Init::submitInfo(VkCommandBuffer* cmd)
     {
         VkSubmitInfo info{};
         info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -56,7 +56,7 @@ namespace Eos::Init
         return info;
     }
 
-    VkFenceCreateInfo fenceCreateInfo(VkFenceCreateFlags flags)
+    VkFenceCreateInfo Init::fenceCreateInfo(VkFenceCreateFlags flags)
     {
         VkFenceCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -66,7 +66,7 @@ namespace Eos::Init
         return info;
     }
 
-    VkSemaphoreCreateInfo semaphoreCreateInfo(VkSemaphoreCreateFlags flags)
+    VkSemaphoreCreateInfo Init::semaphoreCreateInfo(VkSemaphoreCreateFlags flags)
     {
         VkSemaphoreCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;

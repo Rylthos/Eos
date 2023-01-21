@@ -1,5 +1,4 @@
 #include "Eos/Eos.hpp"
-#include <vulkan/vulkan_core.h>
 
 struct ModelData
 {

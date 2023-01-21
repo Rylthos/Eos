@@ -24,7 +24,8 @@ foreach (Example ${AllExamples})
 
     file (GLOB_RECURSE Shaders CONFIGURE_DEPENDS 
         ${InputShadersFile}/*.vert
-        ${InputShadersFile}/*.frag)
+        ${InputShadersFile}/*.frag
+        ${InputShadersFile}/*.comp)
 
     foreach (Shader ${Shaders})
         get_filename_component (File ${Shader} NAME)
