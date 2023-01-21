@@ -39,4 +39,11 @@ namespace Eos
 
         VkRenderPass renderPass;
     };
+
+    struct UploadContext
+    {
+        VkFence fence;
+        VkCommandPool commandPool;
+        VkCommandBuffer commandBuffer;
+    };
 }

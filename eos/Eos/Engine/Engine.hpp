@@ -18,6 +18,9 @@
 #include "Eos/Engine/Shader.hpp"
 #include "Eos/Engine/Texture.hpp"
 
+#include "Eos/Engine/Submits/TransferSubmit.hpp"
+#include "Eos/Engine/Submits/GraphicsSubmit.hpp"
+
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
@@ -54,13 +57,6 @@ namespace Eos
         uint32_t swapchainImageIndex;
 
         VkCommandBuffer* cmd;
-    };
-
-    struct UploadContext
-    {
-        VkFence uploadFence;
-        VkCommandPool commandPool;
-        VkCommandBuffer commandBuffer;
     };
 
     class EOS_API Engine

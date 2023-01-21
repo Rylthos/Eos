@@ -28,7 +28,6 @@
 #include "Engine/ComputeShader.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/GlobalData.hpp"
-#include "Engine/ImmediateSubmit.hpp"
 #include "Engine/Initializers.hpp"
 #include "Engine/Mesh.hpp"
 #include "Engine/RenderPassBuilder.hpp"
@@ -45,6 +44,10 @@
 #include "Engine/Pipelines/ComputePipelineBuilder.hpp"
 #include "Engine/Pipelines/PipelineBuilder.hpp"
 #include "Engine/Pipelines/PipelineCreationInfo.hpp"
+
+// Engine / Submits
+#include "Engine/Submits/TransferSubmit.hpp"
+#include "Engine/Submits/GraphicsSubmit.hpp"
 
 
 // Events

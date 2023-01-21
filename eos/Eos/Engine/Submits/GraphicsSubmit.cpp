@@ -1,21 +1,20 @@
-#include "ImmediateSubmit.hpp"
+#include "GraphicsSubmit.hpp"
 
 #include "Eos/Engine/Initializers.hpp"
-
 #include "Eos/Engine/GlobalData.hpp"
 
 namespace Eos
 {
-    TransferSubmit::UploadContext TransferSubmit::s_UploadContext;
-    Queue* TransferSubmit::s_TransferQueue;
+    UploadContext GraphicsSubmit::s_UploadContext;
+    Queue* GraphicsSubmit::s_GraphicsQueue;
 
-    void TransferSubmit::setup(Queue* queue)
+    void GraphicsSubmit::setup(Queue* queue)
     {
-        s_TransferQueue = queue;
+        s_GraphicsQueue = queue;
 
         // Pool
         VkCommandPoolCreateInfo uploadCommandPoolInfo = Init::commandPoolCreateInfo(
-                s_TransferQueue->family);
+                s_GraphicsQueue->family);
         EOS_VK_CHECK(vkCreateCommandPool(GlobalData::getDevice(),
                     &uploadCommandPoolInfo, nullptr, &s_UploadContext.commandPool));
 
@@ -36,10 +35,10 @@ namespace Eos
                 vkDestroyFence(GlobalData::getDevice(), s_UploadContext.fence, nullptr);
             });
 
-        EOS_LOG_INFO("Created Upload Context (Transfer Submit)");
+        EOS_LOG_INFO("Created Upload Context (Graphics Submit)");
     }
 
-    void TransferSubmit::submit(std::function<void(VkCommandBuffer)>&& function)
+    void GraphicsSubmit::submit(std::function<void(VkCommandBuffer)>&& function)
     {
         VkCommandBuffer cmd = s_UploadContext.commandBuffer;
 
@@ -54,7 +53,7 @@ namespace Eos
 
         VkSubmitInfo submit = Init::submitInfo(&cmd);
 
-        EOS_VK_CHECK(vkQueueSubmit(s_TransferQueue->queue, 1, &submit,
+        EOS_VK_CHECK(vkQueueSubmit(s_GraphicsQueue->queue, 1, &submit,
                     s_UploadContext.fence));
 
         vkWaitForFences(GlobalData::getDevice(), 1,

@@ -5,7 +5,7 @@
 #include "Eos/Engine/Buffer.hpp"
 #include "Eos/Core/DeletionQueue.hpp"
 #include "Eos/Engine/GlobalData.hpp"
-#include "Eos/Engine/ImmediateSubmit.hpp"
+#include "Eos/Engine/Submits/TransferSubmit.hpp"
 
 namespace Eos
 {

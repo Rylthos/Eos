@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <concepts>
 #include <optional>
+#include <memory>
 
 #include "Eos/Core/Core.hpp"
 #include "Eos/Core/Logger.hpp"

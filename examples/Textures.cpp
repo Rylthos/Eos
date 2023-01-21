@@ -108,7 +108,7 @@ private:
             memcpy(data, pixels, imageSize);
         vmaUnmapMemory(Eos::GlobalData::getAllocator(), stagingBuffer.allocation);
 
-        Eos::TransferSubmit::submit([&](VkCommandBuffer cmd) {
+        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd) {
             VkImageSubresourceRange range;
             range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             range.baseMipLevel = 0;

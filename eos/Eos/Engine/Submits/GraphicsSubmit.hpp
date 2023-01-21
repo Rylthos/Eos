@@ -6,24 +6,17 @@
 
 namespace Eos
 {
-    class EOS_API TransferSubmit
+    class EOS_API GraphicsSubmit
     {
     public:
         static void setup(Queue* queue);
         
         static void submit(std::function<void(VkCommandBuffer)>&& function);
     private:
-        struct UploadContext
-        {
-            VkFence fence;
-            VkCommandPool commandPool;
-            VkCommandBuffer commandBuffer;
-        };
-
         static UploadContext s_UploadContext;
-        static Queue* s_TransferQueue;
+        static Queue* s_GraphicsQueue;
     private:
-        TransferSubmit() {}
-        ~TransferSubmit() {}
+        GraphicsSubmit() {}
+        ~GraphicsSubmit() {}
     };
 }
