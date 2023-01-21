@@ -27,7 +27,21 @@ foreach (Example ${AllExamples})
         ${InputShadersFile}/*.frag)
 
     foreach (Shader ${Shaders})
-        get_filename_component(File ${Shader} NAME)
+        get_filename_component (File ${Shader} NAME)
+
+        # Check if the file has been modified since the program was last Built
+        # If modified then rebuild, else skip
+        file (TIMESTAMP ${Shader} Time)
+        set (PreviousTime $CACHE{${File}})
+        if (NOT EXISTS ${PreviousTime})
+            set (PreviousTime "0")
+        endif()
+
+        if (${Time} STREQUAL ${PreviousTime} OR NOT EXISTS "${OutputShadersFile}/${File}.spv")
+            set (${Shader} ${Time} CACHE STRING "Time Data" FORCE)
+        else()
+            continue ()
+        endif()
 
         add_custom_command(
             TARGET EOS_EXAMPLES PRE_BUILD
