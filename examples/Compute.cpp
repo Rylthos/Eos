@@ -26,7 +26,7 @@ private:
 
     void postEngineInit() override
     {
-        const uint32_t elements = 10;
+        const uint32_t elements = 100;
         const uint32_t bufferSize = elements * sizeof(int32_t);
 
         m_InBuffer.create(bufferSize, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
@@ -38,7 +38,7 @@ private:
         m_OutBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
         int32_t values[elements];
-        for (int32_t i = 0; i < elements; i++)
+        for (int32_t i = 1; i <= elements; i++)
         {
             values[i] = i;
         }
@@ -93,13 +93,11 @@ private:
         EOS_VK_CHECK(vkAllocateCommandBuffers(Eos::GlobalData::getDevice(),
                     &cmdAllocInfo, &cmd));
 
-
         VkCommandBufferBeginInfo cmdBeginInfo{};
         cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         cmdBeginInfo.pNext = nullptr;
         cmdBeginInfo.pInheritanceInfo = nullptr;
         cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
 
         EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
