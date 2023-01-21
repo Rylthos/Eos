@@ -41,6 +41,7 @@
 #include "Engine/DescriptorSets/DescriptorBuilder.hpp"
 
 // Engine / Pipelines
+#include "Engine/Pipelines/ComputePipelineBuilder.hpp"
 #include "Engine/Pipelines/PipelineBuilder.hpp"
 #include "Engine/Pipelines/PipelineCreationInfo.hpp"
 

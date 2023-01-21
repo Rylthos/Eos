@@ -9,6 +9,7 @@
 #include "Eos/Engine/DescriptorSets/DescriptorLayoutCache.hpp"
 #include "Eos/Engine/DescriptorSets/DescriptorBuilder.hpp"
 
+#include "Eos/Engine/Pipelines/ComputePipelineBuilder.hpp"
 #include "Eos/Engine/Pipelines/PipelineBuilder.hpp"
 
 #include "Eos/Engine/Mesh.hpp"
@@ -67,6 +68,7 @@ namespace Eos
         static Engine* get();
 
         PipelineBuilder createPipelineBuilder();
+        ComputePipelineBuilder createComputePipelineBuilder();
         DescriptorBuilder createDescriptorBuilder();
 
         Swapchain& getSwapchain() { return m_Swapchain; }

@@ -38,14 +38,14 @@ private:
         m_OutBuffer.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
         int32_t values[elements];
-        for (int i = 0; i < elements; i++)
+        for (int32_t i = 0; i < elements; i++)
         {
             values[i] = i;
         }
 
         void* temp;
         vmaMapMemory(Eos::GlobalData::getAllocator(), m_InBuffer.allocation, &temp);
-            memcpy(temp, &values[0], sizeof(int32_t) * elements);
+            memcpy(temp, &values[0], bufferSize);
         vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_InBuffer.allocation);
 
         Eos::Shader squareShader;
@@ -73,8 +73,7 @@ private:
         layoutInfo.setLayoutCount = 1;
         layoutInfo.pSetLayouts = &m_SetLayout;
 
-        m_Engine->createPipelineBuilder()
-            .clearDefaults()
+        m_Engine->createComputePipelineBuilder()
             .setShaderStages(squareShader.getShaderStages())
             .build(m_Pipeline, m_PipelineLayout, layoutInfo);
 
@@ -90,6 +89,10 @@ private:
         VkCommandBufferAllocateInfo cmdAllocInfo = Eos::Init::commandBufferAllocateInfo(
                 commandPool, 1);
 
+        VkCommandBuffer cmd;
+        EOS_VK_CHECK(vkAllocateCommandBuffers(Eos::GlobalData::getDevice(),
+                    &cmdAllocInfo, &cmd));
+
 
         VkCommandBufferBeginInfo cmdBeginInfo{};
         cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -97,7 +100,6 @@ private:
         cmdBeginInfo.pInheritanceInfo = nullptr;
         cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-        VkCommandBuffer cmd;
 
         EOS_VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
 
@@ -109,7 +111,47 @@ private:
 
         EOS_VK_CHECK(vkEndCommandBuffer(cmd));
 
+        VkFenceCreateInfo fenceCI = Eos::Init::fenceCreateInfo();
+        VkFence fence;
+        EOS_VK_CHECK(vkCreateFence(Eos::GlobalData::getDevice(), &fenceCI, nullptr,
+                    &fence));
 
+        VkSubmitInfo submit{};
+        submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit.pNext = nullptr;
+        submit.pWaitDstStageMask = nullptr;
+        submit.waitSemaphoreCount = 0;
+        submit.pWaitSemaphores = nullptr;
+        submit.commandBufferCount = 1;
+        submit.pCommandBuffers = &cmd;
+
+        EOS_VK_CHECK(vkQueueSubmit(m_Engine->getComputeQueue().queue,
+                    1, &submit,
+                    fence));
+        EOS_VK_CHECK(vkWaitForFences(Eos::GlobalData::getDevice(),
+                    1, &fence, true, 10000000));
+
+        int32_t returnValuesInput[elements];
+        int32_t returnValuesOutput[elements];
+
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_InBuffer.allocation, &temp);
+            memcpy(returnValuesInput, temp, bufferSize);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_InBuffer.allocation);
+
+        vmaMapMemory(Eos::GlobalData::getAllocator(), m_OutBuffer.allocation, &temp);
+            memcpy(returnValuesOutput, temp, bufferSize);
+        vmaUnmapMemory(Eos::GlobalData::getAllocator(), m_OutBuffer.allocation);
+
+        for (int i = 0; i < elements; i++)
+        {
+            EOS_LOG_INFO("{} : {}", returnValuesInput[i], returnValuesOutput[i]);
+        }
+
+        vkDeviceWaitIdle(Eos::GlobalData::getDevice());
+
+        vkResetCommandPool(Eos::GlobalData::getDevice(), commandPool,
+                VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+        vkDestroyFence(Eos::GlobalData::getDevice(), fence, nullptr);
         vkDestroyCommandPool(Eos::GlobalData::getDevice(), commandPool, nullptr);
     }
 

@@ -16,8 +16,6 @@ namespace Eos
 
     Application::~Application()
     {
-        PipelineBuilder::cleanup();
-
         m_Engine->cleanup();
     }
 

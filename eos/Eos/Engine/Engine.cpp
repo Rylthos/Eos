@@ -21,6 +21,11 @@ namespace Eos
         return PipelineBuilder::begin(&m_Device, &m_Renderpass.renderPass).defaultValues();
     }
 
+    ComputePipelineBuilder Engine::createComputePipelineBuilder()
+    {
+        return ComputePipelineBuilder::begin(&m_Device);
+    }
+
     DescriptorBuilder Engine::createDescriptorBuilder()
     {
         return DescriptorBuilder::begin(&m_DescriptorLayoutCache, &m_DescriptorAllocator);
@@ -31,6 +36,9 @@ namespace Eos
         if (m_Initialized)
         {
             vkDeviceWaitIdle(m_Device);
+
+            ComputePipelineBuilder::cleanup();
+            PipelineBuilder::cleanup();
 
             m_DescriptorAllocator.cleanup();
             m_DescriptorLayoutCache.cleanup();
