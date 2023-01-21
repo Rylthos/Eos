@@ -1,6 +1,9 @@
 #include "Eos/Eos.hpp"
 #include <vulkan/vulkan_core.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 struct Vertex
 {
     glm::vec3 position;
@@ -84,15 +87,21 @@ private:
                 "res/Textures/Shaders/Texture.frag.spv");
 
         // Create Texture
-        VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
-        size_t imageSize = 500 * 500 * 4;
-        VkExtent3D imageExtent;
-        imageExtent.width = 500;
-        imageExtent.height = 500;
-        imageExtent.depth = 1;
+        int texWidth, texHeight, channels;
+        stbi_uc* pixels = stbi_load("res/Textures/Textures/Swirl.png", &texWidth, &texHeight, &channels, STBI_rgb_alpha);
 
-        uint8_t pixels[500 * 500 * 4];
-        memset(pixels, 125, 500 * 500 * 4 * sizeof(uint8_t));
+        if (!pixels)
+        {
+            EOS_LOG_ERROR("Failde to load texture file");
+            return;
+        }
+
+        VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
+        size_t imageSize = texWidth * texHeight * channels;
+        VkExtent3D imageExtent;
+        imageExtent.width = texWidth;
+        imageExtent.height = texHeight;
+        imageExtent.depth = 1;
 
         Eos::Buffer stagingBuffer;
         stagingBuffer.create(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -102,10 +111,11 @@ private:
                 imageExtent, VMA_MEMORY_USAGE_GPU_ONLY);
         m_Texture.createImageView(imageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
         m_Texture.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
-
+        void* pixelsPtr = pixels;
         void* data;
+
         vmaMapMemory(Eos::GlobalData::getAllocator(), stagingBuffer.allocation, &data);
-            memcpy(data, pixels, imageSize);
+            memcpy(data, pixelsPtr, imageSize);
         vmaUnmapMemory(Eos::GlobalData::getAllocator(), stagingBuffer.allocation);
 
         Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd) {

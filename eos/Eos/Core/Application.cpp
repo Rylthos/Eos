@@ -1,7 +1,6 @@
 #include "Application.hpp"
 
 #define VMA_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
 #include "Eos/Engine/Engine.hpp"
 
 #include <stdexcept>

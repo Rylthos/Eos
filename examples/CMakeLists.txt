@@ -19,13 +19,19 @@ endmacro()
 
 SUBDIRLIST(AllExamples "${PROJECT_SOURCE_DIR}/examples/res")
 foreach (Example ${AllExamples})
-    set (InputShadersFile "${PROJECT_SOURCE_DIR}/examples/res/${Example}/Shaders")
-    set (OutputShadersFile "${PROJECT_SOURCE_DIR}/bin/res/${Example}/Shaders")
+    set (InputResFile "${PROJECT_SOURCE_DIR}/examples/res/${Example}")
+    set (OutputResFile "${PROJECT_SOURCE_DIR}/bin/res/${Example}")
+    set (InputShadersFile "${InputResFile}/Shaders")
+    set (OutputShadersFile "${OutputResFile}/Shaders")
 
     file (GLOB_RECURSE Shaders CONFIGURE_DEPENDS 
         ${InputShadersFile}/*.vert
         ${InputShadersFile}/*.frag
         ${InputShadersFile}/*.comp)
+
+    if (EXISTS ${InputResFile}/Textures)
+        file(COPY ${InputResFile}/Textures/ DESTINATION ${OutputResFile}/Textures/)
+    endif ()
 
     foreach (Shader ${Shaders})
         get_filename_component (File ${Shader} NAME)
