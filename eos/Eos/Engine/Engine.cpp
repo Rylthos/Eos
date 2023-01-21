@@ -85,7 +85,8 @@ namespace Eos
         initSyncStructures();
         initDescriptorSets();
 
-        TransferSubmit::setup(&m_TransferQueue);
+        /* TransferSubmit::setup(&m_TransferQueue); */
+        TransferSubmit::setup(&m_GraphicsQueue);
         ComputeShader::setup(&m_ComputeQueue);
 
         m_Initialized = true;
