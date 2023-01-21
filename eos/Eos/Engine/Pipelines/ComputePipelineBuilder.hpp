@@ -17,7 +17,6 @@ namespace Eos
         static ComputePipelineBuilder begin(VkDevice* device);
         static void cleanup();
 
-        ComputePipelineBuilder& setShaderStages(const std::vector<VkPipelineShaderStageCreateInfo>& stages);
         ComputePipelineBuilder& setShaderStage(VkPipelineShaderStageCreateInfo& stage);
         ComputePipelineBuilder& setFlags(VkPipelineCreateFlags flags);
 

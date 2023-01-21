@@ -12,6 +12,7 @@
 #include "Eos/Engine/Pipelines/ComputePipelineBuilder.hpp"
 #include "Eos/Engine/Pipelines/PipelineBuilder.hpp"
 
+#include "Eos/Engine/ComputeShader.hpp"
 #include "Eos/Engine/Mesh.hpp"
 #include "Eos/Engine/RenderPassBuilder.hpp"
 #include "Eos/Engine/Shader.hpp"

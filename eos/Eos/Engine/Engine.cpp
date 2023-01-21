@@ -39,6 +39,7 @@ namespace Eos
 
             ComputePipelineBuilder::cleanup();
             PipelineBuilder::cleanup();
+            ComputeShader::cleanup();
 
             m_DescriptorAllocator.cleanup();
             m_DescriptorLayoutCache.cleanup();
@@ -85,6 +86,7 @@ namespace Eos
         initDescriptorSets();
 
         TransferSubmit::setup(&m_TransferQueue);
+        ComputeShader::setup(&m_ComputeQueue);
 
         m_Initialized = true;
 

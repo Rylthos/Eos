@@ -17,7 +17,7 @@ namespace Eos
 
         if (!file.is_open())
         {
-            EOS_LOG_ERROR("Could not load shader module '{}'", path);
+            EOS_LOG_CRITICAL("Could not find shader '{}'", path);
             return;
         }
 
@@ -40,7 +40,7 @@ namespace Eos
         if (vkCreateShaderModule(GlobalData::getDevice(), &createInfo, nullptr,
                     &module) != VK_SUCCESS)
         {
-            exit(-1);
+            EOS_LOG_CRITICAL("Failed to create Shader Module");
         }
 
         addShaderStage(stage, module);

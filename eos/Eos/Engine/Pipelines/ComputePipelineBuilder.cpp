@@ -18,14 +18,6 @@ namespace Eos
         s_DeletionQueue.flush();
     }
 
-    ComputePipelineBuilder& ComputePipelineBuilder::setShaderStages(
-            const std::vector<VkPipelineShaderStageCreateInfo>& stages)
-    {
-        m_ShaderStage = stages[0];
-
-        return *this;
-    }
-
     ComputePipelineBuilder& ComputePipelineBuilder::setShaderStage(
             VkPipelineShaderStageCreateInfo& stage)
     {

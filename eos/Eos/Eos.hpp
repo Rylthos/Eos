@@ -25,6 +25,7 @@
 
 // Engine
 #include "Engine/Buffer.hpp"
+#include "Engine/ComputeShader.hpp"
 #include "Engine/Engine.hpp"
 #include "Engine/GlobalData.hpp"
 #include "Engine/ImmediateSubmit.hpp"
