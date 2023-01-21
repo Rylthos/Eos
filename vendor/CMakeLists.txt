@@ -20,3 +20,6 @@ set_target_properties(VulkanMemoryAllocator PROPERTIES CXX_STANDARD 20)
 
 # spdlog
 add_subdirectory(spdlog)
+
+# STB
+add_subdirectory(stb)

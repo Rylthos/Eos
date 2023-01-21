@@ -31,6 +31,7 @@ target_link_libraries(Eos
         vk-bootstrap::vk-bootstrap
         VulkanMemoryAllocator
         spdlog
+        stb
     )
 
 target_precompile_headers(Eos PRIVATE ${EOS_PROJECT_DIR}/eos/Eos/EosPCH.hpp)
