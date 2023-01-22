@@ -106,6 +106,7 @@ namespace Eos
             EOS_LOG_CRITICAL("Failed to create Shader Module");
         }
 
+        m_ShaderStage = VkPipelineShaderStageCreateInfo{};
         m_ShaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
         m_ShaderStage.pNext = nullptr;
         m_ShaderStage.stage = VK_SHADER_STAGE_COMPUTE_BIT;

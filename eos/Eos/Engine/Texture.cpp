@@ -60,6 +60,11 @@ namespace Eos
 
     void Texture2D::createImageView(VkImageAspectFlags flags)
     {
+        createImageView(format, flags);
+    }
+
+    void Texture2D::createImageView(VkFormat format, VkImageAspectFlags flags)
+    {
         VkImageViewCreateInfo info{};
         info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         info.pNext = nullptr;

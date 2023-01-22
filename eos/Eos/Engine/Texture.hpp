@@ -31,6 +31,7 @@ namespace Eos
                 VmaMemoryUsage memoryUsage, VkMemoryPropertyFlags memoryFlags = 0);
 
         void createImageView(VkImageAspectFlags flags);
+        void createImageView(VkFormat format, VkImageAspectFlags flags);
 
         void createSampler(VkFilter filter, VkSamplerAddressMode addressMode);
 

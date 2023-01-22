@@ -18,51 +18,12 @@ namespace Eos
         Buffer() {}
 
         void create(size_t allocSize, VkBufferUsageFlags usage,
-                VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0)
-        {
-            VkBufferCreateInfo info{};
-            info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            info.pNext = nullptr;
-            info.size = allocSize;
-            info.usage = usage;
-
-            VmaAllocationCreateInfo vmaAllocInfo{};
-            vmaAllocInfo.usage = memoryUsage;
-            vmaAllocInfo.flags = flags;
-
-            EOS_VK_CHECK(vmaCreateBuffer(GlobalData::getAllocator(),
-                        &info, &vmaAllocInfo, &buffer,
-                        &allocation, nullptr));
-        }
+                VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0);
 
         void create(size_t allocSize, VkBufferUsageFlags usage,
                 VkSharingMode sharingMode, std::vector<uint32_t> queues,
-                VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0)
-        {
-            VkBufferCreateInfo info{};
-            info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-            info.pNext = nullptr;
-            info.size = allocSize;
-            info.usage = usage;
-            info.sharingMode = sharingMode;
-            info.queueFamilyIndexCount = static_cast<uint32_t>(queues.size());
-            info.pQueueFamilyIndices = queues.data();
+                VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0);
 
-            VmaAllocationCreateInfo vmaAllocInfo{};
-            vmaAllocInfo.usage = memoryUsage;
-            vmaAllocInfo.flags = flags;
-
-            EOS_VK_CHECK(vmaCreateBuffer(GlobalData::getAllocator(),
-                        &info, &vmaAllocInfo, &buffer,
-                        &allocation, nullptr));
-        }
-
-        void addToDeletionQueue(DeletionQueue& deletionQueue)
-        {
-            deletionQueue.pushFunction([=]() {
-                vmaDestroyBuffer(GlobalData::getAllocator(),
-                    buffer, allocation);
-            });
-        }
+        void addToDeletionQueue(DeletionQueue& deletionQueue);
     };
 }
