@@ -22,8 +22,7 @@ namespace Eos
         m_RenderPass.depthImage->createImage(*m_RenderPass.depthImageFormat,
                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, m_DepthImageExtent,
                 VMA_MEMORY_USAGE_GPU_ONLY, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        m_RenderPass.depthImage->createImageView(*m_RenderPass.depthImageFormat,
-                VK_IMAGE_ASPECT_DEPTH_BIT);
+        m_RenderPass.depthImage->createImageView(VK_IMAGE_ASPECT_DEPTH_BIT);
         m_RenderPass.depthImage->addToDeletionQueue(GlobalData::getDeletionQueue());
 
         VkAttachmentDescription attachment{};

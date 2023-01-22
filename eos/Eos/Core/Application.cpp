@@ -1,6 +1,5 @@
 #include "Application.hpp"
 
-#define VMA_IMPLEMENTATION
 #include "Eos/Engine/Engine.hpp"
 
 #include <stdexcept>

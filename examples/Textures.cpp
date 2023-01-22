@@ -1,9 +1,6 @@
 #include "Eos/Eos.hpp"
 #include <vulkan/vulkan_core.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 struct Vertex
 {
     glm::vec3 position;
@@ -86,102 +83,11 @@ private:
         shader.addShaderModule(VK_SHADER_STAGE_FRAGMENT_BIT,
                 "res/Textures/Shaders/Texture.frag.spv");
 
-        // Create Texture
-        int texWidth, texHeight, channels;
-        stbi_uc* pixels = stbi_load("res/Textures/Textures/Swirl.png", &texWidth, &texHeight, &channels, STBI_rgb_alpha);
-
-        if (!pixels)
-        {
-            EOS_LOG_ERROR("Failde to load texture file");
-            return;
-        }
-
-        VkFormat imageFormat = VK_FORMAT_R8G8B8A8_SRGB;
-        size_t imageSize = texWidth * texHeight * channels;
-        VkExtent3D imageExtent;
-        imageExtent.width = texWidth;
-        imageExtent.height = texHeight;
-        imageExtent.depth = 1;
-
-        Eos::Buffer stagingBuffer;
-        stagingBuffer.create(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                VMA_MEMORY_USAGE_CPU_ONLY);
-
-        m_Texture.createImage(imageFormat, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-                imageExtent, VMA_MEMORY_USAGE_GPU_ONLY);
-        m_Texture.createImageView(imageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+        m_Texture.loadFromFile("res/Textures/Textures/Swirl.png");
         m_Texture.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
-        void* pixelsPtr = pixels;
-        void* data;
-
-        vmaMapMemory(Eos::GlobalData::getAllocator(), stagingBuffer.allocation, &data);
-            memcpy(data, pixelsPtr, imageSize);
-        vmaUnmapMemory(Eos::GlobalData::getAllocator(), stagingBuffer.allocation);
-
-        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd) {
-            VkImageSubresourceRange range;
-            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            range.baseMipLevel = 0;
-            range.levelCount = 1;
-            range.baseArrayLayer = 0;
-            range.layerCount = 1;
-
-            VkImageMemoryBarrier imageBarrierToTransfer{};
-            imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageBarrierToTransfer.image = m_Texture.image;
-            imageBarrierToTransfer.subresourceRange = range;
-            imageBarrierToTransfer.srcAccessMask = 0;
-            imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                    VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr,
-                    0, nullptr, 1, &imageBarrierToTransfer);
-
-            VkBufferImageCopy copyRegion{};
-            copyRegion.bufferOffset = 0;
-            copyRegion.bufferRowLength = 0;
-            copyRegion.bufferImageHeight = 0;
-            copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            copyRegion.imageSubresource.mipLevel = 0;
-            copyRegion.imageSubresource.baseArrayLayer = 0;
-            copyRegion.imageSubresource.layerCount = 1;
-            copyRegion.imageExtent = imageExtent;
-
-            vkCmdCopyBufferToImage(cmd, stagingBuffer.buffer, m_Texture.image,
-                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
-
-            VkImageMemoryBarrier imageBarrierToReadable = imageBarrierToTransfer;
-            imageBarrierToReadable.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-            imageBarrierToReadable.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-            imageBarrierToReadable.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            imageBarrierToReadable.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,
-                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr,
-                    1, &imageBarrierToReadable);
-        });
-
-
-        vmaDestroyBuffer(Eos::GlobalData::getAllocator(), stagingBuffer.buffer,
-                stagingBuffer.allocation);
-
-        VkSamplerCreateInfo samplerCI{};
-        samplerCI.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerCI.pNext = nullptr;
-        samplerCI.magFilter = VK_FILTER_NEAREST;
-        samplerCI.minFilter = VK_FILTER_NEAREST;
-        samplerCI.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerCI.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerCI.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-        VkSampler sampler;
-        vkCreateSampler(Eos::GlobalData::getDevice(), &samplerCI, nullptr, &sampler);
 
         VkDescriptorImageInfo imageBI;
-        imageBI.sampler = sampler;
+        imageBI.sampler = m_Texture.sampler.value();
         imageBI.imageView = m_Texture.imageView;
         imageBI.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
@@ -200,10 +106,6 @@ private:
             .setViewports({ m_Window.getViewport() })
             .setScissors({ m_Window.getScissor() })
             .build(m_Pipeline, m_PipelineLayout, layoutInfo);
-
-        Eos::GlobalData::getDeletionQueue().pushFunction([=](){
-            vkDestroySampler(Eos::GlobalData::getDevice(), sampler, nullptr);
-        });
     }
 
     void draw(VkCommandBuffer cmd) override

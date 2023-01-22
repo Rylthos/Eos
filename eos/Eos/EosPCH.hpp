@@ -27,3 +27,5 @@
 #include "Eos/Core/Logger.hpp"
 
 #include "Eos/Engine/Types.hpp"
+
+#include "stbInclude.hpp"
