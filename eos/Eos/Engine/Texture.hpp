@@ -37,6 +37,10 @@ namespace Eos
 
         void addToDeletionQueue(DeletionQueue& queue);
         void deleteImage();
+
+        void convertImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout,
+                VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage,
+                VkPipelineStageFlags dstStage);
     private:
         void createImage(VkImageUsageFlags usageFlags, VmaMemoryUsage memoryUsage,
                 VkMemoryPropertyFlags memoryFlags = 0);

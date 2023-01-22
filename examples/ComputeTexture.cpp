@@ -60,15 +60,15 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
+        m_Window.setWindowSize({ 512, 512 });
         m_Window.create("Compute Texture");
     }
 
     void postEngineInit() override
     {
         VkExtent3D extent;
-        extent.width = 500;
-        extent.height = 500;
+        extent.width = 512;
+        extent.height = 512;
         extent.depth = 1;
 
         VkPipelineLayoutCreateInfo layoutInfo = Eos::Pipeline::pipelineLayoutCreateInfo();
@@ -84,27 +84,9 @@ private:
         m_Texture.createSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
         m_Texture.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
-        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd){
-            VkImageSubresourceRange range;
-            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            range.baseMipLevel = 0;
-            range.levelCount = 1;
-            range.baseArrayLayer = 0;
-            range.layerCount = 1;
-
-            VkImageMemoryBarrier imageBarrier{};
-            imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-            imageBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-            imageBarrier.image = m_Texture.image;
-            imageBarrier.subresourceRange = range;
-            imageBarrier.srcAccessMask = 0;
-            imageBarrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr,
-                    1, &imageBarrier);
-        });
+        m_Texture.convertImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL,
+            0, VK_ACCESS_SHADER_WRITE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
         VkDescriptorImageInfo computeImageInfo;
         computeImageInfo.imageView = m_Texture.imageView;
@@ -127,33 +109,18 @@ private:
         vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, 
                 m_ComputePipelineLayout, 0, 1, &m_ComputeSet, 0, nullptr);
 
-        vkCmdDispatch(cmd, (uint32_t)std::ceil(extent.width / 16.0f), (uint32_t)std::ceil(extent.height / 16.0f), 1);
+        uint32_t xCalls = (uint32_t)std::ceil(extent.width / 32.0f);
+        uint32_t yCalls = (uint32_t)std::ceil(extent.height / 32.0f);
+
+        vkCmdDispatch(cmd, xCalls, yCalls, 1);
 
         Eos::ComputeShader::endAndWait(cmd);
 
         Eos::ComputeShader::resetCommandBuffer(cmd);
 
-        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd){
-            VkImageSubresourceRange range;
-            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            range.baseMipLevel = 0;
-            range.levelCount = 1;
-            range.baseArrayLayer = 0;
-            range.layerCount = 1;
-
-            VkImageMemoryBarrier imageBarrier{};
-            imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-            imageBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-            imageBarrier.image = m_Texture.image;
-            imageBarrier.subresourceRange = range;
-            imageBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-            imageBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr,
-                    1, &imageBarrier);
-        });
+        m_Texture.convertImageLayout(VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
         // Rendering
         std::vector<Vertex> vertices = {

@@ -123,6 +123,32 @@ namespace Eos
         }
     }
 
+    void Texture2D::convertImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout,
+            VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage,
+            VkPipelineStageFlags dstStage)
+    {
+        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd){
+            VkImageSubresourceRange range;
+            range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            range.baseMipLevel = 0;
+            range.levelCount = 1;
+            range.baseArrayLayer = 0;
+            range.layerCount = 1;
+
+            VkImageMemoryBarrier imageBarrier{};
+            imageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            imageBarrier.oldLayout = oldLayout;
+            imageBarrier.newLayout = newLayout;
+            imageBarrier.image = image;
+            imageBarrier.subresourceRange = range;
+            imageBarrier.srcAccessMask = srcAccess;
+            imageBarrier.dstAccessMask = dstAccess;
+
+            vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, nullptr, 0, nullptr,
+                    1, &imageBarrier);
+        });
+    }
+
     void Texture2D::createImage(VkImageUsageFlags usageFlags, VmaMemoryUsage memoryUsage,
             VkMemoryPropertyFlags memoryFlags)
     {
