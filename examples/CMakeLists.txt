@@ -38,16 +38,19 @@ foreach (Example ${AllExamples})
 
         # Check if the file has been modified since the program was last Built
         # If modified then rebuild, else skip
+        set (CacheValue ${InputShadersFile}/${File})
+
         file (TIMESTAMP ${Shader} Time)
-        set (PreviousTime $CACHE{${File}})
-        if (NOT EXISTS ${PreviousTime})
+        set (PreviousTime $CACHE{${CacheValue}})
+
+        if (NOT DEFINED PreviousTime)
             set (PreviousTime "0")
         endif()
 
-        if (${Time} STREQUAL ${PreviousTime} OR NOT EXISTS "${OutputShadersFile}/${File}.spv")
-            set (${Shader} ${Time} CACHE STRING "Time Data" FORCE)
-        else()
+        if (${Time} STREQUAL ${PreviousTime} AND EXISTS "${OutputShadersFile}/${File}.spv")
             continue ()
+        else()
+            set (${CacheValue} ${Time} CACHE STRING "Time Data" FORCE)
         endif()
 
         add_custom_command(

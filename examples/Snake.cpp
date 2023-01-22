@@ -147,6 +147,13 @@ private:
         updateSegmentData();
     }
 
+    std::vector<VkClearValue> renderClearValues() override
+    {
+        VkClearValue background = { { { 0.1f, 0.1f, 0.1f, 1.0f } } };
+
+        return { background };
+    }
+
     void draw(VkCommandBuffer cmd) override
     {
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_SnakePipeline);
@@ -515,6 +522,7 @@ Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
     details.name = "Snake";
+    details.customClearValues = true;
 
     return new Snake(details);
 }
