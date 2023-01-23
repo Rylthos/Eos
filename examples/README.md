@@ -33,7 +33,9 @@ to provide a moving square on the screen
 A more advanced version of moving square providing a working
 implementation of Snake
 <br>
-https://user-images.githubusercontent.com/42112635/214161295-1205dc35-e34d-4463-8065-c9210a6346e5.mp4
+
+https://user-images.githubusercontent.com/42112635/214163855-6fc8d5af-8710-43ba-a613-70cc99f220b1.mp4
+
 
 # Textures
 An example showing how to read in an image and render it to
