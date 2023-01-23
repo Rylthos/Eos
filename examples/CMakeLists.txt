@@ -17,8 +17,8 @@ MACRO(SUBDIRLIST result curdir)
     SET(${result} ${dirlist})
 endmacro()
 
-SUBDIRLIST(AllExamples "${PROJECT_SOURCE_DIR}/examples/res")
-foreach (Example ${AllExamples})
+SUBDIRLIST(AllResExamples "${PROJECT_SOURCE_DIR}/examples/res")
+foreach (Example ${AllResExamples})
     set (InputResFile "${PROJECT_SOURCE_DIR}/examples/res/${Example}")
     set (OutputResFile "${PROJECT_SOURCE_DIR}/bin/res/${Example}")
     set (InputShadersFile "${InputResFile}/Shaders")
@@ -77,13 +77,19 @@ endforeach()
 set (CMAKE_CXX_STANDARD 20)
 set (ExamplesLinker "-std=c++2a -g -Wall -Wextra -Wpedantic")
 
-file (GLOB_RECURSE AllExamples CONFIGURE_DEPENDS *.cpp)
-foreach (Example ${AllExamples})
+SUBDIRLIST(AllSrcExamples "${PROJECT_SOURCE_DIR}/examples/")
+foreach (Example ${AllSrcExamples})
+    if (${Example} STREQUAL "res")
+        continue ()
+    endif ()
+
+    message (${Example})
+    file (GLOB_RECURSE Files CONFIGURE_DEPENDS ${Example}/*.cpp)
     get_filename_component(Filename ${Example} NAME_WLE)
 
     project (${Filename})
 
-    add_executable(${Filename} ${Filename}.cpp)
+    add_executable(${Filename} ${Files})
 
     target_include_directories(${Filename} PRIVATE "${EOS_PROJECT_DIR}/eos")
     target_link_libraries(${Filename} PRIVATE ${ExamplesLinker} PUBLIC Eos)
