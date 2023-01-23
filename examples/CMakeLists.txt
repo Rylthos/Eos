@@ -17,21 +17,51 @@ MACRO(SUBDIRLIST result curdir)
     SET(${result} ${dirlist})
 endmacro()
 
-SUBDIRLIST(AllResExamples "${PROJECT_SOURCE_DIR}/examples/res")
-foreach (Example ${AllResExamples})
-    set (InputResFile "${PROJECT_SOURCE_DIR}/examples/res/${Example}")
-    set (OutputResFile "${PROJECT_SOURCE_DIR}/bin/res/${Example}")
+set (CMAKE_CXX_STANDARD 20)
+set (ExamplesLinker "-std=c++2a -g -Wall -Wextra -Wpedantic")
+
+SUBDIRLIST(AllExampleNames "${EOS_PROJECT_DIR}/examples/")
+foreach (Example ${AllExampleNames})
+    # Compile Example
+    get_filename_component(ExampleName ${Example} NAME_WLE)
+    file (GLOB Files CONFIGURE_DEPENDS "${EOS_PROJECT_DIR}/examples/${ExampleName}/*.cpp")
+
+    project (${ExampleName})
+
+    add_executable(${ExampleName} ${Files})
+
+    target_include_directories(${ExampleName} PRIVATE "${EOS_PROJECT_DIR}/eos")
+    target_link_libraries(${ExampleName} PRIVATE ${ExamplesLinker} PUBLIC Eos)
+
+    if (WIN32)
+        target_compile_definitions(${ExampleName} PUBLIC EOS_PLATFORM_WINDOWS)
+    elseif (UNIX)
+        target_compile_definitions(${ExampleName} PUBLIC EOS_PLATFORM_LINUX)
+    endif ()
+
+    set (InputResFile "${EOS_PROJECT_DIR}/examples/${ExampleName}/res")
+    set (OutputResFile "${EOS_PROJECT_DIR}/bin/res/${ExampleName}")
     set (InputShadersFile "${InputResFile}/Shaders")
     set (OutputShadersFile "${OutputResFile}/Shaders")
+
+    # Compile Shaders and move Textures
+    if (EXISTS ${InputResFile}/Textures)
+        file(COPY ${InputResFile}/Textures/ DESTINATION ${OutputResFile}/Textures/)
+    endif ()
 
     file (GLOB_RECURSE Shaders CONFIGURE_DEPENDS 
         ${InputShadersFile}/*.vert
         ${InputShadersFile}/*.frag
         ${InputShadersFile}/*.comp)
 
-    if (EXISTS ${InputResFile}/Textures)
-        file(COPY ${InputResFile}/Textures/ DESTINATION ${OutputResFile}/Textures/)
-    endif ()
+    if (NOT EXISTS ${OutputShadersFile})
+        add_custom_command(
+            TARGET EOS_EXAMPLES POST_BUILD
+            COMMAND
+            ${CMAKE_COMMAND} -E make_directory
+            ${OutputShadersFile}
+            )
+    endif()
 
     foreach (Shader ${Shaders})
         get_filename_component (File ${Shader} NAME)
@@ -54,49 +84,21 @@ foreach (Example ${AllResExamples})
         endif()
 
         add_custom_command(
-            TARGET EOS_EXAMPLES PRE_BUILD
+            TARGET EOS_EXAMPLES POST_BUILD
             COMMAND
             ${glslc_exec}
             ${InputShadersFile}/${File}
-            -o ${InputShadersFile}/${File}.spv
-            COMMENT "Compiled ${File} To ${File}.spv"
+            -o ${OutputShadersFile}/${File}.spv
+            COMMENT "Compiled ${InputShadersFile}/${File} To ${OutputShadersFile}/${File}.spv"
             )
-
-        add_custom_command(
-            TARGET EOS_EXAMPLES POST_BUILD
-            COMMAND
-            ${CMAKE_COMMAND} -E copy
-            ${InputShadersFile}/${File}.spv
-            ${OutputShadersFile}/${File}.spv
-            COMMENT "Copied ${InputShadersFile}/${File}.spv to ${OutputShadersFile}/${File}.spv"
-            )
+        #
+        # add_custom_command(
+        #     TARGET EOS_EXAMPLES POST_BUILD
+        #     COMMAND
+        #     ${CMAKE_COMMAND} -E copy
+        #     ${InputShadersFile}/${File}.spv
+        #     ${OutputShadersFile}/${File}.spv
+        #     COMMENT "Copied ${InputShadersFile}/${File}.spv to ${OutputShadersFile}/${File}.spv"
+        #     )
     endforeach()
 endforeach()
-
-# Build the examples
-set (CMAKE_CXX_STANDARD 20)
-set (ExamplesLinker "-std=c++2a -g -Wall -Wextra -Wpedantic")
-
-SUBDIRLIST(AllSrcExamples "${PROJECT_SOURCE_DIR}/examples/")
-foreach (Example ${AllSrcExamples})
-    if (${Example} STREQUAL "res")
-        continue ()
-    endif ()
-
-    message (${Example})
-    file (GLOB_RECURSE Files CONFIGURE_DEPENDS ${Example}/*.cpp)
-    get_filename_component(Filename ${Example} NAME_WLE)
-
-    project (${Filename})
-
-    add_executable(${Filename} ${Files})
-
-    target_include_directories(${Filename} PRIVATE "${EOS_PROJECT_DIR}/eos")
-    target_link_libraries(${Filename} PRIVATE ${ExamplesLinker} PUBLIC Eos)
-
-    if (WIN32)
-        target_compile_definitions(${Filename} PUBLIC EOS_PLATFORM_WINDOWS)
-    elseif (UNIX)
-        target_compile_definitions(${Filename} PUBLIC EOS_PLATFORM_LINUX)
-    endif ()
-endforeach ()
