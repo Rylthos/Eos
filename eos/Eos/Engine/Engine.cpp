@@ -91,7 +91,7 @@ namespace Eos
 
         m_Initialized = true;
 
-        EOS_LOG_INFO("Initialized Engine");
+        EOS_CORE_LOG_INFO("Initialized Engine");
     }
 
     RenderInformation Engine::preRender()
@@ -249,7 +249,7 @@ namespace Eos
                 vmaDestroyAllocator(m_Allocator);
             });
 
-        EOS_LOG_INFO("Initialized Vulkan");
+        EOS_CORE_LOG_INFO("Initialized Vulkan");
     }
 
     void Engine::initSwapchain()
@@ -273,7 +273,7 @@ namespace Eos
         m_DeletionQueue.pushFunction([=]()
                 { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
 
-        EOS_LOG_INFO("Created Swapchain");
+        EOS_CORE_LOG_INFO("Created Swapchain");
     }
 
     void Engine::initDefaultRenderpass()
@@ -301,7 +301,7 @@ namespace Eos
                     colourDependency)
             .build();
 
-        EOS_LOG_INFO("Created Default Renderpass");
+        EOS_CORE_LOG_INFO("Created Default Renderpass");
     }
 
     void Engine::initFramebuffers()
@@ -343,7 +343,7 @@ namespace Eos
                 });
         }
 
-        EOS_LOG_INFO("Created Framebuffer");
+        EOS_CORE_LOG_INFO("Created Framebuffer");
     }
 
     void Engine::initCommands()
@@ -368,7 +368,7 @@ namespace Eos
                             nullptr); });
         }
 
-        EOS_LOG_INFO("Created Commands Pools");
+        EOS_CORE_LOG_INFO("Created Commands Pools");
     }
 
     void Engine::initSyncStructures()
@@ -394,7 +394,7 @@ namespace Eos
                 });
         }
 
-        EOS_LOG_INFO("Created Sync Structures");
+        EOS_CORE_LOG_INFO("Created Sync Structures");
     }
 
     void Engine::initDescriptorSets()
@@ -402,6 +402,6 @@ namespace Eos
         m_DescriptorLayoutCache.init(m_Device);
         m_DescriptorAllocator.init(m_Device);
 
-        EOS_LOG_INFO("Created Descriptor sets");
+        EOS_CORE_LOG_INFO("Created Descriptor sets");
     }
 }

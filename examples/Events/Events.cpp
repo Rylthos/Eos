@@ -112,7 +112,7 @@ private:
         {
             if (event->action == Eos::Events::Action::PRESS)
             {
-                EOS_LOG_INFO("{}", (char)(static_cast<int>(event->key)));
+                EOS_CORE_LOG_INFO("{}", (char)(static_cast<int>(event->key)));
             }
         }
 
@@ -135,7 +135,7 @@ private:
 
         if (event->action == Eos::Events::Action::PRESS)
         {
-            EOS_LOG_INFO("{} {}", sb->m_MouseX, sb->m_MouseY);
+            EOS_CORE_LOG_INFO("{} {}", sb->m_MouseX, sb->m_MouseY);
         }
 
         return true;

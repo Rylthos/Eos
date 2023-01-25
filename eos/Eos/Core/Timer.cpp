@@ -4,7 +4,7 @@ namespace Eos
 {
     void Timer::start()
     {
-        if (m_Running) EOS_LOG_ERROR("Timer is already running");
+        if (m_Running) EOS_CORE_LOG_ERROR("Timer is already running");
 
         m_StartTime = std::chrono::steady_clock::now();
         m_Running = true;
@@ -12,7 +12,7 @@ namespace Eos
 
     void Timer::tick()
     {
-        if (!m_Running) EOS_LOG_ERROR("Timer is not running");
+        if (!m_Running) EOS_CORE_LOG_ERROR("Timer is not running");
 
         m_EndTime = std::chrono::steady_clock::now();
         m_DeltaTime = m_EndTime - m_StartTime;
@@ -21,7 +21,7 @@ namespace Eos
 
     void Timer::end()
     {
-        if (!m_Running) EOS_LOG_ERROR("Timer is not running");
+        if (!m_Running) EOS_CORE_LOG_ERROR("Timer is not running");
 
         m_EndTime = std::chrono::steady_clock::now();
         m_Running = false;

@@ -21,7 +21,7 @@ namespace Eos
         glfwSetErrorCallback(glfwErrorCallback);
         if (!glfwInit())
         {
-            EOS_LOG_CRITICAL("Failed to init GLFW");
+            EOS_CORE_LOG_CRITICAL("Failed to init GLFW");
             exit(-1);
         }
 
@@ -29,7 +29,7 @@ namespace Eos
 
         m_Initialised = true;
 
-        EOS_LOG_INFO("Initialised GLFW");
+        EOS_CORE_LOG_INFO("Initialised GLFW");
     }
 
     Window& Window::create(const char* title)
@@ -39,7 +39,7 @@ namespace Eos
 
         m_Created = true;
 
-        EOS_LOG_INFO("Created Window \"{}\" - Size {}:{}", title,
+        EOS_CORE_LOG_INFO("Created Window \"{}\" - Size {}:{}", title,
                 m_WindowSize.x, m_WindowSize.y);
 
         return *this;
@@ -75,6 +75,6 @@ namespace Eos
 
     void Window::glfwErrorCallback(int, const char* errStr)
     {
-        EOS_LOG_ERROR("{}", errStr);
+        EOS_CORE_LOG_ERROR("{}", errStr);
     }
 }

@@ -148,7 +148,7 @@ private:
 
         for (int i = 0; i < elements; i++)
         {
-            EOS_LOG_INFO("{} : {}", returnValuesInput[i], returnValuesOutput[i]);
+            EOS_CORE_LOG_INFO("{} : {}", returnValuesInput[i], returnValuesOutput[i]);
         }
 
         /* vkDeviceWaitIdle(Eos::GlobalData::getDevice()); */

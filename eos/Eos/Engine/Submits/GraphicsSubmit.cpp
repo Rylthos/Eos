@@ -35,7 +35,7 @@ namespace Eos
                 vkDestroyFence(GlobalData::getDevice(), s_UploadContext.fence, nullptr);
             });
 
-        EOS_LOG_INFO("Created Upload Context (Graphics Submit)");
+        EOS_CORE_LOG_INFO("Created Upload Context (Graphics Submit)");
     }
 
     void GraphicsSubmit::submit(std::function<void(VkCommandBuffer)>&& function)

@@ -82,7 +82,7 @@ namespace Eos
 
         if (!file.is_open())
         {
-            EOS_LOG_CRITICAL("Could not find shader '{}'", path);
+            EOS_CORE_LOG_CRITICAL("Could not find shader '{}'", path);
         }
 
         size_t filesize = (size_t)file.tellg();
@@ -103,7 +103,7 @@ namespace Eos
         if (vkCreateShaderModule(GlobalData::getDevice(), &moduleCI, nullptr,
                     &m_Module))
         {
-            EOS_LOG_CRITICAL("Failed to create Shader Module");
+            EOS_CORE_LOG_CRITICAL("Failed to create Shader Module");
         }
 
         m_ShaderStage = VkPipelineShaderStageCreateInfo{};

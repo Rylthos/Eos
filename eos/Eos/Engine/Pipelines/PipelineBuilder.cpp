@@ -126,7 +126,7 @@ namespace Eos
     {
         if (vkCreatePipelineLayout(*m_Device, &createInfo, nullptr, &layout) != VK_SUCCESS)
         {
-            EOS_LOG_CRITICAL("Failed to create Pipeline Layout");
+            EOS_CORE_LOG_CRITICAL("Failed to create Pipeline Layout");
         }
 
         return *this;
@@ -174,7 +174,7 @@ namespace Eos
         if (vkCreateGraphicsPipelines(*m_Device, VK_NULL_HANDLE, 1, &pipelineInfo,
                     nullptr, &pipeline) != VK_SUCCESS)
         {
-            EOS_LOG_CRITICAL("Failed to create Graphics Pipeline");
+            EOS_CORE_LOG_CRITICAL("Failed to create Graphics Pipeline");
             return false;
         }
 
@@ -184,7 +184,7 @@ namespace Eos
             vkDestroyPipeline(tempDevice, pipeline, nullptr);
         });
 
-        EOS_LOG_INFO("Built Graphics Pipeline");
+        EOS_CORE_LOG_INFO("Built Graphics Pipeline");
 
         return true;
     }

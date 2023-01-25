@@ -16,7 +16,7 @@ namespace Eos
 
         if (!pixels)
         {
-            EOS_LOG_ERROR("Failed to load Texture {}", file);
+            EOS_CORE_LOG_ERROR("Failed to load Texture {}", file);
             return;
         }
 

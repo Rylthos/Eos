@@ -12,7 +12,7 @@ namespace Eos::Events
         glfwSetCursorPosCallback(window.getWindow(), glfwMouseMoveCallback);
         glfwSetScrollCallback(window.getWindow(), glfwScrollCallback);
 
-        EOS_LOG_INFO("Setup Event Listeners");
+        EOS_CORE_LOG_INFO("Setup Event Listeners");
     }
 
     void EventListener::glfwKeyCallback(GLFWwindow* window, int key, int scancode,
@@ -27,7 +27,7 @@ namespace Eos::Events
         EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
         dispatcher->dispatchEvent(event);
 
-        EOS_LOG_TRACE("Dispatched Key Input Event");
+        EOS_CORE_LOG_TRACE("Dispatched Key Input Event");
     }
 
     void EventListener::glfwMouseButtonCallback(GLFWwindow* window, int button,
@@ -41,7 +41,7 @@ namespace Eos::Events
 
         EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
         dispatcher->dispatchEvent(event);
-        EOS_LOG_TRACE("Dispatched Mouse Button Event");
+        EOS_CORE_LOG_TRACE("Dispatched Mouse Button Event");
     }
 
     void EventListener::glfwMouseMoveCallback(GLFWwindow* window, double x, double y)
@@ -53,7 +53,7 @@ namespace Eos::Events
 
         EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
         dispatcher->dispatchEvent(event);
-        EOS_LOG_TRACE("Dispatched Mouse Move Event");
+        EOS_CORE_LOG_TRACE("Dispatched Mouse Move Event");
     }
 
     void EventListener::glfwScrollCallback(GLFWwindow* window, double x, double y)
@@ -65,6 +65,6 @@ namespace Eos::Events
 
         EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
         dispatcher->dispatchEvent(event);
-        EOS_LOG_TRACE("Dispatched Scroll Event");
+        EOS_CORE_LOG_TRACE("Dispatched Scroll Event");
     }
 }

@@ -6,7 +6,7 @@
         VkResult err = x; \
         if (err) \
         { \
-            EOS_LOG_ERROR("Vulkan Error: {}", err); \
+            EOS_CORE_LOG_ERROR("Vulkan Error: {}", err); \
             abort(); \
         } \
     } while (0) \

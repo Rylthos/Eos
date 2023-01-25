@@ -99,7 +99,7 @@ namespace Eos
         GlobalData::getDeletionQueue().pushFunction([=]()
                 { vkDestroyRenderPass(GlobalData::getDevice(), rp, nullptr); });
 
-        EOS_LOG_INFO("Created Render Pass");
+        EOS_CORE_LOG_INFO("Created Render Pass");
 
         return true;
     }

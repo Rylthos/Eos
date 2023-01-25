@@ -28,7 +28,7 @@ namespace Eos
         windowInit();
         m_MainEventListener.addListeners(m_Window, &m_MainEventDispatcher);
 
-        EOS_LOG_INFO("Initialised Application");
+        EOS_CORE_LOG_INFO("Initialised Application");
 
         m_Engine = Engine::get();
 
@@ -94,15 +94,15 @@ namespace Eos
     void Application::windowInit() {}
 
     void Application::renderPassInit(RenderPass& renderPass)
-    { EOS_LOG_CRITICAL("(renderPassInit) This needs to be overriden when customRenderpass is set"); }
+    { EOS_CORE_LOG_CRITICAL("(renderPassInit) This needs to be overriden when customRenderpass is set"); }
 
     std::vector<VkImageView> Application::framebufferCreation(VkFramebufferCreateInfo& framebuffer,
             VkImageView& swapchainImage, RenderPass& renderpass)
-    { EOS_LOG_CRITICAL("(framebufferCreation) This needs to be overriden when customRenderpass is set");
+    { EOS_CORE_LOG_CRITICAL("(framebufferCreation) This needs to be overriden when customRenderpass is set");
         return {}; };
 
     std::vector<VkClearValue> Application::renderClearValues()
-    { EOS_LOG_CRITICAL("(renderClearValues) This needs to be overriden when customClearValues is set");
+    { EOS_CORE_LOG_CRITICAL("(renderClearValues) This needs to be overriden when customClearValues is set");
         return {}; };
 
     void Application::postEngineInit() {}
