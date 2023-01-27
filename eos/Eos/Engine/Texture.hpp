@@ -41,6 +41,10 @@ namespace Eos
         void convertImageLayout(VkImageLayout oldLayout, VkImageLayout newLayout,
                 VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage,
                 VkPipelineStageFlags dstStage);
+
+        static void blitBetween(
+                Texture2D& srcTexture, VkImageLayout srcLayout,
+                Texture2D& dstTexture, VkImageLayout dstLayout, VkFilter filter);
     private:
         void createImage(VkImageUsageFlags usageFlags, VmaMemoryUsage memoryUsage,
                 VkMemoryPropertyFlags memoryFlags = 0);

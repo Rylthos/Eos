@@ -54,7 +54,8 @@ private:
     VkPipeline m_RenderPipeline;
     VkPipelineLayout m_RenderPipelineLayout;
 
-    Eos::Texture2D m_Texture;
+    Eos::Texture2D m_ComputeTexture;
+    Eos::Texture2D m_RenderTexture;
 
     Eos::IndexedMesh<Vertex, uint16_t> m_Mesh;
 private:
@@ -78,18 +79,27 @@ private:
         Eos::ComputeShader compShader;
         compShader.addShaderModule("res/ComputeTexture/Shaders/Main.comp.spv");
 
-        m_Texture.createImage(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, extent,
+        m_ComputeTexture.createImage(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, extent,
                 VMA_MEMORY_USAGE_GPU_ONLY);
-        m_Texture.createImageView(VK_IMAGE_ASPECT_COLOR_BIT);
-        m_Texture.createSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
-        m_Texture.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
+        m_ComputeTexture.createImageView(VK_IMAGE_ASPECT_COLOR_BIT);
+        m_ComputeTexture.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
 
-        m_Texture.convertImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL,
+        m_RenderTexture.createImage(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, extent,
+                VMA_MEMORY_USAGE_GPU_ONLY);
+        m_RenderTexture.createImageView(VK_IMAGE_ASPECT_COLOR_BIT);
+        m_RenderTexture.createSampler(VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT);
+        m_RenderTexture.addToDeletionQueue(Eos::GlobalData::getDeletionQueue());
+
+        m_ComputeTexture.convertImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL,
             0, VK_ACCESS_SHADER_WRITE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
+        m_RenderTexture.convertImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            0, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
         VkDescriptorImageInfo computeImageInfo;
-        computeImageInfo.imageView = m_Texture.imageView;
+        computeImageInfo.imageView = m_ComputeTexture.imageView;
         computeImageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         m_Engine->createDescriptorBuilder()
@@ -118,8 +128,15 @@ private:
 
         Eos::ComputeShader::resetCommandBuffer(cmd);
 
-        m_Texture.convertImageLayout(VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-            VK_ACCESS_SHADER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+        m_ComputeTexture.convertImageLayout(VK_IMAGE_LAYOUT_GENERAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            0, VK_ACCESS_SHADER_WRITE_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
+        Eos::Texture2D::blitBetween(m_ComputeTexture, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                m_RenderTexture, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_FILTER_NEAREST);
+
+        m_RenderTexture.convertImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+            0, VK_ACCESS_SHADER_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
         // Rendering
@@ -147,8 +164,8 @@ private:
                 "res/ComputeTexture/Shaders/Main.frag.spv");
 
         VkDescriptorImageInfo renderImageInfo;
-        renderImageInfo.sampler = m_Texture.sampler.value();
-        renderImageInfo.imageView = m_Texture.imageView;
+        renderImageInfo.sampler = m_RenderTexture.sampler.value();
+        renderImageInfo.imageView = m_RenderTexture.imageView;
         renderImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         m_Engine->createDescriptorBuilder()

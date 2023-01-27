@@ -127,7 +127,7 @@ namespace Eos
             VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage,
             VkPipelineStageFlags dstStage)
     {
-        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd){
+        GraphicsSubmit::submit([&](VkCommandBuffer cmd){
             VkImageSubresourceRange range;
             range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             range.baseMipLevel = 0;
@@ -146,6 +146,54 @@ namespace Eos
 
             vkCmdPipelineBarrier(cmd, srcStage, dstStage, 0, 0, nullptr, 0, nullptr,
                     1, &imageBarrier);
+        });
+    }
+
+    void Texture2D::blitBetween(
+        Texture2D& srcTexture, VkImageLayout srcLayout,
+        Texture2D& dstTexture, VkImageLayout dstLayout, VkFilter filter)
+    {
+        GraphicsSubmit::submit([&](VkCommandBuffer cmd) {
+            VkImageSubresourceLayers src;
+            src.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            src.mipLevel = 0;
+            src.baseArrayLayer = 0;
+            src.layerCount = 1;
+
+            VkOffset3D srcOffsets[2];
+            srcOffsets[0] = { 0, 0, 0 };
+            srcOffsets[1] = {
+                static_cast<int32_t>(srcTexture.extent.width),
+                static_cast<int32_t>(srcTexture.extent.height),
+                1
+            };
+
+            VkImageSubresourceLayers dst;
+            dst.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            dst.mipLevel = 0;
+            dst.baseArrayLayer = 0;
+            dst.layerCount = 1;
+
+            VkOffset3D dstOffsets[2];
+            dstOffsets[0] = { 0, 0, 0 };
+            dstOffsets[1] = {
+                static_cast<int32_t>(dstTexture.extent.width),
+                static_cast<int32_t>(dstTexture.extent.height),
+                1
+            };
+
+            VkImageBlit region{};
+            region.srcSubresource = src;
+            region.dstSubresource = dst;
+            region.srcOffsets[0] = srcOffsets[0];
+            region.srcOffsets[1] = srcOffsets[1];
+            region.dstOffsets[0] = dstOffsets[0];
+            region.dstOffsets[1] = dstOffsets[1];
+
+            vkCmdBlitImage(cmd,
+                    srcTexture.image, srcLayout,
+                    dstTexture.image, dstLayout,
+                    1, &region, filter);
         });
     }
 
