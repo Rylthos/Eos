@@ -20,13 +20,15 @@ namespace Eos
 
     void Application::start()
     {
+        m_MainEventListener.setupListener(m_Window);
         m_Window.init();
 
         m_Window.setWindowHint(GLFW_RESIZABLE,
                 m_Details.enableWindowResizing ? GLFW_TRUE : GLFW_FALSE);
 
         windowInit();
-        m_MainEventListener.addListeners(m_Window, &m_MainEventDispatcher);
+
+        m_MainEventListener.addDispatcher(&m_MainEventDispatcher);
 
         EOS_CORE_LOG_INFO("Initialised Application");
 

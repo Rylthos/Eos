@@ -127,5 +127,7 @@ namespace Eos
         void initCommands();
         void initSyncStructures();
         void initDescriptorSets();
+
+        void recreateSwapchain();
     };
 }

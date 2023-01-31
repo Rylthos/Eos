@@ -94,11 +94,6 @@ namespace Eos
         EOS_VK_CHECK(vkCreateRenderPass(GlobalData::getDevice(), &renderPassInfo, nullptr,
                     &m_RenderPass.renderPass));
 
-        VkRenderPass rp = m_RenderPass.renderPass;
-
-        GlobalData::getDeletionQueue().pushFunction([=]()
-                { vkDestroyRenderPass(GlobalData::getDevice(), rp, nullptr); });
-
         EOS_CORE_LOG_INFO("Created Render Pass");
 
         return true;

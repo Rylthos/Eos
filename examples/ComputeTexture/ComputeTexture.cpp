@@ -196,6 +196,13 @@ private:
 
         vkCmdDrawIndexed(cmd, m_Mesh.getIndices()->size(), 1, 0, 0, 0);
     }
+
+    static bool windowResizeEvent(const Eos::Events::WindowResizeEvent* event)
+    {
+        Sandbox* sb = (Sandbox*)event->dataPointer;
+
+        sb->recreatePipelines();
+    }
 };
 
 Eos::Application* Eos::createApplication()

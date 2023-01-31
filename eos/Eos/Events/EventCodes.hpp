@@ -9,6 +9,8 @@ namespace Eos::Events
         MOUSE_PRESS,
         MOUSE_MOVE,
         SCROLL,
+
+        WINDOW_RESIZE,
     };
 
     enum class Action

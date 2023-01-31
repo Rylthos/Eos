@@ -48,6 +48,16 @@ namespace Eos
 
             m_DeletionQueue.flush();
 
+            vkDestroyRenderPass(m_Device, m_Renderpass.renderPass, nullptr);
+
+            for (size_t i = 0; i < m_Framebuffers.size(); i++)
+            {
+                vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
+                vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
+            }
+
+            vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr);
+
             vkDestroyDevice(m_Device, nullptr);
             vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
             vkb::destroy_debug_utils_messenger(m_Instance, m_DebugMessenger);
@@ -103,8 +113,26 @@ namespace Eos
         EOS_VK_CHECK(vkResetFences(m_Device, 1, &frame.renderFence));
 
         uint32_t swapchainImageIndex;
-        EOS_VK_CHECK(vkAcquireNextImageKHR(m_Device, m_Swapchain.swapchain, 1000000000,
-                    frame.presentSemaphore, nullptr, &swapchainImageIndex));
+
+        // Attempt a couple times
+        for (int i = 0; i < 2; i++)
+        {
+            VkResult result = vkAcquireNextImageKHR(m_Device, m_Swapchain.swapchain,
+                    1000000000, frame.presentSemaphore, nullptr, &swapchainImageIndex);
+
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+            {
+                recreateSwapchain();
+                continue;
+            }
+            else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+            {
+                EOS_CORE_LOG_ERROR("Vulkan Error: {}", result);
+            }
+
+            break;
+        }
+
         EOS_VK_CHECK(vkResetCommandBuffer(frame.commandBuffer, 0));
 
         VkCommandBuffer cmd = frame.commandBuffer;
@@ -183,7 +211,16 @@ namespace Eos
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = &information.frame->renderSemaphore;
         presentInfo.pImageIndices = &information.swapchainImageIndex;
-        EOS_VK_CHECK(vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo));
+        VkResult result = vkQueuePresentKHR(m_GraphicsQueue.queue, &presentInfo);
+
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+        {
+            recreateSwapchain();
+        }
+        else if (result != VK_SUCCESS)
+        {
+            EOS_CORE_LOG_ERROR("Vulkan Error: {}", result);
+        }
     }
 
     void Engine::initVulkan(Window& window)
@@ -270,9 +307,6 @@ namespace Eos
         m_Swapchain.imageViews = vkbSwapchain.get_image_views().value();
         m_Swapchain.imageFormat = vkbSwapchain.image_format;
 
-        m_DeletionQueue.pushFunction([=]()
-                { vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr); });
-
         EOS_CORE_LOG_INFO("Created Swapchain");
     }
 
@@ -336,11 +370,6 @@ namespace Eos
 
             EOS_VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr,
                         &m_Framebuffers[i]));
-
-            m_DeletionQueue.pushFunction([=]() {
-                    vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
-                    vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
-                });
         }
 
         EOS_CORE_LOG_INFO("Created Framebuffer");
@@ -403,5 +432,31 @@ namespace Eos
         m_DescriptorAllocator.init(m_Device);
 
         EOS_CORE_LOG_INFO("Created Descriptor sets");
+    }
+
+    void Engine::recreateSwapchain()
+    {
+        EOS_CORE_LOG_INFO("Recreating Swapchain, Framebuffer, and Renderpass");
+
+        vkDeviceWaitIdle(m_Device);
+
+        vkDestroyRenderPass(m_Device, m_Renderpass.renderPass, nullptr);
+
+        for (size_t i = 0; i < m_Framebuffers.size(); i++)
+        {
+            vkDestroyFramebuffer(m_Device, m_Framebuffers[i], nullptr);
+            vkDestroyImageView(m_Device, m_Swapchain.imageViews[i], nullptr);
+        }
+
+        vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr);
+
+        initSwapchain();
+
+        if (m_SetupDetails.renderpassCreationFunc.has_value())
+            (m_SetupDetails.renderpassCreationFunc.value())(m_Renderpass);
+        else
+            initDefaultRenderpass();
+
+        initFramebuffers();
     }
 }

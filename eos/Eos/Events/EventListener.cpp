@@ -2,17 +2,35 @@
 
 namespace Eos::Events
 {
-    void EventListener::addListeners(Window& window,
-            EventDispatcher* eventDispatcher)
-    {
-        glfwSetWindowUserPointer(window.getWindow(), (void*)eventDispatcher);
+    std::vector<EventDispatcher*> EventListener::s_Dispatchers;
 
+    void EventListener::setupListener(Window& window)
+    {
         glfwSetKeyCallback(window.getWindow(), glfwKeyCallback);
         glfwSetMouseButtonCallback(window.getWindow(), glfwMouseButtonCallback);
         glfwSetCursorPosCallback(window.getWindow(), glfwMouseMoveCallback);
         glfwSetScrollCallback(window.getWindow(), glfwScrollCallback);
 
         EOS_CORE_LOG_INFO("Setup Event Listeners");
+    }
+
+    void EventListener::addDispatcher(EventDispatcher* eventDispatcher)
+    {
+        s_Dispatchers.push_back(eventDispatcher);
+
+        EOS_CORE_LOG_INFO("Added Event Listener");
+    }
+
+    void EventListener::removeDispatcher(EventDispatcher* eventDispatcher)
+    {
+        for (int i = 0; i < s_Dispatchers.size(); i++)
+        {
+            if (s_Dispatchers[i] == eventDispatcher)
+            {
+                s_Dispatchers.erase(s_Dispatchers.begin() + i);
+                return;
+            }
+        }
     }
 
     void EventListener::glfwKeyCallback(GLFWwindow* window, int key, int scancode,
@@ -24,8 +42,7 @@ namespace Eos::Events
             static_cast<Mods>(mods)
         };
 
-        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
-        dispatcher->dispatchEvent(event);
+        dispatchEvent(event);
 
         EOS_CORE_LOG_TRACE("Dispatched Key Input Event");
     }
@@ -39,8 +56,8 @@ namespace Eos::Events
             static_cast<Mods>(mods)
         };
 
-        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
-        dispatcher->dispatchEvent(event);
+        dispatchEvent(event);
+
         EOS_CORE_LOG_TRACE("Dispatched Mouse Button Event");
     }
 
@@ -51,8 +68,8 @@ namespace Eos::Events
             static_cast<float>(y)
         };
 
-        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
-        dispatcher->dispatchEvent(event);
+        dispatchEvent(event);
+
         EOS_CORE_LOG_TRACE("Dispatched Mouse Move Event");
     }
 
@@ -63,8 +80,20 @@ namespace Eos::Events
             static_cast<float>(y)
         };
 
-        EventDispatcher* dispatcher = (EventDispatcher*)glfwGetWindowUserPointer(window);
-        dispatcher->dispatchEvent(event);
+        dispatchEvent(event);
+
         EOS_CORE_LOG_TRACE("Dispatched Scroll Event");
+    }
+
+    void EventListener::glfwWindowResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        WindowResizeEvent event = {
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+
+        dispatchEvent(event);
+
+        EOS_CORE_LOG_TRACE("Dispatched Window Resize Event");
     }
 }

@@ -12,7 +12,11 @@ namespace Eos::Events
     class EOS_API EventListener
     {
     public:
-        void addListeners(Window& window, EventDispatcher* dispatcher);
+        static void setupListener(Window& window);
+        void addDispatcher(EventDispatcher* dispatcher);
+        void removeDispatcher(EventDispatcher* dispatcher);
+    private:
+        static std::vector<EventDispatcher*> s_Dispatchers;
     private:
         static void glfwKeyCallback(GLFWwindow* window, int key, int scancode,
                 int action, int mods);
@@ -20,5 +24,15 @@ namespace Eos::Events
                 int action, int mods);
         static void glfwMouseMoveCallback(GLFWwindow* window, double x, double y);
         static void glfwScrollCallback(GLFWwindow* window, double x, double y);
+        static void glfwWindowResizeCallback(GLFWwindow* window, int width, int height);
+
+        template <typename T>
+        static void dispatchEvent(const T& event)
+        {
+            for (EventDispatcher* dispatcher : s_Dispatchers)
+            {
+                dispatcher->dispatchEvent(event);
+            }
+        }
     };
 }
