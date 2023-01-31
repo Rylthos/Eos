@@ -16,6 +16,16 @@ struct Sphere
     float radius;
 };
 
+struct HitRecord
+{
+    vec3 point;
+    vec3 normal;
+
+    bool isFrontFace;
+
+    float t;
+};
+
 vec3 hitColour(in Ray ray, in Sphere sphere, in float t)
 {
     vec3 hitPosition = ray.origin + (t * ray.direction);
@@ -27,13 +37,14 @@ vec3 hitColour(in Ray ray, in Sphere sphere, in float t)
 
 vec3 missColour(in Ray ray)
 {
-    const vec3 bottomLeft = vec3(0.0, 0.5, 0.8);
-    const vec3 topRight = vec3(0.0, 0.0, 1.0);
+    const vec3 bottomLeft = vec3(0.5, 0.7, 0.8);
+    const vec3 topRight = vec3(0.0, 0.3, 1.0);
 
-    return mix(bottomLeft, topRight, (ray.origin.x + ray.origin.y + 2) / 4.0);
+    float mixValue = (ray.direction.x + ray.direction.y + 2.0) / 4.0;
+    return mix(bottomLeft, topRight, mixValue);
 }
 
-vec3 checkHit(in Ray ray, in Sphere sphere)
+float sphereHit(in Ray ray, in Sphere sphere)
 {
     float a = dot(ray.direction, ray.direction);
     float b = 2 * dot(ray.direction, ray.origin - sphere.center);
@@ -44,32 +55,64 @@ vec3 checkHit(in Ray ray, in Sphere sphere)
     if (discriminant >= 0.0)
     {
         float t = -b + sqrt(discriminant) / 2*a;
-        return hitColour(ray, sphere, t);
+        return t;
     }
     else
-        return missColour(ray);
+        return -1.0;
+}
+
+vec3 getSphereNormal(in Ray ray, in Sphere sphere, in float t)
+{
+    return normalize(ray.origin + ray.direction * t - sphere.center);
+}
+
+vec3 getRayColour(in Ray ray, in Sphere sphere)
+{
+    float t = sphereHit(ray, sphere);
+
+    if (t > 0.0)
+    {
+        vec3 N = getSphereNormal(ray, sphere, t);
+
+        return 0.5 * vec3(N.x + 1, N.y + 1, N.z + 1);
+    }
+
+    return missColour(ray);
 }
 
 void main()
 {
     ivec2 dim = imageSize(tex);
+    const vec2 viewport = vec2(2, 2);
+    const float focalLength = 1.0;
+    const vec3 origin = vec3(0, 0, 0);
 
-    // Move 0,0 to center of screen and map origins to [-1, 1]
-    vec3 rayOrigin = vec3(gl_GlobalInvocationID.xy, 0.0) - vec3(dim.x / 2, dim.y / 2, 0.0);
-    rayOrigin.x /= dim.x / 2;
-    rayOrigin.y /= dim.y / 2;
+    const vec3 worldUp    = vec3(0, 1, 0);
+    const vec3 worldRight = vec3(1, 0, 0);
+    const vec3 worldFront = vec3(0, 0, 1);
 
-    vec3 rayDirection = vec3(0.0, 0.0, 1.0);
+
+    ivec2 threadPos = ivec2(gl_GlobalInvocationID.xy);
+
+    vec3 horizontalDist = worldRight * viewport.x;
+    vec3 verticalDist = worldUp * viewport.y;
+    vec3 lowerLeftCorner = vec3(origin - (horizontalDist / 2) - (verticalDist / 2)
+            + vec3(0, 0, focalLength));
+
+    float u = float(threadPos.x) / float(dim.x);
+    float v = float(threadPos.y) / float(dim.y);
+
+    vec3 rayDirection = lowerLeftCorner + u*horizontalDist + v*verticalDist - origin;
 
     Ray ray;
-    ray.origin = rayOrigin;
+    ray.origin = origin;
     ray.direction = rayDirection;
 
     Sphere sphere;
     sphere.center = vec3(0.0, 0.0, 1.0);
     sphere.radius = 0.5;
 
-    vec3 colour = checkHit(ray, sphere);
+    vec3 colour = getRayColour(ray, sphere);
 
-    imageStore(tex, ivec2(gl_GlobalInvocationID.xy), vec4(colour, 1.0));
+    imageStore(tex, threadPos, vec4(colour, 1.0));
 }

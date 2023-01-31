@@ -259,7 +259,7 @@ namespace Eos
 
         vkb::SwapchainBuilder swapchainBuilder {m_PhysicalDevice, m_Device, m_Surface};
         vkb::Swapchain vkbSwapchain = swapchainBuilder
-            .use_default_format_selection()
+            .set_desired_format(m_SetupDetails.swapchainFormat)
             .set_desired_present_mode(presentMode)
             .set_desired_extent(m_WindowExtent.width, m_WindowExtent.height)
             .build()

@@ -202,6 +202,7 @@ Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
     details.name = "Compute Texture";
+    details.swapchainFormat = { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 
     return new Sandbox(details);
 }
