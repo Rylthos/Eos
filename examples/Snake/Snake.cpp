@@ -113,7 +113,7 @@ private:
 
     void postEngineInit() override
     {
-        m_Camera = Eos::OrthographicCamera(m_Window.getWindowSize());
+        m_Camera = Eos::OrthographicCamera(m_Window.getSize());
 
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
 
@@ -136,8 +136,8 @@ private:
         m_Snake.reserve(m_MaxSegments);
         m_Apples.reserve(m_AppleCount);
 
-        m_CellWidth = m_Window.getWindowSize().x / m_Cols;
-        m_CellHeight = m_Window.getWindowSize().y / m_Rows;
+        m_CellWidth = m_Window.getSize().x / m_Cols;
+        m_CellHeight = m_Window.getSize().y / m_Rows;
 
         reset();
 

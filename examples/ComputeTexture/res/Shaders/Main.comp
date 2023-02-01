@@ -83,7 +83,12 @@ vec3 getRayColour(in Ray ray, in Sphere sphere)
 void main()
 {
     ivec2 dim = imageSize(tex);
-    const vec2 viewport = vec2(2, 2);
+
+    float aspect = float(dim.x) / float(dim.y);
+
+    vec2 viewport = vec2(2, 2);
+    viewport.x = aspect * viewport.y;
+
     const float focalLength = 1.0;
     const vec3 origin = vec3(0, 0, 0);
 

@@ -75,6 +75,8 @@ namespace Eos
         Queue getTransferQueue() { return m_TransferQueue; }
         Queue getComputeQueue() { return m_ComputeQueue; }
 
+        void setWindowExtent(VkExtent2D extent) { m_WindowExtent = extent; }
+
         void cleanup();
 
         void init(Window& window, const EngineSetupDetails& setupDetails);

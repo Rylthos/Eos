@@ -24,6 +24,7 @@ namespace Eos
         VmaAllocation allocation;
     public:
         Texture2D() {}
+        ~Texture2D() { deleteImage(); }
 
         void loadFromFile(const char* file);
 
@@ -45,6 +46,10 @@ namespace Eos
         static void blitBetween(
                 Texture2D& srcTexture, VkImageLayout srcLayout,
                 Texture2D& dstTexture, VkImageLayout dstLayout, VkFilter filter);
+    private:
+        bool m_AddedToDeletionQueue = false;
+        size_t m_DeletionQueueIndex = 0;
+        DeletionQueue* m_DeletionQueue = nullptr;
     private:
         void createImage(VkImageUsageFlags usageFlags, VmaMemoryUsage memoryUsage,
                 VkMemoryPropertyFlags memoryFlags = 0);

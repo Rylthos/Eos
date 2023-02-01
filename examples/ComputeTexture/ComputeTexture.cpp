@@ -61,15 +61,39 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 512, 512 });
+        m_Window.setWindowSize({ 600, 512 });
         m_Window.create("Compute Texture");
     }
 
     void postEngineInit() override
     {
+        m_MainEventDispatcher.addCallback(&windowResizeEvent, this);
+
+        std::vector<Vertex> vertices = {
+            { { -1.0f,  1.0f, 1.0f }, { 0.0f, 0.0f } },
+            { {  1.0f,  1.0f, 1.0f }, { 1.0f, 0.0f } },
+            { { -1.0f, -1.0f, 1.0f }, { 0.0f, 1.0f } },
+            { {  1.0f, -1.0f, 1.0f }, { 1.0f, 1.0f } },
+        };
+
+        std::vector<uint16_t> indices = {
+            0, 1, 2,
+            1, 2, 3
+        };
+
+        m_Mesh.setVertices(vertices);
+        m_Mesh.setIndices(indices);
+
+        m_Mesh.create();
+
+        createPipelines();
+    }
+
+    void createPipelines()
+    {
         VkExtent3D extent;
-        extent.width = 512;
-        extent.height = 512;
+        extent.width = m_Window.getViewport().width;
+        extent.height = m_Window.getViewport().height;
         extent.depth = 1;
 
         VkPipelineLayoutCreateInfo layoutInfo = Eos::Pipeline::pipelineLayoutCreateInfo();
@@ -140,23 +164,6 @@ private:
             VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
         // Rendering
-        std::vector<Vertex> vertices = {
-            { { -1.0f,  1.0f, 1.0f }, { 0.0f, 0.0f } },
-            { {  1.0f,  1.0f, 1.0f }, { 1.0f, 0.0f } },
-            { { -1.0f, -1.0f, 1.0f }, { 0.0f, 1.0f } },
-            { {  1.0f, -1.0f, 1.0f }, { 1.0f, 1.0f } },
-        };
-
-        std::vector<uint16_t> indices = {
-            0, 1, 2,
-            1, 2, 3
-        };
-
-        m_Mesh.setVertices(vertices);
-        m_Mesh.setIndices(indices);
-
-        m_Mesh.create();
-
         Eos::Shader shader;
         shader.addShaderModule(VK_SHADER_STAGE_VERTEX_BIT,
                 "res/ComputeTexture/Shaders/Main.vert.spv");
@@ -181,6 +188,19 @@ private:
             .setViewports({ m_Window.getViewport() })
             .setScissors({ m_Window.getScissor() })
             .build(m_RenderPipeline, m_RenderPipelineLayout, layoutInfo);
+
+        EOS_LOG_INFO("{} : {}", m_Window.getViewport().width, m_Window.getViewport().height);
+    }
+
+    void recreatePipelines()
+    {
+        vkDeviceWaitIdle(Eos::GlobalData::getDevice());
+
+        m_ComputeTexture.deleteImage();
+
+        m_RenderTexture.deleteImage();
+
+        createPipelines();
     }
 
     void draw(VkCommandBuffer cmd) override
@@ -201,7 +221,14 @@ private:
     {
         Sandbox* sb = (Sandbox*)event->dataPointer;
 
+        EOS_LOG_INFO("Resize");
+
+        /* sb->m_Window.setWindowSize({ event->width, event->height }); */
+        sb->m_Engine->setWindowExtent(sb->m_Window.getExtent());
+
         sb->recreatePipelines();
+
+        return true;
     }
 };
 
@@ -209,6 +236,7 @@ Eos::Application* Eos::createApplication()
 {
     ApplicationDetails details;
     details.name = "Compute Texture";
+    details.enableWindowResizing = true;
     details.swapchainFormat = { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
 
     return new Sandbox(details);

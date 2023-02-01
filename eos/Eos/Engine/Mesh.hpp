@@ -64,9 +64,9 @@ namespace Eos
                     });
 
             m_DeletionQueue.pushFunction([=]() {
-                    vmaDestroyBuffer(GlobalData::getAllocator(), m_VertexBuffer.buffer,
-                            m_VertexBuffer.allocation);
-                    });
+                vmaDestroyBuffer(GlobalData::getAllocator(), m_VertexBuffer.buffer,
+                        m_VertexBuffer.allocation);
+            });
 
             vmaDestroyBuffer(GlobalData::getAllocator(), stagingBuffer.buffer,
                     stagingBuffer.allocation);
@@ -124,9 +124,9 @@ namespace Eos
                     });
 
             Mesh<T>::m_DeletionQueue.pushFunction([=]() {
-                    vmaDestroyBuffer(GlobalData::getAllocator(), m_IndexBuffer.buffer,
-                            m_IndexBuffer.allocation);
-                    });
+                vmaDestroyBuffer(GlobalData::getAllocator(), m_IndexBuffer.buffer,
+                        m_IndexBuffer.allocation);
+            });
 
             vmaDestroyBuffer(GlobalData::getAllocator(), stagingBuffer.buffer,
                     stagingBuffer.allocation);

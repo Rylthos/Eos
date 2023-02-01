@@ -73,8 +73,7 @@ namespace Eos
 
         int width, height;
         glfwGetFramebufferSize(window.getWindow(), &width, &height);
-        m_WindowExtent = VkExtent2D{
-            static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
+        m_WindowExtent = window.getExtent();
 
         initVulkan(window);
 
@@ -163,7 +162,7 @@ namespace Eos
         rpInfo.renderPass = m_Renderpass.renderPass;
         rpInfo.renderArea.offset.x = 0;
         rpInfo.renderArea.offset.y = 0;
-        rpInfo.renderArea.extent = m_WindowExtent;
+        rpInfo.renderArea.extent = m_Swapchain.extent;
         rpInfo.framebuffer = m_Framebuffers[swapchainImageIndex];
         rpInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         rpInfo.pClearValues = clearValues.data();
@@ -303,9 +302,10 @@ namespace Eos
             .value();
 
         m_Swapchain.swapchain = vkbSwapchain.swapchain;
+        m_Swapchain.imageFormat = vkbSwapchain.image_format;
+        m_Swapchain.extent = m_WindowExtent;
         m_Swapchain.images = vkbSwapchain.get_images().value();
         m_Swapchain.imageViews = vkbSwapchain.get_image_views().value();
-        m_Swapchain.imageFormat = vkbSwapchain.image_format;
 
         EOS_CORE_LOG_INFO("Created Swapchain");
     }

@@ -97,7 +97,7 @@ private:
         Eos::RenderPassBuilder::begin(renderPass)
             .addAttachment(colourAttachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                     colourDependency)
-            .addDefaultDepthBuffer(m_Window.getWindowSize().x, m_Window.getWindowSize().y)
+            .addDefaultDepthBuffer(m_Window.getSize().x, m_Window.getSize().y)
             .build();
     }
 
@@ -116,7 +116,7 @@ private:
         m_MainEventDispatcher.addCallback(&mouseMoveEvent, this);
         m_MainEventDispatcher.addCallback(&mousePressEvent, this);
 
-        m_Camera = Eos::PerspectiveCamera(m_Window.getWindowSize());
+        m_Camera = Eos::PerspectiveCamera(m_Window.getSize());
         m_Camera.setNearClippingPlane(0.1f);
         m_Camera.setFarClippingPlane(200.0f);
 

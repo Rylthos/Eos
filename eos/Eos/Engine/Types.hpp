@@ -20,6 +20,7 @@ namespace Eos
     {
         VkSwapchainKHR swapchain;
         VkFormat imageFormat;
+        VkExtent2D extent;
         std::vector<VkImage> images;
         std::vector<VkImageView> imageViews;
     };

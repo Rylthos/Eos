@@ -3,7 +3,7 @@
 #include "Eos/EosPCH.hpp"
 
 #include <functional>
-#include <deque>
+#include <queue>
 
 namespace Eos
 {
@@ -17,9 +17,13 @@ namespace Eos
         DeletionQueue(const DeletionQueue&&) = delete;
         ~DeletionQueue();
 
-        void pushFunction(DeleteFunction&& function);
+        size_t pushFunction(DeleteFunction&& function);
+        void removeFunction(size_t index);
+        void callFunction(size_t index);
+
         void flush();
     private:
-        std::deque<DeleteFunction> m_Deletors;
+        std::queue<size_t> m_RemovedIndices;
+        std::vector<DeleteFunction> m_Deletors;
     };
 }

@@ -80,7 +80,7 @@ private:
 
     void postEngineInit() override
     {
-        m_Camera = Eos::OrthographicCamera(m_Window.getWindowSize());
+        m_Camera = Eos::OrthographicCamera(m_Window.getSize());
         m_Camera.setPosition({ 100.0f, 0.0f, 0.0f });
 
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);

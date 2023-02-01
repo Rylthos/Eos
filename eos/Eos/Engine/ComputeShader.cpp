@@ -55,6 +55,8 @@ namespace Eos
         EOS_VK_CHECK(vkQueueSubmit(s_Queue->queue, 1, &submit, s_Fence));
         EOS_VK_CHECK(vkWaitForFences(GlobalData::getDevice(), 1, &s_Fence,
                     true, std::uint64_t(-1)));
+
+        vkResetFences(GlobalData::getDevice(), 1, &s_Fence);
     }
 
     void ComputeShader::endAndWait(VkCommandBuffer& cmd)

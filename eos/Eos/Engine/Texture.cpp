@@ -100,7 +100,9 @@ namespace Eos
 
     void Texture2D::addToDeletionQueue(DeletionQueue& queue)
     {
-        queue.pushFunction([&]() {
+        m_AddedToDeletionQueue = true;
+        m_DeletionQueue = &queue;
+        m_DeletionQueueIndex = queue.pushFunction([&]() {
             vkDestroyImageView(GlobalData::getDevice(), imageView, nullptr);
             vmaDestroyImage(GlobalData::getAllocator(), image, allocation);
 
@@ -108,18 +110,28 @@ namespace Eos
             {
                 vkDestroySampler(GlobalData::getDevice(), sampler.value(), nullptr);
             }
+            sampler.reset();
         });
     }
 
     void Texture2D::deleteImage()
     {
-        vkDestroyImageView(GlobalData::getDevice(), imageView, nullptr);
-        vmaDestroyImage(GlobalData::getAllocator(), image, allocation);
-
-        if (sampler.has_value())
+        if (!m_AddedToDeletionQueue)
         {
-            vkDestroySampler(GlobalData::getDevice(), sampler.value(), nullptr);
-            sampler.reset();
+            vkDestroyImageView(GlobalData::getDevice(), imageView, nullptr);
+            vmaDestroyImage(GlobalData::getAllocator(), image, allocation);
+
+            if (sampler.has_value())
+            {
+                vkDestroySampler(GlobalData::getDevice(), sampler.value(), nullptr);
+                sampler.reset();
+            }
+        }
+        else
+        {
+            m_DeletionQueue->callFunction(m_DeletionQueueIndex);
+            m_DeletionQueue = nullptr;
+            m_AddedToDeletionQueue = false;
         }
     }
 

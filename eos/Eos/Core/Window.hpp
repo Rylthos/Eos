@@ -32,23 +32,23 @@ namespace Eos
         void setWindowSize(glm::vec2 windowSize) { m_WindowSize = windowSize; }
 
         GLFWwindow* getWindow() { return m_Window; }
-        glm::vec2 getWindowSize() const { return m_WindowSize; }
-        VkExtent2D getWindowExtent() const
-            { return { static_cast<uint32_t>(m_WindowSize.x),
-                         static_cast<uint32_t>(m_WindowSize.y) }; }
+        glm::vec2 getSize();
+        VkExtent2D getExtent();
 
-        VkViewport getViewport() const;
-        VkRect2D getScissor() const;
+        VkViewport getViewport();
+        VkRect2D getScissor();
 
         void setWindowShouldClose(bool value) { glfwSetWindowShouldClose(m_Window, value); }
 
         bool shouldClose() const { return glfwWindowShouldClose(m_Window); }
         bool isValid() const { return m_Created && m_Initialised; }
     private:
-        glm::vec2 m_WindowSize;
+        glm::ivec2 m_WindowSize;
         bool m_Created = false;
         bool m_Initialised = false;
     private:
+
+        void reloadFramebufferSize();
 
         static void glfwErrorCallback(int, const char* errStr);
     };

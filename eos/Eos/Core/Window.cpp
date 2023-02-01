@@ -50,8 +50,25 @@ namespace Eos
         glfwCreateWindowSurface(instance, m_Window, nullptr, surface);
     }
 
-    VkViewport Window::getViewport() const
+    glm::vec2 Window::getSize()
     {
+        reloadFramebufferSize();
+
+        return m_WindowSize;
+    }
+
+    VkExtent2D Window::getExtent()
+    { 
+        reloadFramebufferSize();
+
+        return { static_cast<uint32_t>(m_WindowSize.x),
+                 static_cast<uint32_t>(m_WindowSize.y) };
+    }
+
+    VkViewport Window::getViewport()
+    {
+        reloadFramebufferSize();
+
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
@@ -63,14 +80,27 @@ namespace Eos
         return viewport;
     }
 
-    VkRect2D Window::getScissor() const
+    VkRect2D Window::getScissor()
     {
+        reloadFramebufferSize();
+
         VkRect2D scissor{};
 
         scissor.offset = { 0, 0 };
-        scissor.extent = getWindowExtent();
+        scissor.extent = getExtent();
 
         return scissor;
+    }
+
+    void Window::reloadFramebufferSize()
+    {
+        int width, height;
+        glfwGetFramebufferSize(m_Window, &width, &height);
+
+        if (m_WindowSize.x != width || m_WindowSize.y != height)
+        {
+            m_WindowSize = { width, height };
+        }
     }
 
     void Window::glfwErrorCallback(int, const char* errStr)

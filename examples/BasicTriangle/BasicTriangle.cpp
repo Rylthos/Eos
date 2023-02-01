@@ -73,12 +73,12 @@ private:
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)m_Window.getWindowExtent().width;
-        viewport.height = (float)m_Window.getWindowExtent().height;
+        viewport.width = (float)m_Window.getExtent().width;
+        viewport.height = (float)m_Window.getExtent().height;
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = m_Window.getWindowExtent();
+        scissor.extent = m_Window.getExtent();
 
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
