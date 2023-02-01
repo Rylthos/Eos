@@ -221,8 +221,6 @@ private:
     {
         Sandbox* sb = (Sandbox*)event->dataPointer;
 
-        EOS_LOG_INFO("Resize");
-
         /* sb->m_Window.setWindowSize({ event->width, event->height }); */
         sb->m_Engine->setWindowExtent(sb->m_Window.getExtent());
 

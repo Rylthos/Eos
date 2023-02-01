@@ -450,6 +450,8 @@ namespace Eos
 
         vkDestroySwapchainKHR(m_Device, m_Swapchain.swapchain, nullptr);
 
+        EOS_DISABLE_LOGGER();
+
         initSwapchain();
 
         if (m_SetupDetails.renderpassCreationFunc.has_value())
@@ -458,5 +460,7 @@ namespace Eos
             initDefaultRenderpass();
 
         initFramebuffers();
+
+        EOS_ENABLE_LOGGER();
     }
 }

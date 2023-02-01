@@ -18,4 +18,16 @@ namespace Eos
 
         s_ClientLogger = std::make_shared<spdlog::logger>("Client", begin(sinks), end(sinks));
     }
+
+    void Logger::enable()
+    {
+        s_CoreLogger->set_level(spdlog::level::info);
+        s_ClientLogger->set_level(spdlog::level::info);
+    }
+
+    void Logger::disable()
+    {
+        s_CoreLogger->set_level(spdlog::level::off);
+        s_ClientLogger->set_level(spdlog::level::off);
+    }
 }

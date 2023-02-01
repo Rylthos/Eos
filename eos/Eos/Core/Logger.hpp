@@ -16,6 +16,9 @@ namespace Eos
     public:
         static void init();
 
+        static void enable();
+        static void disable();
+
         static std::shared_ptr<spdlog::logger>& getCoreLogger() { return s_CoreLogger; }
         static std::shared_ptr<spdlog::logger>& getClientLogger() { return s_ClientLogger; }
     private:
@@ -25,6 +28,9 @@ namespace Eos
 }
 
 #ifndef EOS_DISABLE_LOG
+    #define EOS_DISABLE_LOGGER() Eos::Logger::disable();
+    #define EOS_ENABLE_LOGGER()  Eos::Logger::enable();
+
     #define EOS_CORE_LOG_TRACE(...)    Eos::Logger::getCoreLogger()->trace(__VA_ARGS__)
     #define EOS_CORE_LOG_DEBUG(...)    Eos::Logger::getCoreLogger()->debug(__VA_ARGS__)
     #define EOS_CORE_LOG_INFO(...)     Eos::Logger::getCoreLogger()->info(__VA_ARGS__)
