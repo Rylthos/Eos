@@ -76,8 +76,6 @@ namespace Eos
         Queue getTransferQueue() { return m_TransferQueue; }
         Queue getComputeQueue() { return m_ComputeQueue; }
 
-        void setWindowExtent(VkExtent2D extent) { m_WindowExtent = extent; }
-
         void cleanup();
 
         void init(const EngineSetupDetails& setupDetails);
@@ -89,7 +87,6 @@ namespace Eos
         void operator=(const Engine&) = delete;
     private:
         bool m_Initialized = false;
-        VkExtent2D m_WindowExtent;
 
         Window m_Window;
 

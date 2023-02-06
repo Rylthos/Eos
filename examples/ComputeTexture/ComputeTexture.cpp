@@ -221,9 +221,6 @@ private:
     {
         Sandbox* sb = (Sandbox*)event->dataPointer;
 
-        /* sb->m_Window.setWindowSize({ event->width, event->height }); */
-        sb->m_Engine->setWindowExtent(sb->m_Window.getExtent());
-
         sb->recreatePipelines();
 
         return true;

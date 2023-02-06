@@ -75,7 +75,6 @@ namespace Eos
 
         int width, height;
         glfwGetFramebufferSize(m_Window.getWindow(), &width, &height);
-        m_WindowExtent = m_Window.getExtent();
 
         initVulkan();
 
@@ -295,17 +294,19 @@ namespace Eos
         VkPresentModeKHR presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
         if (m_SetupDetails.vsync) presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
+        VkExtent2D windowExtent = m_Window.getExtent();
+
         vkb::SwapchainBuilder swapchainBuilder {m_PhysicalDevice, m_Device, m_Surface};
         vkb::Swapchain vkbSwapchain = swapchainBuilder
             .set_desired_format(m_SetupDetails.swapchainFormat)
             .set_desired_present_mode(presentMode)
-            .set_desired_extent(m_WindowExtent.width, m_WindowExtent.height)
+            .set_desired_extent(windowExtent.width, windowExtent.height)
             .build()
             .value();
 
         m_Swapchain.swapchain = vkbSwapchain.swapchain;
         m_Swapchain.imageFormat = vkbSwapchain.image_format;
-        m_Swapchain.extent = m_WindowExtent;
+        m_Swapchain.extent = windowExtent;
         m_Swapchain.images = vkbSwapchain.get_images().value();
         m_Swapchain.imageViews = vkbSwapchain.get_image_views().value();
 
@@ -342,13 +343,15 @@ namespace Eos
 
     void Engine::initFramebuffers()
     {
+        VkExtent2D windowExtent = m_Window.getExtent();
+
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.pNext = nullptr;
         framebufferInfo.renderPass = m_Renderpass.renderPass;
         framebufferInfo.attachmentCount = 1;
-        framebufferInfo.width = m_WindowExtent.width;
-        framebufferInfo.height = m_WindowExtent.height;
+        framebufferInfo.width = windowExtent.width;
+        framebufferInfo.height = windowExtent.height;
         framebufferInfo.layers = 1;
 
         const size_t swapchainImageCount = m_Swapchain.images.size();
