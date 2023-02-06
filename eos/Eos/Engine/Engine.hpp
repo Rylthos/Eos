@@ -69,6 +69,7 @@ namespace Eos
         ComputePipelineBuilder createComputePipelineBuilder();
         DescriptorBuilder createDescriptorBuilder();
 
+        Window& getWindow() { return m_Window; }
         Swapchain& getSwapchain() { return m_Swapchain; }
 
         Queue getGraphicsQueue() { return m_GraphicsQueue; }
@@ -79,7 +80,7 @@ namespace Eos
 
         void cleanup();
 
-        void init(Window& window, const EngineSetupDetails& setupDetails);
+        void init(const EngineSetupDetails& setupDetails);
 
         RenderInformation preRender();
         void postRender(RenderInformation& information);
@@ -89,6 +90,8 @@ namespace Eos
     private:
         bool m_Initialized = false;
         VkExtent2D m_WindowExtent;
+
+        Window m_Window;
 
         EngineSetupDetails m_SetupDetails;
 
@@ -122,7 +125,7 @@ namespace Eos
         Engine() {}
         ~Engine() {}
 
-        void initVulkan(Window& window);
+        void initVulkan();
         void initSwapchain();
         void initDefaultRenderpass();
         void initFramebuffers();

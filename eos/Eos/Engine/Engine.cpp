@@ -65,17 +65,19 @@ namespace Eos
         }
     }
 
-    void Engine::init(Window& window, const EngineSetupDetails& details)
+    void Engine::init(const EngineSetupDetails& details)
     {
         m_SetupDetails = details;
+
+        m_Window.init();
 
         m_Frames.resize(m_SetupDetails.framesInFlight);
 
         int width, height;
-        glfwGetFramebufferSize(window.getWindow(), &width, &height);
-        m_WindowExtent = window.getExtent();
+        glfwGetFramebufferSize(m_Window.getWindow(), &width, &height);
+        m_WindowExtent = m_Window.getExtent();
 
-        initVulkan(window);
+        initVulkan();
 
         initSwapchain();
 
@@ -222,7 +224,7 @@ namespace Eos
         }
     }
 
-    void Engine::initVulkan(Window& window)
+    void Engine::initVulkan()
     {
         vkb::InstanceBuilder builder;
         auto instanceReturn = builder.set_app_name(m_SetupDetails.name)
@@ -236,7 +238,7 @@ namespace Eos
         m_Instance = vkbInstance.instance;
         m_DebugMessenger = vkbInstance.debug_messenger;
 
-        window.createSurface(m_Instance, &m_Surface);
+        m_Window.createSurface(m_Instance, &m_Surface);
 
         vkb::PhysicalDeviceSelector selector{ vkbInstance };
         vkb::PhysicalDevice vkbPhysicalDevice = selector.set_minimum_version(1, 3)

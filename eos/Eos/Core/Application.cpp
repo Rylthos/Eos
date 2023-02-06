@@ -9,6 +9,7 @@
 namespace Eos
 {
     Application::Application(const ApplicationDetails& details)
+        : m_Engine(Engine::get()), m_Window(m_Engine->getWindow())
     {
         m_Details = details;
     }
@@ -31,8 +32,6 @@ namespace Eos
         m_MainEventListener.addDispatcher(&m_MainEventDispatcher);
 
         EOS_CORE_LOG_INFO("Initialised Application");
-
-        m_Engine = Engine::get();
 
         if (!m_Window.isValid())
         {
@@ -64,7 +63,7 @@ namespace Eos
                     std::bind(&Application::renderClearValues, this));
         }
 
-        m_Engine->init(m_Window, engineSetupDetails);
+        m_Engine->init(engineSetupDetails);
 
         postEngineInit();
 

@@ -43,8 +43,8 @@ namespace Eos
         void start();
 
     protected:
-        Window m_Window;
         Engine* m_Engine;
+        Window& m_Window;
 
         Events::EventDispatcher m_MainEventDispatcher;
     private:
