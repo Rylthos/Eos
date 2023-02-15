@@ -107,13 +107,13 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
-        m_Window.create("Snake");
+        m_Window->setWindowSize({ 500, 500 });
+        m_Window->create("Snake");
     }
 
     void postEngineInit() override
     {
-        m_Camera = Eos::OrthographicCamera(m_Window.getSize());
+        m_Camera = Eos::OrthographicCamera(m_Window->getSize());
 
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
 
@@ -136,8 +136,8 @@ private:
         m_Snake.reserve(m_MaxSegments);
         m_Apples.reserve(m_AppleCount);
 
-        m_CellWidth = m_Window.getSize().x / m_Cols;
-        m_CellHeight = m_Window.getSize().y / m_Rows;
+        m_CellWidth = m_Window->getSize().x / m_Cols;
+        m_CellHeight = m_Window->getSize().y / m_Rows;
 
         reset();
 
@@ -276,8 +276,8 @@ private:
             .defaultValues()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_SnakePipeline, m_SnakePipelineLayout, info);
 
 
@@ -302,8 +302,8 @@ private:
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_ApplePipeline, m_ApplePipelineLayout, info);
     }
 
@@ -496,7 +496,7 @@ private:
         if (event->action == Eos::Events::Action::PRESS)
         {
             if (event->key == Eos::Events::Key::KEY_ESCAPE)
-                snake->m_Window.setWindowShouldClose(true);
+                snake->m_Window->setWindowShouldClose(true);
 
             if (event->key == Eos::Events::Key::KEY_A)
                 snake->m_MoveQueue.push(SnakeDirection::LEFT);

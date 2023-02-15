@@ -61,8 +61,8 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 600, 512 });
-        m_Window.create("Compute Texture");
+        m_Window->setWindowSize({ 600, 512 });
+        m_Window->create("Compute Texture");
     }
 
     void postEngineInit() override
@@ -92,8 +92,8 @@ private:
     void createPipelines()
     {
         VkExtent3D extent;
-        extent.width = m_Window.getViewport().width;
-        extent.height = m_Window.getViewport().height;
+        extent.width = m_Window->getViewport().width;
+        extent.height = m_Window->getViewport().height;
         extent.depth = 1;
 
         VkPipelineLayoutCreateInfo layoutInfo = Eos::Pipeline::pipelineLayoutCreateInfo();
@@ -185,11 +185,11 @@ private:
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_RenderPipeline, m_RenderPipelineLayout, layoutInfo);
 
-        EOS_LOG_INFO("{} : {}", m_Window.getViewport().width, m_Window.getViewport().height);
+        EOS_LOG_INFO("{} : {}", m_Window->getViewport().width, m_Window->getViewport().height);
     }
 
     void recreatePipelines()

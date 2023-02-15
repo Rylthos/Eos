@@ -19,8 +19,8 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
-        m_Window.create("Compute Test");
+        m_Window->setWindowSize({ 500, 500 });
+        m_Window->create("Compute Test");
     }
 
     void postEngineInit() override

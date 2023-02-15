@@ -10,6 +10,11 @@
 
 namespace Eos
 {
+    Engine::Engine()
+    {
+        m_Window = std::make_shared<Window>();
+    }
+
     Engine* Engine::get()
     {
         static Engine engine{};
@@ -69,12 +74,12 @@ namespace Eos
     {
         m_SetupDetails = details;
 
-        m_Window.init();
+        m_Window->init();
 
         m_Frames.resize(m_SetupDetails.framesInFlight);
 
         int width, height;
-        glfwGetFramebufferSize(m_Window.getWindow(), &width, &height);
+        glfwGetFramebufferSize(m_Window->getWindow(), &width, &height);
 
         initVulkan();
 
@@ -237,7 +242,7 @@ namespace Eos
         m_Instance = vkbInstance.instance;
         m_DebugMessenger = vkbInstance.debug_messenger;
 
-        m_Window.createSurface(m_Instance, &m_Surface);
+        m_Window->createSurface(m_Instance, &m_Surface);
 
         vkb::PhysicalDeviceSelector selector{ vkbInstance };
         vkb::PhysicalDevice vkbPhysicalDevice = selector.set_minimum_version(1, 3)
@@ -294,7 +299,7 @@ namespace Eos
         VkPresentModeKHR presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
         if (m_SetupDetails.vsync) presentMode = VK_PRESENT_MODE_FIFO_KHR;
 
-        VkExtent2D windowExtent = m_Window.getExtent();
+        VkExtent2D windowExtent = m_Window->getExtent();
 
         vkb::SwapchainBuilder swapchainBuilder {m_PhysicalDevice, m_Device, m_Surface};
         vkb::Swapchain vkbSwapchain = swapchainBuilder
@@ -343,7 +348,7 @@ namespace Eos
 
     void Engine::initFramebuffers()
     {
-        VkExtent2D windowExtent = m_Window.getExtent();
+        VkExtent2D windowExtent = m_Window->getExtent();
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;

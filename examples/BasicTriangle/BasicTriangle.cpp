@@ -50,9 +50,9 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
+        m_Window->setWindowSize({ 500, 500 });
 
-        m_Window.create("Basic Triangle");
+        m_Window->create("Basic Triangle");
     }
 
     void postEngineInit() override
@@ -73,12 +73,12 @@ private:
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)m_Window.getExtent().width;
-        viewport.height = (float)m_Window.getExtent().height;
+        viewport.width = (float)m_Window->getExtent().width;
+        viewport.height = (float)m_Window->getExtent().height;
 
         VkRect2D scissor{};
         scissor.offset = { 0, 0 };
-        scissor.extent = m_Window.getExtent();
+        scissor.extent = m_Window->getExtent();
 
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())

@@ -12,7 +12,7 @@ namespace Eos::Events
     class EOS_API EventListener
     {
     public:
-        static void setupListener(Window& window);
+        static void setupListener(std::shared_ptr<Window>& window);
         void addDispatcher(EventDispatcher* dispatcher);
         void removeDispatcher(EventDispatcher* dispatcher);
     private:

@@ -44,7 +44,7 @@ namespace Eos
 
     protected:
         Engine* m_Engine;
-        Window& m_Window;
+        std::shared_ptr<Window>& m_Window;
 
         Events::EventDispatcher m_MainEventDispatcher;
     private:

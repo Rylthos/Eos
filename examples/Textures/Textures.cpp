@@ -54,8 +54,8 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
-        m_Window.create("Texture");
+        m_Window->setWindowSize({ 500, 500 });
+        m_Window->create("Texture");
     }
 
     void postEngineInit() override
@@ -103,8 +103,8 @@ private:
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_Pipeline, m_PipelineLayout, layoutInfo);
     }
 

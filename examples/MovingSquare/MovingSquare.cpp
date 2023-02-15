@@ -74,13 +74,13 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
-        m_Window.create("Moving Square");
+        m_Window->setWindowSize({ 500, 500 });
+        m_Window->create("Moving Square");
     }
 
     void postEngineInit() override
     {
-        m_Camera = Eos::OrthographicCamera(m_Window.getSize());
+        m_Camera = Eos::OrthographicCamera(m_Window->getSize());
         m_Camera.setPosition({ 100.0f, 0.0f, 0.0f });
 
         m_MainEventDispatcher.addCallback(&keyboardEvent, this);
@@ -128,8 +128,8 @@ private:
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_Pipeline, m_PipelineLayout, info);
 
         m_Data.model = glm::mat4(1.0f);
@@ -191,7 +191,7 @@ private:
 
         if (event->key == EE::Key::KEY_ESCAPE && event->action == EE::Action::PRESS)
         {
-            sb->m_Window.setWindowShouldClose(true);
+            sb->m_Window->setWindowShouldClose(true);
         }
 
         if (event->action == EE::Action::PRESS)

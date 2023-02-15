@@ -21,9 +21,9 @@ namespace Eos
 
     void Application::start()
     {
-        m_Window.init();
+        m_Window->init();
 
-        m_Window.setWindowHint(GLFW_RESIZABLE,
+        m_Window->setWindowHint(GLFW_RESIZABLE,
                 m_Details.enableWindowResizing ? GLFW_TRUE : GLFW_FALSE);
 
         windowInit();
@@ -33,7 +33,7 @@ namespace Eos
 
         EOS_CORE_LOG_INFO("Initialised Application");
 
-        if (!m_Window.isValid())
+        if (!m_Window->isValid())
         {
             std::runtime_error("Window has not been initialised");
         }
@@ -77,7 +77,7 @@ namespace Eos
     {
         m_FrameTimer.start();
 
-        while(!m_Window.shouldClose())
+        while(!m_Window->shouldClose())
         {
             glfwPollEvents();
 

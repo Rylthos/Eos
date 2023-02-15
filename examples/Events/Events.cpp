@@ -44,8 +44,8 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
-        m_Window.create("Events");
+        m_Window->setWindowSize({ 500, 500 });
+        m_Window->create("Events");
     }
 
     void postEngineInit() override
@@ -75,8 +75,8 @@ private:
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_Pipeline);
 
         shader.clearModules();
@@ -105,7 +105,7 @@ private:
         if (event->key == Eos::Events::Key::KEY_ESCAPE &&
                 event->action == Eos::Events::Action::PRESS)
         {
-            sb->m_Window.setWindowShouldClose(true);
+            sb->m_Window->setWindowShouldClose(true);
         }
 
         if (static_cast<int>(event->key) >= 65 && static_cast<int>(event->key) <= 90)

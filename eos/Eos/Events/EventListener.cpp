@@ -4,13 +4,13 @@ namespace Eos::Events
 {
     std::vector<EventDispatcher*> EventListener::s_Dispatchers;
 
-    void EventListener::setupListener(Window& window)
+    void EventListener::setupListener(std::shared_ptr<Window>& window)
     {
-        glfwSetKeyCallback(window.getWindow(), glfwKeyCallback);
-        glfwSetMouseButtonCallback(window.getWindow(), glfwMouseButtonCallback);
-        glfwSetCursorPosCallback(window.getWindow(), glfwMouseMoveCallback);
-        glfwSetScrollCallback(window.getWindow(), glfwScrollCallback);
-        glfwSetWindowSizeCallback(window.getWindow(), glfwWindowResizeCallback);
+        glfwSetKeyCallback(window->getWindow(), glfwKeyCallback);
+        glfwSetMouseButtonCallback(window->getWindow(), glfwMouseButtonCallback);
+        glfwSetCursorPosCallback(window->getWindow(), glfwMouseMoveCallback);
+        glfwSetScrollCallback(window->getWindow(), glfwScrollCallback);
+        glfwSetWindowSizeCallback(window->getWindow(), glfwWindowResizeCallback);
 
         EOS_CORE_LOG_INFO("Setup Event Listeners");
     }

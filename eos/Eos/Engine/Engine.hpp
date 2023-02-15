@@ -69,7 +69,7 @@ namespace Eos
         ComputePipelineBuilder createComputePipelineBuilder();
         DescriptorBuilder createDescriptorBuilder();
 
-        Window& getWindow() { return m_Window; }
+        std::shared_ptr<Window>& getWindow() { return m_Window; }
         Swapchain& getSwapchain() { return m_Swapchain; }
 
         Queue getGraphicsQueue() { return m_GraphicsQueue; }
@@ -88,7 +88,7 @@ namespace Eos
     private:
         bool m_Initialized = false;
 
-        Window m_Window;
+        std::shared_ptr<Window> m_Window;
 
         EngineSetupDetails m_SetupDetails;
 
@@ -119,7 +119,7 @@ namespace Eos
         DeletionQueue m_DeletionQueue;
 
     private:
-        Engine() {}
+        Engine();
         ~Engine() {}
 
         void initVulkan();

@@ -70,8 +70,8 @@ private:
 private:
     void windowInit() override
     {
-        m_Window.setWindowSize({ 500, 500 });
-        m_Window.create("3D Cube");
+        m_Window->setWindowSize({ 500, 500 });
+        m_Window->create("3D Cube");
     }
 
     void renderPassInit(Eos::RenderPass& renderPass) override
@@ -97,7 +97,7 @@ private:
         Eos::RenderPassBuilder::begin(renderPass)
             .addAttachment(colourAttachment, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                     colourDependency)
-            .addDefaultDepthBuffer(m_Window.getSize().x, m_Window.getSize().y)
+            .addDefaultDepthBuffer(m_Window->getSize().x, m_Window->getSize().y)
             .build();
     }
 
@@ -116,7 +116,7 @@ private:
         m_MainEventDispatcher.addCallback(&mouseMoveEvent, this);
         m_MainEventDispatcher.addCallback(&mousePressEvent, this);
 
-        m_Camera = Eos::PerspectiveCamera(m_Window.getSize());
+        m_Camera = Eos::PerspectiveCamera(m_Window->getSize());
         m_Camera.setNearClippingPlane(0.1f);
         m_Camera.setFarClippingPlane(200.0f);
 
@@ -193,8 +193,8 @@ private:
         m_Engine->createPipelineBuilder()
             .setShaderStages(shader.getShaderStages())
             .setVertexInputInfo(Vertex::getVertexDescription())
-            .setViewports({ m_Window.getViewport() })
-            .setScissors({ m_Window.getScissor() })
+            .setViewports({ m_Window->getViewport() })
+            .setScissors({ m_Window->getScissor() })
             .build(m_Pipeline, m_PipelineLayout, layoutInfo);
 
         ModelData modelData;
@@ -292,7 +292,7 @@ private:
             sb->m_ActiveKeys[event->key] = false;
 
         if (sb->m_ActiveKeys[Eos::Events::Key::KEY_ESCAPE])
-            sb->m_Window.setWindowShouldClose(true);
+            sb->m_Window->setWindowShouldClose(true);
 
         return true;
     }
@@ -337,13 +337,13 @@ private:
             if (event->action == Eos::Events::Action::PRESS)
             {
                 sb->m_RightClick = true;
-                sb->m_Window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                sb->m_Window->setInputMode(GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
                 sb->m_CapturedMouse = false;
             }
             else
             {
                 sb->m_RightClick = false;
-                sb->m_Window.setInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                sb->m_Window->setInputMode(GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
         }
 
