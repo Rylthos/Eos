@@ -25,7 +25,7 @@ add_subdirectory(vendor)
 
 add_subdirectory(eos)
 
-if (${EOS_BUILDING_STANDALONE} OR ${EOS_BUILD_EXAMPLES})
+if (EOS_BUILDING_STANDALONE OR EOS_BUILD_EXAMPLES)
     message ("Building EOS Examples")
     add_subdirectory(examples)
 endif ()
