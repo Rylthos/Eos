@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Eos/Eos.hpp"
+#include "Eos/Core/EntryPoint.hpp"
 
 #include <GLFW/glfw3.h>
 

@@ -1,4 +1,5 @@
 #include "Eos/Eos.hpp"
+#include "Eos/Core/EntryPoint.hpp"
 
 #include <queue>
 

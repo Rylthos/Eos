@@ -11,7 +11,6 @@
 
 
 // Core
-#include "Core/EntryPoint.hpp"
 #include "Core/Application.hpp"
 #include "Core/Window.hpp"
 #include "Core/Logger.hpp"

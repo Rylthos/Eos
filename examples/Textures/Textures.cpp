@@ -1,4 +1,6 @@
 #include "Eos/Eos.hpp"
+#include "Eos/Core/EntryPoint.hpp"
+
 #include <vulkan/vulkan_core.h>
 
 struct Vertex
