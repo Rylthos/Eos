@@ -4,6 +4,14 @@
 
 namespace Eos
 {
+    void Buffer::destroy()
+    {
+        if (!m_AddedToQueue)
+        {
+            vmaDestroyBuffer(GlobalData::getAllocator(), buffer, allocation);
+        }
+    }
+
     void Buffer::create(size_t allocSize, VkBufferUsageFlags usage,
             VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags)
     {
@@ -46,6 +54,7 @@ namespace Eos
 
     void Buffer::addToDeletionQueue(DeletionQueue& deletionQueue)
     {
+        m_AddedToQueue = true;
         deletionQueue.pushFunction([=]() {
                 vmaDestroyBuffer(GlobalData::getAllocator(),
                         buffer, allocation);

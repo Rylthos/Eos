@@ -26,6 +26,11 @@ namespace Eos
             m_DeletionQueue.flush();
         }
 
+        void destroy()
+        {
+            m_DeletionQueue.flush();
+        }
+
         void setVertices(std::vector<T>& vertices) { m_Vertices = vertices; }
         std::vector<T>* getVertices() { return &m_Vertices; }
 
@@ -54,7 +59,7 @@ namespace Eos
             m_VertexBuffer.create(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                         VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
 
-            TransferSubmit::submit([=](VkCommandBuffer cmd) {
+            TransferSubmit::submit([&](VkCommandBuffer cmd) {
                     VkBufferCopy copy;
                     copy.srcOffset = 0;
                     copy.dstOffset = 0;
@@ -114,7 +119,7 @@ namespace Eos
             m_IndexBuffer.create(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
                         VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_ONLY);
 
-            TransferSubmit::submit([=](VkCommandBuffer cmd) {
+            TransferSubmit::submit([&](VkCommandBuffer cmd) {
                     VkBufferCopy copy;
                     copy.srcOffset = 0;
                     copy.dstOffset = 0;

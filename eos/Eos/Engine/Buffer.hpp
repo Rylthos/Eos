@@ -16,6 +16,9 @@ namespace Eos
         VmaAllocation allocation;
     public:
         Buffer() {}
+        ~Buffer() {}
+
+        void destroy();
 
         void create(size_t allocSize, VkBufferUsageFlags usage,
                 VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0);
@@ -25,5 +28,7 @@ namespace Eos
                 VmaMemoryUsage memoryUsage, VmaAllocationCreateFlags flags = 0);
 
         void addToDeletionQueue(DeletionQueue& deletionQueue);
+    private:
+        bool m_AddedToQueue = false;
     };
 }
