@@ -22,6 +22,10 @@ namespace Eos
         VkFormat format;
         VkExtent3D extent;
         VmaAllocation allocation;
+
+        VkImageLayout currentImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        VkPipelineStageFlags currentStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        VkAccessFlags currentAccessFlag = 0;
     public:
         Texture2D() {}
         ~Texture2D() { deleteImage(); }
@@ -43,9 +47,15 @@ namespace Eos
                 VkAccessFlags srcAccess, VkAccessFlags dstAccess, VkPipelineStageFlags srcStage,
                 VkPipelineStageFlags dstStage);
 
+        void convertImageLayout(VkImageLayout newLayout,
+                VkAccessFlags dstAccess, VkPipelineStageFlags dstStage);
+
+        void transferDataToImage(const std::vector<uint32_t>& data);
+
         static void blitBetween(
                 Texture2D& srcTexture, VkImageLayout srcLayout,
                 Texture2D& dstTexture, VkImageLayout dstLayout, VkFilter filter);
+
     private:
         bool m_AddedToDeletionQueue = false;
         size_t m_DeletionQueueIndex = 0;
