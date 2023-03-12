@@ -3,6 +3,7 @@
 #include "Eos/Engine/GlobalData.hpp"
 
 #include "Eos/Engine/Submits/GraphicsSubmit.hpp"
+#include <vulkan/vulkan_core.h>
 
 namespace Eos
 {
@@ -161,6 +162,37 @@ namespace Eos
         });
     }
 
+    void Texture2D::convertImageLayout(VkImageLayout newLayout,
+            VkAccessFlags dstAccess, VkPipelineStageFlags dstStage)
+    {
+        convertImageLayout(
+            currentImageLayout, newLayout,
+            currentAccessFlag, dstAccess,
+            currentStage, dstStage
+        );
+    }
+
+    void Texture2D::transferDataToImage(const std::vector<uint32_t>& data)
+    {
+        size_t totalSize = data.size() * sizeof(uint32_t);
+
+        Buffer stagingBuffer;
+        stagingBuffer.create(totalSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                VMA_MEMORY_USAGE_CPU_ONLY);
+
+        void* pixelsPtr = (void*)data.data();
+        void* temp;
+
+        vmaMapMemory(GlobalData::getAllocator(), stagingBuffer.allocation, &temp);
+            memcpy(temp, pixelsPtr, totalSize);
+        vmaUnmapMemory(GlobalData::getAllocator(), stagingBuffer.allocation);
+
+        transferBufferToImage(stagingBuffer);
+
+        vmaDestroyBuffer(Eos::GlobalData::getAllocator(), stagingBuffer.buffer,
+                stagingBuffer.allocation);
+    }
+
     void Texture2D::blitBetween(
         Texture2D& srcTexture, VkImageLayout srcLayout,
         Texture2D& dstTexture, VkImageLayout dstLayout, VkFilter filter)
@@ -245,14 +277,14 @@ namespace Eos
 
             VkImageMemoryBarrier imageBarrierToTransfer{};
             imageBarrierToTransfer.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            imageBarrierToTransfer.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            imageBarrierToTransfer.oldLayout = currentImageLayout;
             imageBarrierToTransfer.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
             imageBarrierToTransfer.image = image;
             imageBarrierToTransfer.subresourceRange = range;
-            imageBarrierToTransfer.srcAccessMask = 0;
+            imageBarrierToTransfer.srcAccessMask = currentAccessFlag;
             imageBarrierToTransfer.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-            vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+            vkCmdPipelineBarrier(cmd, currentStage,
                     VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr,
                     0, nullptr, 1, &imageBarrierToTransfer);
 
@@ -280,5 +312,9 @@ namespace Eos
                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr,
                     1, &imageBarrierToReadable);
         });
+
+        currentImageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        currentStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+        currentAccessFlag = VK_ACCESS_SHADER_READ_BIT;
     }
 }

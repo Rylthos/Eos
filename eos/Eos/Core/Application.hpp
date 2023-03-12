@@ -30,6 +30,7 @@ namespace Eos
         bool customRenderpass = false;
         bool customClearValues = false;
         uint32_t framesInFlight = 1;
+        bool float64 = false;
         VkSurfaceFormatKHR swapchainFormat =
             { VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     };

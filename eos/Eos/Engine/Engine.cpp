@@ -256,9 +256,14 @@ namespace Eos
 
         m_Window->createSurface(m_Instance, &m_Surface);
 
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        if (m_SetupDetails.float64)
+            deviceFeatures.shaderFloat64 = true;
+
         vkb::PhysicalDeviceSelector selector{ vkbInstance };
         vkb::PhysicalDevice vkbPhysicalDevice = selector.set_minimum_version(1, 3)
             .set_surface(m_Surface)
+            .set_required_features(deviceFeatures)
             .select()
             .value();
 
