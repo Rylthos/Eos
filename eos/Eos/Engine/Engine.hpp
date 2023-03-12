@@ -33,6 +33,7 @@ namespace Eos
         const char* name;
         bool vsync;
         uint32_t framesInFlight;
+        bool float64;
         VkSurfaceFormatKHR swapchainFormat;
 
         std::optional<std::function<void(RenderPass&)>> renderpassCreationFunc;

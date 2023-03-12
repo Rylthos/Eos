@@ -42,6 +42,7 @@ namespace Eos
             m_Details.name.c_str(),
             m_Details.enableVsync,
             m_Details.framesInFlight,
+            m_Details.float64,
             m_Details.swapchainFormat
         };
 
