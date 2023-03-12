@@ -104,6 +104,8 @@ namespace Eos
         TransferSubmit::setup(&m_TransferQueue);
         ComputeShader::setup(&m_ComputeQueue);
 
+        initImgui();
+
         m_Initialized = true;
 
         EOS_CORE_LOG_INFO("Initialized Engine");
@@ -184,13 +186,23 @@ namespace Eos
         if (currentFrame >= m_SetupDetails.framesInFlight)
             currentFrame = 0;
 
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+
+        ImGui::NewFrame();
+
         return information;
     }
 
     void Engine::postRender(RenderInformation& information)
     {
         VkCommandBuffer cmd = information.frame->commandBuffer;
+
+        ImGui::Render();
+        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), cmd);
+
         vkCmdEndRenderPass(cmd);
+
         EOS_VK_CHECK(vkEndCommandBuffer(cmd));
 
         VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -442,6 +454,64 @@ namespace Eos
         m_DescriptorAllocator.init(m_Device);
 
         EOS_CORE_LOG_INFO("Created Descriptor sets");
+    }
+
+    void Engine::initImgui()
+    {
+        VkDescriptorPoolSize poolSizes[] =
+        {
+            { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+        };
+
+        VkDescriptorPoolCreateInfo poolCI{};
+        poolCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        poolCI.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+        poolCI.maxSets = 1000;
+        poolCI.poolSizeCount = std::size(poolSizes);
+        poolCI.pPoolSizes = poolSizes;
+
+        VkDescriptorPool imguiPool;
+        EOS_VK_CHECK(vkCreateDescriptorPool(m_Device, &poolCI, nullptr, &imguiPool));
+
+        ImGui::CreateContext();
+        ImGui_ImplGlfw_InitForVulkan(m_Window->getWindow(), true);
+
+        ImGui_ImplVulkan_InitInfo initInfo{};
+        initInfo.Instance = m_Instance;
+        initInfo.PhysicalDevice = m_PhysicalDevice;
+        initInfo.Device = m_Device;
+        initInfo.Queue = m_GraphicsQueue.queue;
+        initInfo.DescriptorPool = imguiPool;
+        initInfo.MinImageCount = 3;
+        initInfo.ImageCount = 3;
+        initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+        ImGui_ImplVulkan_Init(&initInfo, m_Renderpass.renderPass);
+
+        Eos::GraphicsSubmit::submit([&](VkCommandBuffer cmd)
+        {
+            ImGui_ImplVulkan_CreateFontsTexture(cmd);
+        });
+
+        ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+        m_DeletionQueue.pushFunction([=]()
+        {
+            vkDestroyDescriptorPool(m_Device, imguiPool, nullptr);
+            ImGui_ImplVulkan_Shutdown();
+        });
+
+        GlobalData::s_ImguiContext = ImGui::GetCurrentContext();
     }
 
     void Engine::recreateSwapchain()

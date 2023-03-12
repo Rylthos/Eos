@@ -130,6 +130,8 @@ namespace Eos
         void initSyncStructures();
         void initDescriptorSets();
 
+        void initImgui();
+
         void recreateSwapchain();
     };
 }

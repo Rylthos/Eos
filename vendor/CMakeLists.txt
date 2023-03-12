@@ -23,3 +23,17 @@ add_subdirectory(spdlog)
 
 # STB
 add_subdirectory(stb)
+
+# Imgui
+project (Imgui)
+
+find_package(Vulkan REQUIRED)
+
+file (GLOB_RECURSE imguiFiles CONFIGURE_DEPENDS "Imgui/*.cpp" "Imgui/*.h")
+add_library(Imgui STATIC ${imguiFiles})
+target_include_directories(Imgui PUBLIC "Imgui/" "Imgui/backends")
+
+target_link_libraries(Imgui PUBLIC
+    glfw
+    Vulkan::Vulkan
+    )

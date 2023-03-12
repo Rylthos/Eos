@@ -54,6 +54,7 @@ foreach (Example ${AllExampleNames})
         ${InputShadersFile}/*.frag
         ${InputShadersFile}/*.comp)
 
+
     if (NOT EXISTS ${OutputShadersFile})
         add_custom_command(
             TARGET EOS_EXAMPLES POST_BUILD

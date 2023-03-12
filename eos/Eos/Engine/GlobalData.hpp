@@ -17,6 +17,8 @@ namespace Eos
         static VmaAllocator& getAllocator() { return *s_Allocator; }
 
         static DeletionQueue& getDeletionQueue() { return *s_DeletionQueue; }
+
+        static ImGuiContext& getImguiContext() { return *s_ImguiContext; }
     private:
         friend class Engine;
 
@@ -24,6 +26,8 @@ namespace Eos
         static VmaAllocator* s_Allocator;
 
         static DeletionQueue* s_DeletionQueue;
+
+        static ImGuiContext* s_ImguiContext;
     private:
         GlobalData() {}
         ~GlobalData() {}

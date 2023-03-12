@@ -16,6 +16,10 @@
 
 #include <glm/glm.hpp>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
+
 #include <vector>
 #include <unordered_map>
 #include <cstdint>

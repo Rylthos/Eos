@@ -32,6 +32,7 @@ target_link_libraries(Eos
         VulkanMemoryAllocator
         spdlog
         stb
+        Imgui
     )
 
 target_precompile_headers(Eos PRIVATE ${EOS_PROJECT_DIR}/eos/Eos/EosPCH.hpp)
