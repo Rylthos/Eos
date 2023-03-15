@@ -5,6 +5,10 @@
 
 #include <GLFW/glfw3.h>
 
+// Make sure
+// ImGui::SetCurrentContext(&Eos::GlobalData::getImguiContext());
+// Is set somwhere after init is called in the application
+
 struct Vertex
 {
     glm::vec3 position;
