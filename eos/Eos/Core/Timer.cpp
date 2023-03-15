@@ -24,6 +24,7 @@ namespace Eos
         if (!m_Running) EOS_CORE_LOG_ERROR("Timer is not running");
 
         m_EndTime = std::chrono::steady_clock::now();
+        m_DeltaTime = m_EndTime - m_StartTime;
         m_Running = false;
     }
 
